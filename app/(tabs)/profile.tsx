@@ -1,12 +1,12 @@
 import { View, Text } from "react-native";
 import React from "react";
 
-const App = () => {
+const Profile = () => {
   return (
-    <View style={{}}>
-      <Text>App</Text>
+    <View>
+      <Text>Profile</Text>
     </View>
   );
 };
 
-export default App;
+export default Profile;

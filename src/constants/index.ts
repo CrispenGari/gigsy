@@ -1,30 +1,39 @@
-export const APP_NAME = "Local Work Mate";
-
-export const KEYS = {
-  APP_SETTINGS: "set:",
-  USER: "user:",
-};
 export const COLORS = {
-  main: "#163020",
-  primary: "#304D30",
-  secondary: "#B6C4B6",
-  tertiary: "#EEF0E5",
-  white: "white",
-  red: "#FF3953",
-  black: "#000000",
-  gray: "#f5f5f5",
+  dark: {
+    main: "#0A2647",
+    primary: "#144272",
+    secondary: "#205295",
+    tertiary: "#2C74B3",
+  },
+  light: {
+    main: "#F6F5F2",
+    primary: "#F0EBE3",
+    secondary: "#F3D0D7",
+    tertiary: "#FFEFEF",
+  },
+  common: {
+    green: "#03C988",
+    black: "#000000",
+    white: "#ffffff",
+    red: "#FB2576",
+  },
 };
+
+export const logo = require("@/assets/images/icon.png");
+
 export const Fonts = {
-  MontserratAlternatesItalic: require("../../assets/fonts/MontserratAlternates-Italic.ttf"),
-  MontserratAlternatesRegular: require("../../assets/fonts/MontserratAlternates-Regular.ttf"),
-  MontserratAlternatesBold: require("../../assets/fonts/MontserratAlternates-Bold.ttf"),
-  MontserratAlternatesBoldItalic: require("../../assets/fonts/MontserratAlternates-BoldItalic.ttf"),
+  "Lora-Bold": require("@/assets/fonts/Lora-Bold.ttf"),
+  "Lora-Regular": require("@/assets/fonts/Lora-Regular.ttf"),
+  "Lora-Italic": require("@/assets/fonts/Lora-Italic.ttf"),
+  "Lora-BoldItalic": require("@/assets/fonts/Lora-BoldItalic.ttf"),
 };
 export const FONTS = {
-  regular: "MontserratAlternatesRegular",
-  italic: "MontserratAlternatesItalic",
-  italicBold: "MontserratAlternatesBoldItalic",
-  regularBold: "MontserratAlternatesBold",
+  regular: "Lora-Regular",
+  bold: "Lora-Bold",
+  boldItalic: "Lora-BoldItalic",
+  italic: "Lora-italic",
 };
 
-export const logo = require("../../assets/logo.png");
+export const IMAGES = {
+  logo: require("@/assets/images/icon.png"),
+};
