@@ -26,17 +26,17 @@ const Divider = ({
         <View
           style={{
             borderBottomColor: COLORS.common.white,
-            borderBottomWidth: 0.5,
+            borderBottomWidth: 0.34,
             flex: 1,
           }}
         />
       ) : null}
-      <Text style={[styles.h4, titleStyles]}>{title}</Text>
+      <Text style={[styles.p, titleStyles]}>{title}</Text>
       {position === "center" || position === "left" ? (
         <View
           style={{
             borderBottomColor: COLORS.common.white,
-            borderBottomWidth: 0.5,
+            borderBottomWidth: 0.34,
             flex: 1,
           }}
         />

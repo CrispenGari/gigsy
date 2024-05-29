@@ -9,7 +9,9 @@ import { ClerkProvider } from "@/src/providers";
 import { useAuth } from "@clerk/clerk-expo";
 import { TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { ColorProperties } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
+import { Typography } from "@/src/components";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,9 +28,13 @@ const Layout = () => {
 
   return (
     <ThemeProvider value={DefaultTheme}>
-      <ClerkProvider>
-        <RootLayout />
-      </ClerkProvider>
+      <GestureHandlerRootView>
+        <BottomSheetModalProvider>
+          <ClerkProvider>
+            <RootLayout />
+          </ClerkProvider>
+        </BottomSheetModalProvider>
+      </GestureHandlerRootView>
     </ThemeProvider>
   );
 };
@@ -41,7 +47,7 @@ const RootLayout = () => {
 
   React.useEffect(() => {
     if (isLoaded && !isSignedIn) {
-      router.navigate("/(modals)/login");
+      router.navigate("/verify");
     }
   }, [isLoaded]);
 
@@ -50,7 +56,7 @@ const RootLayout = () => {
       <Stack.Screen
         options={{
           presentation: "modal",
-          headerTitle: "Authenticate",
+          headerTitle: "Sign In",
           headerTitleStyle: {
             fontFamily: FONTS.bold,
             fontSize: 24,
@@ -80,7 +86,54 @@ const RootLayout = () => {
         name="(modals)/login"
       />
 
+      <Stack.Screen
+        options={{
+          presentation: "modal",
+          headerTitle: "Sign Up",
+          headerTitleStyle: {
+            fontFamily: FONTS.bold,
+            fontSize: 24,
+            color: COLORS.common.white,
+          },
+          headerLeft: ({}) => (
+            <TouchableOpacity
+              style={{
+                marginRight: 20,
+                flexDirection: "row",
+                gap: 10,
+                alignItems: "center",
+              }}
+              activeOpacity={0.7}
+              onPress={() => router.back()}
+            >
+              <Ionicons
+                name="chevron-back"
+                size={30}
+                color={COLORS.common.white}
+              />
+              <Typography
+                variant="h5"
+                style={{
+                  color: COLORS.common.white,
+                }}
+              >
+                Sign In
+              </Typography>
+            </TouchableOpacity>
+          ),
+          headerStyle: { backgroundColor: COLORS.dark.main },
+
+          statusBarAnimation: "slide",
+          headerTitleAlign: "center",
+          navigationBarHidden: true,
+          headerShadowVisible: false,
+        }}
+        name="(modals)/register"
+      />
+
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="profile" options={{ headerShown: false }} />
+      <Stack.Screen name="verify" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" />
     </Stack>
   );

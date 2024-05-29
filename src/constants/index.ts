@@ -19,21 +19,20 @@ export const COLORS = {
   },
 };
 
-export const logo = require("@/assets/images/icon.png");
-
 export const Fonts = {
-  "Lora-Bold": require("@/assets/fonts/Lora-Bold.ttf"),
-  "Lora-Regular": require("@/assets/fonts/Lora-Regular.ttf"),
-  "Lora-Italic": require("@/assets/fonts/Lora-Italic.ttf"),
-  "Lora-BoldItalic": require("@/assets/fonts/Lora-BoldItalic.ttf"),
+  "Almendra-Bold": require("@/assets/fonts/Almendra-Bold.ttf"),
+  "Almendra-Regular": require("@/assets/fonts/Almendra-Regular.ttf"),
+  "Almendra-Italic": require("@/assets/fonts/Almendra-Italic.ttf"),
+  "Almendra-BoldItalic": require("@/assets/fonts/Almendra-BoldItalic.ttf"),
 };
 export const FONTS = {
-  regular: "Lora-Regular",
-  bold: "Lora-Bold",
-  boldItalic: "Lora-BoldItalic",
-  italic: "Lora-italic",
+  regular: "Almendra-Regular",
+  bold: "Almendra-Bold",
+  boldItalic: "Almendra-BoldItalic",
+  italic: "Almendra-italic",
 };
 
 export const IMAGES = {
   logo: require("@/assets/images/icon.png"),
+  profile: require("@/assets/images/profile.png"),
 };
