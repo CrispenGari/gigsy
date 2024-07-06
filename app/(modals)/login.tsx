@@ -14,17 +14,73 @@ import Animated, {
   SlideInUp,
   SlideInDown,
 } from "react-native-reanimated";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import Ripple from "@/src/components/Ripple/Ripple";
+import { useSignIn } from "@clerk/clerk-expo";
 
 const Login = () => {
+  const { signIn, setActive, isLoaded } = useSignIn();
+  const router = useRouter();
   const [state, setState] = React.useState({
     email: "",
     password: "",
     showPassword: false,
+    loading: false,
+    error_msg: "",
   });
 
-  const login = () => {};
+  const login = React.useCallback(async () => {
+    if (!isLoaded) return;
+    setState((state) => ({
+      ...state,
+      loading: true,
+    }));
+
+    try {
+      const signInAttempt = await signIn.create({
+        identifier: state.email,
+        password: state.password,
+      });
+
+      if (signInAttempt.status === "complete") {
+        await setActive({ session: signInAttempt.createdSessionId });
+        setState((state) => ({
+          ...state,
+          loading: false,
+          email: "",
+          password: "",
+          error_msg: "",
+          showPassword: false,
+        }));
+        router.replace("/");
+      } else {
+        setState((s) => ({
+          ...s,
+          password: "",
+          error_msg: "Failed to login to your account.",
+          loading: false,
+        }));
+      }
+    } catch (err: any) {
+      if (err.errors) {
+        const [error] = err.errors;
+        setState((s) => ({
+          ...s,
+          password: "",
+          error_msg: error.message,
+          loading: false,
+        }));
+      } else {
+        setState((s) => ({
+          ...s,
+          password: "",
+          error_msg: "Failed to login to your account.",
+          loading: false,
+        }));
+      }
+    }
+  }, [isLoaded, state]);
 
   return (
     <KeyboardAwareScrollView
@@ -104,18 +160,19 @@ const Login = () => {
               secureTextEntry={!state.showPassword}
               onSubmitEditing={login}
             />
-
-            <Typography
-              style={{
-                color: COLORS.red,
-                fontSize: 20,
-                marginVertical: 20,
-                textAlign: "center",
-              }}
-              variant="p"
-            >
-              Invalid login credentials.
-            </Typography>
+            {!!state.error_msg ? (
+              <Typography
+                style={{
+                  color: COLORS.red,
+                  fontSize: 20,
+                  marginVertical: 20,
+                  textAlign: "center",
+                }}
+                variant="p"
+              >
+                {state.error_msg}
+              </Typography>
+            ) : null}
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={login}
@@ -126,7 +183,10 @@ const Login = () => {
                   marginBottom: 10,
                   justifyContent: "center",
                   flexDirection: "row",
-                  backgroundColor: COLORS.green,
+                  alignItems: "center",
+                  backgroundColor: state.loading
+                    ? COLORS.tertiary
+                    : COLORS.green,
                   maxWidth: 200,
                   padding: 10,
                   alignSelf: "flex-end",
@@ -134,9 +194,19 @@ const Login = () => {
                 },
               ]}
             >
-              <Text style={[styles.p, { fontSize: 20, color: COLORS.white }]}>
+              <Text
+                style={[
+                  styles.p,
+                  {
+                    fontSize: 20,
+                    color: COLORS.white,
+                    marginRight: state.loading ? 10 : 0,
+                  },
+                ]}
+              >
                 LOGIN
               </Text>
+              {state.loading ? <Ripple size={5} color={COLORS.white} /> : null}
             </TouchableOpacity>
           </Animated.View>
           <Animated.View
@@ -152,6 +222,7 @@ const Login = () => {
               }}
             />
             <TouchableOpacity
+              disabled={state.loading}
               activeOpacity={0.7}
               style={{
                 borderRadius: 999,
@@ -189,6 +260,7 @@ const Login = () => {
                 borderWidth: 1,
                 borderColor: COLORS.green,
               }}
+              disabled={state.loading}
             >
               <Ionicons name="logo-github" size={30} />
               <Text style={[styles.p, { color: COLORS.black, fontSize: 20 }]}>

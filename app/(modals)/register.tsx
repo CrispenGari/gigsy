@@ -12,17 +12,80 @@ import Animated, {
   SlideInUp,
   SlideInDown,
 } from "react-native-reanimated";
-
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useSignUp } from "@clerk/clerk-expo";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import Ripple from "@/src/components/Ripple/Ripple";
 
 const Register = () => {
+  const { isLoaded, signUp } = useSignUp();
+  const params = useLocalSearchParams();
+  const router = useRouter();
   const [state, setState] = React.useState({
-    email: "",
+    email: params?.email_address ? (params.email_address as string) : "",
     password: "",
     conf: "",
+    error_msg: "",
+    loading: false,
   });
+  const register = async () => {
+    if (!isLoaded) return;
+    setState((state) => ({
+      ...state,
+      loading: true,
+    }));
+    try {
+      if (state.password !== state.conf) {
+        setState((s) => ({
+          ...s,
+          loading: false,
+          password: "",
+          conf: "",
+          error_msg: "The two passwords must match.",
+        }));
+        return;
+      }
 
-  const register = () => {};
+      await signUp.create({
+        emailAddress: state.email,
+        password: state.password,
+      });
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      setState((state) => ({
+        ...state,
+        loading: false,
+        error_msg: "",
+        email: "",
+        password: "",
+        conf: "",
+      }));
+      router.navigate({
+        pathname: "/verify",
+        params: {
+          email_address: state.email,
+        },
+      });
+    } catch (err: any) {
+      if (err.errors) {
+        const [error] = err.errors;
+        setState((s) => ({
+          ...s,
+          password: "",
+          conf: "",
+          error_msg: error.message,
+          loading: false,
+        }));
+      } else {
+        setState((s) => ({
+          ...s,
+          password: "",
+          conf: "",
+          error_msg: "Failed to create an account.",
+          loading: false,
+        }));
+      }
+    }
+  };
 
   return (
     <KeyboardAwareScrollView
@@ -84,8 +147,10 @@ const Register = () => {
               onChangeText={(text) =>
                 setState((state) => ({ ...state, password: text }))
               }
+              secureTextEntry={true}
             />
             <CustomTextInput
+              secureTextEntry={true}
               placeholder="Confirm Password"
               leftIcon={
                 <Ionicons name="lock-closed" size={24} color={COLORS.green} />
@@ -103,17 +168,19 @@ const Register = () => {
               onSubmitEditing={register}
             />
 
-            <Typography
-              style={{
-                color: COLORS.red,
-                fontSize: 20,
-                marginVertical: 20,
-                textAlign: "center",
-              }}
-              variant="p"
-            >
-              Invalid login credentials.
-            </Typography>
+            {state.error_msg ? (
+              <Typography
+                style={{
+                  color: COLORS.red,
+                  fontSize: 20,
+                  marginVertical: 20,
+                  textAlign: "center",
+                }}
+                variant="p"
+              >
+                {state.error_msg}
+              </Typography>
+            ) : null}
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={register}
@@ -124,17 +191,31 @@ const Register = () => {
                   marginBottom: 10,
                   justifyContent: "center",
                   flexDirection: "row",
-                  backgroundColor: COLORS.green,
+                  backgroundColor: state.loading
+                    ? COLORS.tertiary
+                    : COLORS.green,
                   maxWidth: 200,
                   padding: 10,
                   alignSelf: "flex-end",
                   borderRadius: 5,
+                  alignItems: "center",
                 },
               ]}
+              disabled={state.loading}
             >
-              <Text style={[styles.p, { fontSize: 20, color: COLORS.white }]}>
+              <Text
+                style={[
+                  styles.p,
+                  {
+                    fontSize: 20,
+                    color: COLORS.white,
+                    marginRight: state.loading ? 10 : 0,
+                  },
+                ]}
+              >
                 REGISTER
               </Text>
+              {state.loading ? <Ripple size={5} color={COLORS.white} /> : null}
             </TouchableOpacity>
           </Animated.View>
           <Animated.View
@@ -151,6 +232,7 @@ const Register = () => {
             />
             <TouchableOpacity
               activeOpacity={0.7}
+              disabled={state.loading}
               style={{
                 borderRadius: 999,
                 maxWidth: 400,
@@ -188,6 +270,7 @@ const Register = () => {
                 borderColor: COLORS.green,
                 marginBottom: 20,
               }}
+              disabled={state.loading}
             >
               <Ionicons name="logo-github" size={30} />
               <Text style={[styles.p, { color: COLORS.black, fontSize: 20 }]}>

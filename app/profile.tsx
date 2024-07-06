@@ -1,21 +1,62 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { COLORS } from "@/src/constants";
-import { LinearGradient } from "expo-linear-gradient";
 import { ProfileAvatar, Typography } from "@/src/components";
 import { styles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import CustomTextInput from "@/src/components/CustomTextInput/CustomTextInput";
 import Animated, { SlideInRight, SlideInLeft } from "react-native-reanimated";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useUser } from "@clerk/clerk-expo";
+import { useRouter } from "expo-router";
+import Ripple from "@/src/components/Ripple/Ripple";
 
 const Profile = () => {
+  const { isLoaded, isSignedIn, user } = useUser();
+  const router = useRouter();
   const [state, setState] = React.useState({
     firstName: "",
     lastName: "",
+    error_msg: "",
+    loading: false,
   });
   const [image, setImage] = React.useState<string | undefined | null>(null);
-  const save = async () => {};
+  const save = async () => {
+    if (!!!user || !isLoaded || !isSignedIn) return;
+    setState((s) => ({
+      ...s,
+      loading: true,
+    }));
+    if (state.firstName.trim().length < 3 || state.lastName.trim().length < 3) {
+      setState((s) => ({
+        ...s,
+        error_msg: "First name and Last name are required.",
+        loading: false,
+      }));
+      return;
+    }
+    try {
+      await user.update({
+        firstName: state.firstName,
+        lastName: state.lastName,
+      });
+      if (!!image) {
+        await user.setProfileImage({ file: image });
+      }
+      setState((s) => ({
+        ...s,
+        error_msg: "",
+        loading: false,
+      }));
+      router.replace("/");
+    } catch (error: any) {
+      setState((s) => ({
+        ...s,
+        error_msg: "Failed to save personal information.",
+        loading: false,
+      }));
+    }
+  };
 
   return (
     <KeyboardAwareScrollView
@@ -92,17 +133,19 @@ const Profile = () => {
               onSubmitEditing={save}
             />
 
-            <Typography
-              style={{
-                color: COLORS.red,
-                fontSize: 20,
-                marginVertical: 20,
-                textAlign: "center",
-              }}
-              variant="p"
-            >
-              Error
-            </Typography>
+            {!!state.error_msg ? (
+              <Typography
+                style={{
+                  color: COLORS.red,
+                  fontSize: 20,
+                  marginVertical: 20,
+                  textAlign: "center",
+                }}
+                variant="p"
+              >
+                {state.error_msg}
+              </Typography>
+            ) : null}
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={save}
@@ -113,17 +156,30 @@ const Profile = () => {
                   marginBottom: 10,
                   justifyContent: "center",
                   flexDirection: "row",
-                  backgroundColor: COLORS.green,
+                  backgroundColor: state.loading
+                    ? COLORS.tertiary
+                    : COLORS.green,
                   maxWidth: 200,
                   padding: 10,
                   alignSelf: "flex-end",
                   borderRadius: 5,
+                  alignItems: "center",
                 },
               ]}
             >
-              <Text style={[styles.p, { fontSize: 20, color: COLORS.white }]}>
+              <Text
+                style={[
+                  styles.p,
+                  {
+                    fontSize: 20,
+                    color: COLORS.white,
+                    marginRight: state.loading ? 10 : 0,
+                  },
+                ]}
+              >
                 SAVE
               </Text>
+              {state.loading ? <Ripple size={5} color={COLORS.white} /> : null}
             </TouchableOpacity>
           </Animated.View>
         </View>

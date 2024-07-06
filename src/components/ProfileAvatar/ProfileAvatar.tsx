@@ -50,7 +50,10 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
           uri: assets[0].uri,
           base64: assets[0].base64,
         }));
-        setBase64(assets[0].base64);
+        const base64 = assets[0].base64;
+        const mimeType = assets[0].mimeType;
+        const img = `data:${mimeType};base64,${base64}`;
+        setBase64(img);
       }
     }
     dismiss();
@@ -73,7 +76,10 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
           uri: assets[0].uri,
           base64: assets[0].base64,
         }));
-        setBase64(assets[0].base64);
+        const base64 = assets[0].base64;
+        const mimeType = assets[0].mimeType;
+        const img = `data:${mimeType};base64,${base64}`;
+        setBase64(img);
       }
     }
 

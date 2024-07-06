@@ -47,7 +47,7 @@ const RootLayout = () => {
 
   React.useEffect(() => {
     if (isLoaded && !isSignedIn) {
-      router.navigate("/verify");
+      router.navigate("/login");
     }
   }, [isLoaded, isSignedIn]);
 
@@ -156,6 +156,29 @@ const RootLayout = () => {
           navigationBarHidden: true,
           headerShadowVisible: false,
           headerBackVisible: false,
+          headerLeft: ({}) => (
+            <TouchableOpacity
+              style={{
+                marginRight: 20,
+                flexDirection: "row",
+                gap: 10,
+                alignItems: "center",
+              }}
+              activeOpacity={0.7}
+              onPress={() => router.back()}
+            >
+              <Ionicons name="chevron-back" size={30} color={COLORS.green} />
+              <Typography
+                variant="h5"
+                style={{
+                  color: COLORS.green,
+                  fontSize: 20,
+                }}
+              >
+                Sign Up
+              </Typography>
+            </TouchableOpacity>
+          ),
         }}
       />
       <Stack.Screen name="+not-found" />
