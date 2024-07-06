@@ -26,105 +26,89 @@ const Verify = () => {
       showsVerticalScrollIndicator={false}
       showsHorizontalScrollIndicator={false}
       bounces={false}
-      style={{ backgroundColor: COLORS.dark.tertiary }}
+      style={{ backgroundColor: COLORS.white }}
       contentContainerStyle={{ flex: 1 }}
     >
-      <View style={{ flex: 1 }}>
-        <LinearGradient
-          colors={[COLORS.dark.main, COLORS.dark.tertiary]}
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: COLORS.dark.main,
-            padding: 10,
-          }}
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: COLORS.white,
+          padding: 10,
+        }}
+      >
+        <View
+          style={{ justifyContent: "center", alignItems: "center", flex: 1 }}
         >
-          <View
-            style={{ justifyContent: "center", alignItems: "center", flex: 1 }}
+          <Text style={[styles.h1, { color: COLORS.white, marginBottom: 20 }]}>
+            Verify your email.
+          </Text>
+          <AppLogo />
+        </View>
+
+        <View
+          style={[
+            {
+              flex: 1,
+              width: "100%",
+              maxWidth: 400,
+            },
+          ]}
+        >
+          <Animated.View
+            entering={SlideInRight}
+            exiting={SlideInLeft}
+            style={{ flex: 1, justifyContent: "center" }}
           >
-            <Text
+            <CustomTextInput
+              placeholder="000-000"
+              keyboardType="phone-pad"
+              text={state.code}
+              onChangeText={(text) =>
+                setState((state) => ({ ...state, code: text }))
+              }
+              leftIcon={
+                <Ionicons name="keypad" size={24} color={COLORS.green} />
+              }
+              inputStyle={{ fontSize: 20, textAlign: "center" }}
+            />
+
+            <Typography
+              style={{
+                color: COLORS.red,
+                fontSize: 20,
+                marginVertical: 20,
+                textAlign: "center",
+              }}
+              variant="p"
+            >
+              Invalid login credentials.
+            </Typography>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={verify}
               style={[
-                styles.h1,
-                { color: COLORS.common.white, marginBottom: 20 },
+                {
+                  width: "100%",
+                  marginTop: 30,
+                  marginBottom: 10,
+                  justifyContent: "center",
+                  flexDirection: "row",
+                  backgroundColor: COLORS.green,
+                  maxWidth: 200,
+                  padding: 10,
+                  alignSelf: "flex-end",
+                  borderRadius: 5,
+                },
               ]}
             >
-              Verify your email.
-            </Text>
-            <AppLogo />
-          </View>
-
-          <View
-            style={[
-              {
-                flex: 1,
-                width: "100%",
-                maxWidth: 400,
-              },
-            ]}
-          >
-            <Animated.View
-              entering={SlideInRight}
-              exiting={SlideInLeft}
-              style={{ flex: 1, justifyContent: "center" }}
-            >
-              <CustomTextInput
-                placeholder="000-000"
-                keyboardType="phone-pad"
-                text={state.code}
-                onChangeText={(text) =>
-                  setState((state) => ({ ...state, code: text }))
-                }
-                leftIcon={
-                  <Ionicons
-                    name="keypad"
-                    size={24}
-                    color={COLORS.common.green}
-                  />
-                }
-                inputStyle={{ fontSize: 20, textAlign: "center" }}
-              />
-
-              <Typography
-                style={{
-                  color: COLORS.common.red,
-                  fontSize: 20,
-                  marginVertical: 20,
-                }}
-                variant="p"
-              >
-                Invalid login credentials.
-              </Typography>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={verify}
-                style={[
-                  {
-                    width: "100%",
-                    marginTop: 30,
-                    marginBottom: 10,
-                    justifyContent: "center",
-                    flexDirection: "row",
-                    backgroundColor: COLORS.dark.tertiary,
-                    maxWidth: 200,
-                    padding: 10,
-                    alignSelf: "flex-end",
-                    borderRadius: 5,
-                  },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.p,
-                    { fontSize: 20, color: COLORS.common.white },
-                  ]}
-                >
-                  VERIFY
-                </Text>
-              </TouchableOpacity>
-            </Animated.View>
-          </View>
-        </LinearGradient>
+              <Text style={[styles.p, { fontSize: 20, color: COLORS.white }]}>
+                VERIFY
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
       </View>
     </KeyboardAwareScrollView>
   );

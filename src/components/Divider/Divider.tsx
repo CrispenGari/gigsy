@@ -25,7 +25,7 @@ const Divider = ({
       {position === "center" || position === "right" ? (
         <View
           style={{
-            borderBottomColor: COLORS.common.white,
+            borderBottomColor: COLORS.green,
             borderBottomWidth: 0.34,
             flex: 1,
           }}
@@ -35,7 +35,7 @@ const Divider = ({
       {position === "center" || position === "left" ? (
         <View
           style={{
-            borderBottomColor: COLORS.common.white,
+            borderBottomColor: COLORS.green,
             borderBottomWidth: 0.34,
             flex: 1,
           }}

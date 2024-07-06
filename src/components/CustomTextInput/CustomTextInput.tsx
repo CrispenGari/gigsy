@@ -71,12 +71,12 @@ const CustomTextInput: React.FunctionComponent<Partial<Props>> = ({
           {
             flexDirection: "row",
             width: "100%",
-            backgroundColor: "white",
+            backgroundColor: "#f5f5f5",
             borderRadius: 5,
             padding: 10,
             alignItems: "center",
             borderWidth: 2,
-            borderColor: !!error ? "red" : "white",
+            borderColor: !!error ? "red" : "#f5f5f5",
           },
           containerStyles,
         ]}
@@ -87,7 +87,7 @@ const CustomTextInput: React.FunctionComponent<Partial<Props>> = ({
           style={[
             {
               flex: 1,
-              backgroundColor: "#f5f5f5",
+              backgroundColor: "white",
               marginHorizontal: 10,
               borderRadius: 5,
               fontFamily: FONTS.regular,

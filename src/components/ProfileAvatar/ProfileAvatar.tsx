@@ -124,7 +124,7 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
             onPress={openPhotoOptions}
             activeOpacity={0.7}
             style={{
-              backgroundColor: COLORS.common.white,
+              backgroundColor: COLORS.green,
               justifyContent: "center",
               alignItems: "center",
               width: 60,
@@ -133,7 +133,7 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
               marginBottom: 10,
             }}
           >
-            <Ionicons name="camera-outline" size={35} />
+            <Ionicons name="camera-outline" size={35} color={COLORS.white} />
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
@@ -142,7 +142,7 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
         ref={bottomSheetModalRef}
         snapPoints={snapPoints}
         enablePanDownToClose={true}
-        backgroundStyle={{ backgroundColor: COLORS.dark.main }}
+        backgroundStyle={{ backgroundColor: COLORS.tertiary }}
         style={{ borderRadius: 0 }}
         handleComponent={() => (
           <View
@@ -151,19 +151,21 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
               alignSelf: "center",
               width: 40,
               padding: 2,
-              backgroundColor: COLORS.common.white,
+              backgroundColor: COLORS.black,
               marginVertical: 10,
             }}
           />
         )}
       >
-        <BottomSheetView style={{ flex: 1, padding: 10 }}>
+        <BottomSheetView
+          style={{ flex: 1, padding: 10, backgroundColor: COLORS.tertiary }}
+        >
           <Typography
             variant="h6"
             style={{
               alignSelf: "center",
               marginBottom: 5,
-              color: COLORS.common.white,
+              color: COLORS.black,
             }}
           >
             Set a profile avatar.
@@ -188,19 +190,14 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
                 borderRadius: 10,
                 width: 50,
                 height: 50,
-                backgroundColor: COLORS.dark.main,
+                backgroundColor: COLORS.primary,
               }}
             >
-              <Ionicons
-                name="camera-outline"
-                size={24}
-                color={COLORS.common.white}
-              />
+              <Ionicons name="camera-outline" size={24} color={COLORS.black} />
             </View>
-
             <Typography
               style={{
-                color: COLORS.common.white,
+                color: COLORS.black,
               }}
             >
               Take a photo
@@ -225,19 +222,15 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
                 borderRadius: 10,
                 width: 50,
                 height: 50,
-                backgroundColor: COLORS.dark.main,
+                backgroundColor: COLORS.primary,
               }}
             >
-              <Ionicons
-                name="image-outline"
-                size={24}
-                color={COLORS.common.green}
-              />
+              <Ionicons name="image-outline" size={24} color={COLORS.green} />
             </View>
 
             <Typography
               style={{
-                color: COLORS.common.white,
+                color: COLORS.black,
               }}
             >
               Select a photo
@@ -262,18 +255,14 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
                 borderRadius: 10,
                 width: 50,
                 height: 50,
-                backgroundColor: COLORS.dark.main,
+                backgroundColor: COLORS.primary,
               }}
             >
-              <Ionicons
-                name="close-outline"
-                size={24}
-                color={COLORS.common.red}
-              />
+              <Ionicons name="close-outline" size={24} color={COLORS.red} />
             </View>
             <Typography
               style={{
-                color: COLORS.common.white,
+                color: COLORS.black,
               }}
             >
               Remove a photo

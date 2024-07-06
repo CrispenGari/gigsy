@@ -49,7 +49,7 @@ const RootLayout = () => {
     if (isLoaded && !isSignedIn) {
       router.navigate("/verify");
     }
-  }, [isLoaded]);
+  }, [isLoaded, isSignedIn]);
 
   return (
     <Stack>
@@ -60,7 +60,7 @@ const RootLayout = () => {
           headerTitleStyle: {
             fontFamily: FONTS.bold,
             fontSize: 24,
-            color: COLORS.common.white,
+            color: COLORS.black,
           },
           headerLeft: ({}) => (
             <TouchableOpacity
@@ -70,14 +70,10 @@ const RootLayout = () => {
               activeOpacity={0.7}
               onPress={() => router.back()}
             >
-              <Ionicons
-                name="close-outline"
-                size={30}
-                color={COLORS.common.white}
-              />
+              <Ionicons name="close-outline" size={30} color={COLORS.black} />
             </TouchableOpacity>
           ),
-          headerStyle: { backgroundColor: COLORS.dark.main },
+          headerStyle: { backgroundColor: COLORS.white },
           statusBarAnimation: "slide",
           headerTitleAlign: "center",
           navigationBarHidden: true,
@@ -93,7 +89,7 @@ const RootLayout = () => {
           headerTitleStyle: {
             fontFamily: FONTS.bold,
             fontSize: 24,
-            color: COLORS.common.white,
+            color: COLORS.black,
           },
           headerLeft: ({}) => (
             <TouchableOpacity
@@ -106,23 +102,19 @@ const RootLayout = () => {
               activeOpacity={0.7}
               onPress={() => router.back()}
             >
-              <Ionicons
-                name="chevron-back"
-                size={30}
-                color={COLORS.common.white}
-              />
+              <Ionicons name="chevron-back" size={30} color={COLORS.green} />
               <Typography
                 variant="h5"
                 style={{
-                  color: COLORS.common.white,
+                  color: COLORS.green,
+                  fontSize: 20,
                 }}
               >
                 Sign In
               </Typography>
             </TouchableOpacity>
           ),
-          headerStyle: { backgroundColor: COLORS.dark.main },
-
+          headerStyle: { backgroundColor: COLORS.white },
           statusBarAnimation: "slide",
           headerTitleAlign: "center",
           navigationBarHidden: true,
@@ -132,8 +124,40 @@ const RootLayout = () => {
       />
 
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="profile" options={{ headerShown: false }} />
-      <Stack.Screen name="verify" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="profile"
+        options={{
+          headerShown: true,
+          title: "Profile",
+          headerTitleStyle: {
+            fontFamily: FONTS.bold,
+            fontSize: 24,
+            color: COLORS.black,
+          },
+          statusBarAnimation: "slide",
+          headerTitleAlign: "center",
+          navigationBarHidden: true,
+          headerShadowVisible: false,
+          headerBackVisible: false,
+        }}
+      />
+      <Stack.Screen
+        name="verify"
+        options={{
+          headerShown: true,
+          title: "Verify Email",
+          headerTitleStyle: {
+            fontFamily: FONTS.bold,
+            fontSize: 24,
+            color: COLORS.black,
+          },
+          statusBarAnimation: "slide",
+          headerTitleAlign: "center",
+          navigationBarHidden: true,
+          headerShadowVisible: false,
+          headerBackVisible: false,
+        }}
+      />
       <Stack.Screen name="+not-found" />
     </Stack>
   );
