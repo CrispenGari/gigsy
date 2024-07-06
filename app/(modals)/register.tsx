@@ -55,7 +55,6 @@ const Register = () => {
         ...state,
         loading: false,
         error_msg: "",
-        email: "",
         password: "",
         conf: "",
       }));

@@ -85,6 +85,35 @@ const RootLayout = () => {
       <Stack.Screen
         options={{
           presentation: "modal",
+          headerTitle: "Forgot Password",
+          headerTitleStyle: {
+            fontFamily: FONTS.bold,
+            fontSize: 24,
+            color: COLORS.black,
+          },
+          headerLeft: ({}) => (
+            <TouchableOpacity
+              style={{
+                marginRight: 20,
+              }}
+              activeOpacity={0.7}
+              onPress={() => router.back()}
+            >
+              <Ionicons name="close-outline" size={30} color={COLORS.black} />
+            </TouchableOpacity>
+          ),
+          headerStyle: { backgroundColor: COLORS.white },
+          statusBarAnimation: "slide",
+          headerTitleAlign: "center",
+          navigationBarHidden: true,
+          headerShadowVisible: false,
+        }}
+        name="(modals)/forgot_password"
+      />
+
+      <Stack.Screen
+        options={{
+          presentation: "modal",
           headerTitle: "Sign Up",
           headerTitleStyle: {
             fontFamily: FONTS.bold,
@@ -176,6 +205,46 @@ const RootLayout = () => {
                 }}
               >
                 Sign Up
+              </Typography>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="reset_password"
+        options={{
+          headerShown: true,
+          title: "Update Password",
+          headerTitleStyle: {
+            fontFamily: FONTS.bold,
+            fontSize: 24,
+            color: COLORS.black,
+          },
+          statusBarAnimation: "slide",
+          headerTitleAlign: "center",
+          navigationBarHidden: true,
+          headerShadowVisible: false,
+          headerBackVisible: false,
+          headerLeft: ({}) => (
+            <TouchableOpacity
+              style={{
+                marginRight: 20,
+                flexDirection: "row",
+                gap: 10,
+                alignItems: "center",
+              }}
+              activeOpacity={0.7}
+              onPress={() => router.back()}
+            >
+              <Ionicons name="chevron-back" size={30} color={COLORS.green} />
+              <Typography
+                variant="h5"
+                style={{
+                  color: COLORS.green,
+                  fontSize: 20,
+                }}
+              >
+                Forgot Pwd
               </Typography>
             </TouchableOpacity>
           ),

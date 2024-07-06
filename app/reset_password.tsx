@@ -6,55 +6,80 @@ import { styles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import CustomTextInput from "@/src/components/CustomTextInput/CustomTextInput";
 import Animated, { SlideInRight, SlideInLeft } from "react-native-reanimated";
-
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useSignUp } from "@clerk/clerk-expo";
+import { useSignIn } from "@clerk/clerk-expo";
 import Ripple from "@/src/components/Ripple/Ripple";
 
-const Verify = () => {
-  const { isLoaded, signUp, setActive } = useSignUp();
+const ResetPassword = () => {
+  const { isLoaded, setActive, signIn } = useSignIn();
   const router = useRouter();
   const params = useLocalSearchParams();
   const [state, setState] = React.useState({
     code: "",
     error_msg: "",
     loading: false,
+    conf: "",
+    password: "",
   });
 
-  const verify = async () => {
+  const resetPassword = async () => {
     if (!isLoaded) return;
     setState((s) => ({ ...s, loading: true }));
+
     try {
-      const completeSignUp = await signUp.attemptEmailAddressVerification({
-        code: state.code,
-      });
-      if (completeSignUp.status === "complete") {
-        await setActive({ session: completeSignUp.createdSessionId });
-        setState((s) => ({ ...s, loading: false, error_msg: "", code: "" }));
-        router.replace("/profile");
-      } else {
+      if (state.password !== state.conf) {
         setState((s) => ({
           ...s,
           loading: false,
-          error_msg: "Failed to verify your email.",
-          code: "",
+          password: "",
+          conf: "",
+          error_msg: "The two passwords must match.",
+        }));
+        return;
+      }
+
+      const res = await signIn.attemptFirstFactor({
+        strategy: "reset_password_email_code",
+        code: state.code,
+        password: state.password,
+      });
+      if (res.status === "complete") {
+        setActive({ session: res.createdSessionId });
+        setState((state) => ({
+          ...state,
+          loading: false,
+          error_msg: "",
+          password: "",
+          conf: "",
+        }));
+        router.replace("/");
+      } else {
+        setState((state) => ({
+          ...state,
+          loading: false,
+          error_msg: "Failed to change the password try again.",
+          password: "",
+          conf: "",
         }));
       }
     } catch (err: any) {
       if (err.errors) {
+        const [error] = err.errors;
         setState((s) => ({
           ...s,
-          error_msg: "Incorrect verification code.",
+          password: "",
+          conf: "",
+          error_msg: error.message,
           loading: false,
-          code: "",
         }));
       } else {
         setState((s) => ({
           ...s,
+          password: "",
+          conf: "",
           error_msg: "Failed to create an account.",
           loading: false,
-          code: "",
         }));
       }
     }
@@ -78,15 +103,14 @@ const Verify = () => {
         }}
       >
         <View
-          style={{ justifyContent: "center", alignItems: "center", flex: 1 }}
+          style={{ justifyContent: "center", alignItems: "center", flex: 0.4 }}
         >
           <AppLogo />
         </View>
-
         <View
           style={[
             {
-              flex: 1,
+              flex: 0.6,
               width: "100%",
               maxWidth: 400,
             },
@@ -105,7 +129,7 @@ const Verify = () => {
               }}
               variant="p"
             >
-              Please Enter the verification code that has been sent to{" "}
+              Please Enter the reset password code that has been sent to{" "}
               <Text
                 style={{
                   color: COLORS.green,
@@ -116,8 +140,8 @@ const Verify = () => {
                 }}
               >
                 {params.email_address}
-              </Text>
-              .
+              </Text>{" "}
+              together with your new password.
             </Typography>
             <CustomTextInput
               placeholder="000-000"
@@ -130,13 +154,46 @@ const Verify = () => {
                 <Ionicons name="keypad" size={24} color={COLORS.green} />
               }
               inputStyle={{ fontSize: 20, textAlign: "center" }}
-              onSubmitEditing={verify}
+            />
+
+            <CustomTextInput
+              placeholder="New Password"
+              leftIcon={
+                <Ionicons name="lock-closed" size={24} color={COLORS.green} />
+              }
+              inputStyle={{ fontSize: 20 }}
+              containerStyles={{
+                borderRadius: 0,
+              }}
+              text={state.password}
+              onChangeText={(text) =>
+                setState((state) => ({ ...state, password: text }))
+              }
+              secureTextEntry={true}
+            />
+            <CustomTextInput
+              secureTextEntry={true}
+              placeholder="Confirm New Password"
+              leftIcon={
+                <Ionicons name="lock-closed" size={24} color={COLORS.green} />
+              }
+              inputStyle={{ fontSize: 20 }}
+              containerStyles={{
+                borderRadius: 0,
+                borderBottomLeftRadius: 5,
+                borderBottomRightRadius: 5,
+              }}
+              text={state.conf}
+              onChangeText={(text) =>
+                setState((state) => ({ ...state, conf: text }))
+              }
+              onSubmitEditing={resetPassword}
             />
 
             <Text
               onPress={() =>
                 router.replace({
-                  pathname: "/register",
+                  pathname: "/forgot_password",
                   params: {
                     email_address: params.email_address,
                   },
@@ -169,7 +226,7 @@ const Verify = () => {
             ) : null}
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={verify}
+              onPress={resetPassword}
               style={[
                 {
                   width: "100%",
@@ -180,7 +237,7 @@ const Verify = () => {
                   backgroundColor: state.loading
                     ? COLORS.tertiary
                     : COLORS.green,
-                  maxWidth: 200,
+                  maxWidth: 250,
                   padding: 10,
                   alignSelf: "flex-end",
                   borderRadius: 5,
@@ -195,12 +252,11 @@ const Verify = () => {
                   {
                     fontSize: 20,
                     color: COLORS.white,
-
                     marginRight: state.loading ? 10 : 0,
                   },
                 ]}
               >
-                VERIFY
+                UPDATE PASSWORD
               </Text>
               {state.loading ? <Ripple size={5} color={COLORS.white} /> : null}
             </TouchableOpacity>
@@ -211,4 +267,4 @@ const Verify = () => {
   );
 };
 
-export default Verify;
+export default ResetPassword;

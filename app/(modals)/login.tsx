@@ -1,8 +1,6 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import React from "react";
-import { COLORS } from "@/src/constants";
-
-import { LinearGradient } from "expo-linear-gradient";
+import { COLORS, FONTS } from "@/src/constants";
 import Divider from "@/src/components/Divider/Divider";
 import { AppLogo, Typography } from "@/src/components";
 import { styles } from "@/src/styles";
@@ -160,6 +158,26 @@ const Login = () => {
               secureTextEntry={!state.showPassword}
               onSubmitEditing={login}
             />
+            <Text
+              onPress={() =>
+                router.navigate({
+                  pathname: "/forgot_password",
+                  params: {
+                    email_address: state.email,
+                  },
+                })
+              }
+              style={{
+                color: COLORS.green,
+                fontSize: 18,
+                marginVertical: 20,
+                textAlign: "right",
+                fontFamily: FONTS.regular,
+                textDecorationLine: "underline",
+              }}
+            >
+              Forgot Password?
+            </Text>
             {!!state.error_msg ? (
               <Typography
                 style={{

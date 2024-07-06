@@ -1,65 +1,65 @@
-import { Text, TouchableOpacity, View } from "react-native";
 import React from "react";
-import { COLORS, FONTS } from "@/src/constants";
+import { Text, TouchableOpacity, View } from "react-native";
+import { COLORS } from "@/src/constants";
 import { AppLogo, Typography } from "@/src/components";
 import { styles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import CustomTextInput from "@/src/components/CustomTextInput/CustomTextInput";
 import Animated, { SlideInRight, SlideInLeft } from "react-native-reanimated";
-
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useSignUp } from "@clerk/clerk-expo";
 import Ripple from "@/src/components/Ripple/Ripple";
+import { useSignIn } from "@clerk/clerk-expo";
 
-const Verify = () => {
-  const { isLoaded, signUp, setActive } = useSignUp();
+const ForgotPassword = () => {
   const router = useRouter();
+  const { isLoaded, signIn, setActive } = useSignIn();
   const params = useLocalSearchParams();
   const [state, setState] = React.useState({
-    code: "",
+    email: params?.email_address ? (params.email_address as string) : "",
     error_msg: "",
     loading: false,
   });
 
-  const verify = async () => {
+  const requestCode = async () => {
     if (!isLoaded) return;
-    setState((s) => ({ ...s, loading: true }));
+    setState((s) => ({
+      ...s,
+      loading: true,
+    }));
     try {
-      const completeSignUp = await signUp.attemptEmailAddressVerification({
-        code: state.code,
+      await signIn?.create({
+        strategy: "reset_password_email_code",
+        identifier: state.email,
       });
-      if (completeSignUp.status === "complete") {
-        await setActive({ session: completeSignUp.createdSessionId });
-        setState((s) => ({ ...s, loading: false, error_msg: "", code: "" }));
-        router.replace("/profile");
-      } else {
-        setState((s) => ({
-          ...s,
-          loading: false,
-          error_msg: "Failed to verify your email.",
-          code: "",
-        }));
-      }
+      setState((s) => ({
+        ...s,
+        error_msg: "",
+        loading: false,
+      }));
+      router.replace({
+        pathname: "/reset_password",
+        params: {
+          email_address: state.email,
+        },
+      });
     } catch (err: any) {
       if (err.errors) {
         setState((s) => ({
           ...s,
-          error_msg: "Incorrect verification code.",
+          error_msg:
+            "Invalid email address or the email does not have an account.",
           loading: false,
-          code: "",
         }));
       } else {
         setState((s) => ({
           ...s,
-          error_msg: "Failed to create an account.",
+          error_msg: "Failed to send the reset password link.",
           loading: false,
-          code: "",
         }));
       }
     }
   };
-
   return (
     <KeyboardAwareScrollView
       showsVerticalScrollIndicator={false}
@@ -77,12 +77,7 @@ const Verify = () => {
           padding: 10,
         }}
       >
-        <View
-          style={{ justifyContent: "center", alignItems: "center", flex: 1 }}
-        >
-          <AppLogo />
-        </View>
-
+        <AppLogo />
         <View
           style={[
             {
@@ -105,54 +100,24 @@ const Verify = () => {
               }}
               variant="p"
             >
-              Please Enter the verification code that has been sent to{" "}
-              <Text
-                style={{
-                  color: COLORS.green,
-                  fontSize: 16,
-                  textAlign: "right",
-                  fontFamily: FONTS.regular,
-                  textDecorationLine: "underline",
-                }}
-              >
-                {params.email_address}
-              </Text>
-              .
+              Please Enter the email address for your gigsy account.
             </Typography>
             <CustomTextInput
-              placeholder="000-000"
-              keyboardType="phone-pad"
-              text={state.code}
+              placeholder="Email Address"
+              keyboardType="email-address"
+              text={state.email}
               onChangeText={(text) =>
-                setState((state) => ({ ...state, code: text }))
+                setState((state) => ({ ...state, email: text }))
               }
-              leftIcon={
-                <Ionicons name="keypad" size={24} color={COLORS.green} />
-              }
-              inputStyle={{ fontSize: 20, textAlign: "center" }}
-              onSubmitEditing={verify}
-            />
-
-            <Text
-              onPress={() =>
-                router.replace({
-                  pathname: "/register",
-                  params: {
-                    email_address: params.email_address,
-                  },
-                })
-              }
-              style={{
-                color: COLORS.green,
-                fontSize: 18,
-                marginVertical: 20,
-                textAlign: "right",
-                fontFamily: FONTS.regular,
-                textDecorationLine: "underline",
+              leftIcon={<Ionicons name="mail" size={24} color={COLORS.green} />}
+              inputStyle={{ fontSize: 20 }}
+              containerStyles={{
+                borderRadius: 0,
+                borderTopLeftRadius: 5,
+                borderTopRightRadius: 5,
               }}
-            >
-              Did not recieve a code?
-            </Text>
+              onSubmitEditing={requestCode}
+            />
 
             {!!state.error_msg ? (
               <Typography
@@ -169,7 +134,7 @@ const Verify = () => {
             ) : null}
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={verify}
+              onPress={requestCode}
               style={[
                 {
                   width: "100%",
@@ -177,17 +142,16 @@ const Verify = () => {
                   marginBottom: 10,
                   justifyContent: "center",
                   flexDirection: "row",
+                  alignItems: "center",
                   backgroundColor: state.loading
                     ? COLORS.tertiary
                     : COLORS.green,
                   maxWidth: 200,
-                  padding: 10,
+                  padding: 12,
                   alignSelf: "flex-end",
                   borderRadius: 5,
-                  alignItems: "center",
                 },
               ]}
-              disabled={state.loading}
             >
               <Text
                 style={[
@@ -195,15 +159,31 @@ const Verify = () => {
                   {
                     fontSize: 20,
                     color: COLORS.white,
-
                     marginRight: state.loading ? 10 : 0,
                   },
                 ]}
               >
-                VERIFY
+                REQUEST CODE
               </Text>
               {state.loading ? <Ripple size={5} color={COLORS.white} /> : null}
             </TouchableOpacity>
+          </Animated.View>
+          <Animated.View style={{ width: "100%", alignItems: "center" }}>
+            <Link href={"(modals)/register"} style={{ marginVertical: 30 }}>
+              <Text
+                style={[
+                  styles.p,
+                  {
+                    textDecorationStyle: "solid",
+                    textDecorationLine: "underline",
+                    color: COLORS.green,
+                    fontSize: 16,
+                  },
+                ]}
+              >
+                Create a new Account.
+              </Text>
+            </Link>
           </Animated.View>
         </View>
       </View>
@@ -211,4 +191,4 @@ const Verify = () => {
   );
 };
 
-export default Verify;
+export default ForgotPassword;
