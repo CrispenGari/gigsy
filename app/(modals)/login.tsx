@@ -18,7 +18,7 @@ import Ripple from "@/src/components/Ripple/Ripple";
 import { useOAuth, useSignIn } from "@clerk/clerk-expo";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
-import { useWarmUpBrowser } from "@/src/hooks/useWarmUpBrowser";
+import { useWarmUpBrowser } from "@/src/hooks";
 
 WebBrowser.maybeCompleteAuthSession();
 const Login = () => {

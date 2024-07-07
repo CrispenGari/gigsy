@@ -47,11 +47,11 @@ const RootLayout = () => {
   const { isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
 
-  React.useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      router.navigate("/login");
-    }
-  }, [isLoaded, isSignedIn]);
+  // React.useEffect(() => {
+  //   if (isLoaded && !isSignedIn) {
+  //     router.navigate("/login");
+  //   }
+  // }, [isLoaded, isSignedIn]);
 
   return (
     <Stack>
