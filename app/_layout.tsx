@@ -7,12 +7,14 @@ import * as SplashScreen from "expo-splash-screen";
 import React from "react";
 import { ClerkProvider } from "@/src/providers";
 import { useAuth } from "@clerk/clerk-expo";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, LogBox } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Typography } from "@/src/components";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+LogBox.ignoreLogs;
+LogBox.ignoreAllLogs();
 SplashScreen.preventAutoHideAsync();
 
 const Layout = () => {

@@ -15,9 +15,21 @@ import Animated, {
 import { Link, useRouter } from "expo-router";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Ripple from "@/src/components/Ripple/Ripple";
-import { useSignIn } from "@clerk/clerk-expo";
+import { useOAuth, useSignIn } from "@clerk/clerk-expo";
+import * as WebBrowser from "expo-web-browser";
+import * as Linking from "expo-linking";
+import { useWarmUpBrowser } from "@/src/hooks/useWarmUpBrowser";
 
+WebBrowser.maybeCompleteAuthSession();
 const Login = () => {
+  useWarmUpBrowser();
+
+  const { startOAuthFlow: startOAuthFlowGoogle } = useOAuth({
+    strategy: "oauth_google",
+  });
+  const { startOAuthFlow: startOAuthFlowGitHub } = useOAuth({
+    strategy: "oauth_github",
+  });
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
   const [state, setState] = React.useState({
@@ -79,6 +91,108 @@ const Login = () => {
       }
     }
   }, [isLoaded, state]);
+
+  const google = React.useCallback(async () => {
+    if (!isLoaded) return;
+    setState((state) => ({
+      ...state,
+      loading: true,
+    }));
+    try {
+      const { createdSessionId, setActive } = await startOAuthFlowGoogle({
+        redirectUrl: Linking.createURL("/", { scheme: "gigsy" }),
+      });
+
+      if (createdSessionId) {
+        setActive!({ session: createdSessionId });
+        setState((state) => ({
+          ...state,
+          loading: false,
+          error_msg: "",
+          password: "",
+          conf: "",
+        }));
+      } else {
+        setState((state) => ({
+          ...state,
+          loading: false,
+          error_msg: "",
+          password: "",
+          conf: "",
+        }));
+      }
+    } catch (err: any) {
+      if (err.errors) {
+        const [error] = err.errors;
+        setState((s) => ({
+          ...s,
+          password: "",
+          conf: "",
+          error_msg: error.message,
+          loading: false,
+        }));
+      } else {
+        setState((s) => ({
+          ...s,
+          password: "",
+          conf: "",
+          error_msg: "Failed to create an account.",
+          loading: false,
+        }));
+      }
+    }
+  }, []);
+
+  const github = React.useCallback(async () => {
+    if (!isLoaded) return;
+    setState((state) => ({
+      ...state,
+      loading: true,
+    }));
+    try {
+      const { createdSessionId, setActive } = await startOAuthFlowGitHub({
+        redirectUrl: Linking.createURL("/", { scheme: "gigsy" }),
+      });
+
+      if (createdSessionId) {
+        setActive!({ session: createdSessionId });
+        setState((state) => ({
+          ...state,
+          loading: false,
+          error_msg: "",
+          password: "",
+          conf: "",
+        }));
+      } else {
+        setState((state) => ({
+          ...state,
+          loading: false,
+          error_msg: "",
+          password: "",
+          conf: "",
+        }));
+      }
+    } catch (err: any) {
+      if (err.errors) {
+        const [error] = err.errors;
+        setState((s) => ({
+          ...s,
+          password: "",
+          conf: "",
+          error_msg: error.message,
+          loading: false,
+        }));
+      } else {
+        setState((s) => ({
+          ...s,
+          password: "",
+          conf: "",
+          error_msg: "Failed to create an account.",
+          loading: false,
+        }));
+      }
+    }
+  }, []);
 
   return (
     <KeyboardAwareScrollView
@@ -255,6 +369,7 @@ const Login = () => {
                 gap: 10,
                 marginTop: 20,
               }}
+              onPress={google}
             >
               <Ionicons name="logo-google" size={30} color={COLORS.white} />
               <Text style={[styles.p, { color: COLORS.white, fontSize: 20 }]}>
@@ -263,6 +378,7 @@ const Login = () => {
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.7}
+              onPress={github}
               style={{
                 borderRadius: 999,
                 maxWidth: 400,

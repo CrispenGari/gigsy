@@ -6,7 +6,6 @@ import { styles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import CustomTextInput from "@/src/components/CustomTextInput/CustomTextInput";
 import Animated, { SlideInRight, SlideInLeft } from "react-native-reanimated";
-
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSignUp } from "@clerk/clerk-expo";
