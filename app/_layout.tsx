@@ -1,13 +1,13 @@
 import "react-native-reanimated";
 import { COLORS, FONTS, Fonts } from "@/src/constants";
-import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
+
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React from "react";
 import { ClerkProvider } from "@/src/providers";
 import { useAuth } from "@clerk/clerk-expo";
-import { TouchableOpacity, LogBox } from "react-native";
+import { TouchableOpacity, LogBox, StatusBar, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Typography } from "@/src/components";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
@@ -29,7 +29,12 @@ const Layout = () => {
   }
 
   return (
-    <ThemeProvider value={DefaultTheme}>
+    <View style={{ flex: 1 }}>
+      <StatusBar
+        backgroundColor={COLORS.white}
+        translucent
+        barStyle={"dark-content"}
+      />
       <GestureHandlerRootView>
         <BottomSheetModalProvider>
           <ClerkProvider>
@@ -37,7 +42,7 @@ const Layout = () => {
           </ClerkProvider>
         </BottomSheetModalProvider>
       </GestureHandlerRootView>
-    </ThemeProvider>
+    </View>
   );
 };
 

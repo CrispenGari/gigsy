@@ -8,6 +8,9 @@ export const COLORS = {
   white: "#ffffff",
   red: "#FB2576",
   gray: "#758694",
+  transparent: "transparent",
+  lightGray: "#F5F7F8",
+  semiGray: "#EEEDEB",
 };
 
 export const Fonts = {

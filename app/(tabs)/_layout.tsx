@@ -1,48 +1,56 @@
+import HomeHeader from "@/src/components/HomeHeader/HomeHeader";
 import { COLORS, FONTS } from "@/src/constants";
 import { usePlatform } from "@/src/hooks";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
 import { Tabs } from "expo-router";
 import React from "react";
-
+import { StyleSheet } from "react-native";
 const Layout = () => {
   const { os } = usePlatform();
   return (
     <Tabs
+      initialRouteName="create"
       screenOptions={{
         tabBarStyle: {
           height: os === "ios" ? 100 : 80,
-          backgroundColor: COLORS.white,
+          backgroundColor: COLORS.transparent,
+          position: "absolute",
+          elevation: 0,
         },
+
+        tabBarHideOnKeyboard: true,
         tabBarActiveTintColor: COLORS.green,
         tabBarInactiveTintColor: COLORS.gray,
         headerShown: true,
-        headerStyle: { height: 100 },
+        tabBarLabelStyle: {
+          fontFamily: FONTS.bold,
+          fontSize: 12,
+          marginTop: -10,
+          marginBottom: 10,
+        },
+        tabBarBackground: () => (
+          <BlurView
+            tint="light"
+            intensity={100}
+            style={StyleSheet.absoluteFill}
+          />
+        ),
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          tabBarLabelStyle: {
-            fontFamily: FONTS.regular,
-            fontSize: 12,
-            marginTop: -10,
-            marginBottom: 10,
-          },
           title: "Explore",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="search-outline" color={color} size={size} />
           ),
+          header: (props) => <HomeHeader {...props} />,
         }}
       />
       <Tabs.Screen
         name="wishlist"
         options={{
-          tabBarLabelStyle: {
-            fontFamily: FONTS.regular,
-            fontSize: 12,
-            marginTop: -10,
-            marginBottom: 10,
-          },
           title: "Wishlist",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="heart-outline" color={color} size={size} />
@@ -79,29 +87,17 @@ const Layout = () => {
         }}
       />
       <Tabs.Screen
-        name="activity"
+        name="messages"
         options={{
-          tabBarLabelStyle: {
-            fontFamily: FONTS.regular,
-            fontSize: 12,
-            marginTop: -10,
-            marginBottom: 10,
-          },
-          title: "Activity",
+          title: "Messages",
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="auto-graph" color={color} size={size} />
+            <Ionicons name="chatbox-outline" color={color} size={size} />
           ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          tabBarLabelStyle: {
-            fontFamily: FONTS.regular,
-            fontSize: 12,
-            marginTop: -10,
-            marginBottom: 10,
-          },
           title: "Profile",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-circle-outline" color={color} size={size} />
