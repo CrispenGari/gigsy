@@ -11,6 +11,8 @@ import {
   BottomSheetView,
   BottomSheetFlatList,
   BottomSheetBackdrop,
+  BottomSheetFooter,
+  useBottomSheetModal,
 } from "@gorhom/bottom-sheet";
 import { educationRequirements as data } from "@/src/constants/education";
 import { COLORS, FONTS } from "@/src/constants";
@@ -22,6 +24,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { usePlatform } from "@/src/hooks";
+import FooterButtons from "./FooterButtons";
 
 interface EducationBottomSheetProps {
   onChangeValue: (value: string[]) => void;
@@ -36,6 +39,7 @@ const EducationBottomSheet = React.forwardRef<
     education: string;
     selected: string[];
   }>({ education: "", selected: [] });
+  const { dismiss } = useBottomSheetModal();
   const requirements = React.useMemo(() => {
     if (state.education.trim().length === 0) return data;
     const educationLowerCase = state.education.toLowerCase();
@@ -71,29 +75,41 @@ const EducationBottomSheet = React.forwardRef<
   const onBlur = () => {
     focused.value = withTiming(0, { duration: 400 });
   };
-  const seteducation = (education: string) => {
+  const removeEducation = (val: string) => {
+    const value = state.selected.filter(
+      (s) => s.toLowerCase().trim() !== val.toLowerCase().trim()
+    );
+    setState((state) => ({
+      ...state,
+      selected: value,
+    }));
+    onChangeValue(Array.from(new Set(value)));
+  };
+  const setEducation = (val: string) => {
     const unique = Array.from(new Set(state.selected));
     if (unique.length === 5) {
       return;
     }
     const found = unique.find(
-      (s) => s.toLowerCase().trim() === education.toLowerCase().trim()
+      (s) => s.toLowerCase().trim() === val.toLowerCase().trim()
     );
     if (!!found) {
-      setState((state) => ({
-        ...state,
-        selected: state.selected.filter(
-          (s) => s.toLowerCase().trim() !== education.toLowerCase().trim()
-        ),
-      }));
+      removeEducation(val);
     } else {
+      const value = [...state.selected, val];
       setState((state) => ({
         ...state,
-        selected: [...state.selected, education],
+        selected: value,
       }));
+      onChangeValue(Array.from(new Set(value)));
     }
-    onChangeValue(Array.from(new Set(state.selected)));
   };
+
+  const clear = () => {
+    setState((s) => ({ ...s, selected: [] }));
+    onChangeValue([]);
+  };
+
   return (
     <BottomSheetModal
       ref={ref}
@@ -107,6 +123,17 @@ const EducationBottomSheet = React.forwardRef<
           appearsOnIndex={0}
           disappearsOnIndex={-1}
         />
+      )}
+      footerComponent={(p) => (
+        <BottomSheetFooter {...p}>
+          <FooterButtons
+            state={state}
+            onClear={clear}
+            onDone={() => {
+              dismiss();
+            }}
+          />
+        </BottomSheetFooter>
       )}
     >
       <BottomSheetView style={{ flex: 1 }}>
@@ -157,7 +184,7 @@ const EducationBottomSheet = React.forwardRef<
                   backgroundColor: COLORS.transparent,
                 }}
                 placeholderTextColor={COLORS.black}
-                placeholder="Search requirements"
+                placeholder="Search education level"
                 onFocus={onFocus}
                 onBlur={onBlur}
                 value={state.education}
@@ -200,7 +227,7 @@ const EducationBottomSheet = React.forwardRef<
                     {education}
                   </Text>
                   <TouchableOpacity
-                    onPress={() => seteducation(education)}
+                    onPress={() => setEducation(education)}
                     key={education}
                   >
                     <Ionicons
@@ -251,7 +278,7 @@ const EducationBottomSheet = React.forwardRef<
                   );
                   return (
                     <TouchableOpacity
-                      onPress={() => seteducation(education)}
+                      onPress={() => setEducation(education)}
                       key={education}
                       style={{
                         borderWidth: StyleSheet.hairlineWidth,

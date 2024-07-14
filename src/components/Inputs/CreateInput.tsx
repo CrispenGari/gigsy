@@ -1,4 +1,5 @@
 import { COLORS, FONTS } from "@/src/constants";
+import { usePlatform } from "@/src/hooks";
 
 import {
   StyleProp,
@@ -48,6 +49,7 @@ const CreateInput: React.FC<CreateInputProps> = ({
   iconStyle,
 }) => {
   const focused = useSharedValue(0);
+  const { os } = usePlatform();
   const animatedTextInputStyle = useAnimatedStyle(() => {
     const bg = interpolateColor(
       focused.value,
@@ -80,13 +82,17 @@ const CreateInput: React.FC<CreateInputProps> = ({
         </TouchableOpacity>
         <TextInput
           placeholder={placeholder}
-          style={[{ flex: 1, minWidth: 40 }, inputStyle]}
+          style={[
+            { flex: 1, minWidth: 40, paddingVertical: os === "ios" ? 6 : 0 },
+            inputStyle,
+          ]}
           onFocus={() => (focused.value = withTiming(1, { duration: 400 }))}
           onBlur={() => (focused.value = withTiming(0, { duration: 400 }))}
           value={value}
           onChangeText={onChangeText}
           multiline={multiline}
           keyboardType={keyboardType}
+          placeholderTextColor={COLORS.black}
         />
       </Animated.View>
     </View>

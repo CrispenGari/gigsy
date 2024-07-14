@@ -9,10 +9,10 @@ import React from "react";
 import { COLORS, FONTS } from "@/src/constants";
 
 import { Ionicons } from "@expo/vector-icons";
-import { BottomTabHeaderProps } from "@react-navigation/bottom-tabs";
+import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { usePlatform } from "@/src/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-const CreateHeader = ({ navigation }: BottomTabHeaderProps) => {
+const CreateHeader = ({ navigation }: NativeStackHeaderProps) => {
   const { os } = usePlatform();
   const { top } = useSafeAreaInsets();
   return (
@@ -38,7 +38,11 @@ const CreateHeader = ({ navigation }: BottomTabHeaderProps) => {
           }}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="chevron-back" size={30} color={COLORS.green} />
+          <Ionicons
+            name="chevron-back-outline"
+            size={30}
+            color={COLORS.green}
+          />
           <Text
             style={{
               fontFamily: FONTS.bold,

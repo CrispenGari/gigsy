@@ -60,6 +60,7 @@ const Layout = () => {
       <Tabs.Screen
         name="create"
         options={{
+          headerShown: false,
           tabBarItemStyle: {
             borderRadius: 90,
             width: 90,

@@ -11,6 +11,8 @@ import {
   BottomSheetView,
   BottomSheetFlatList,
   BottomSheetBackdrop,
+  useBottomSheetModal,
+  BottomSheetFooter,
 } from "@gorhom/bottom-sheet";
 import { skills as data } from "@/src/constants/skills";
 import { COLORS, FONTS } from "@/src/constants";
@@ -22,6 +24,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { usePlatform } from "@/src/hooks";
+import FooterButtons from "./FooterButtons";
 
 interface SkillsBottomSheetProps {
   onChangeValue: (value: string[]) => void;
@@ -30,6 +33,7 @@ const SkillsBottomSheet = React.forwardRef<
   BottomSheetModal,
   SkillsBottomSheetProps
 >(({ onChangeValue }, ref) => {
+  const { dismiss } = useBottomSheetModal();
   const { os } = usePlatform();
   const snapPoints = React.useMemo(() => ["80%"], []);
   const [state, setState] = React.useState<{
@@ -71,29 +75,41 @@ const SkillsBottomSheet = React.forwardRef<
   const onBlur = () => {
     focused.value = withTiming(0, { duration: 400 });
   };
-  const selectSkill = (skill: string) => {
+  const removeSkill = (val: string) => {
+    const value = state.selected.filter(
+      (s) => s.toLowerCase().trim() !== val.toLowerCase().trim()
+    );
+    setState((state) => ({
+      ...state,
+      selected: value,
+    }));
+    onChangeValue(Array.from(new Set(value)));
+  };
+  const selectSkill = (val: string) => {
     const unique = Array.from(new Set(state.selected));
     if (unique.length === 5) {
       return;
     }
     const found = unique.find(
-      (s) => s.toLowerCase().trim() === skill.toLowerCase().trim()
+      (s) => s.toLowerCase().trim() === val.toLowerCase().trim()
     );
     if (!!found) {
-      setState((state) => ({
-        ...state,
-        selected: state.selected.filter(
-          (s) => s.toLowerCase().trim() !== skill.toLowerCase().trim()
-        ),
-      }));
+      removeSkill(val);
     } else {
+      const value = [...state.selected, val];
       setState((state) => ({
         ...state,
-        selected: [...state.selected, skill],
+        selected: value,
       }));
+      onChangeValue(Array.from(new Set(value)));
     }
-    onChangeValue(Array.from(new Set(state.selected)));
   };
+
+  const clear = () => {
+    setState((s) => ({ ...s, selected: [] }));
+    onChangeValue([]);
+  };
+
   return (
     <BottomSheetModal
       ref={ref}
@@ -107,6 +123,17 @@ const SkillsBottomSheet = React.forwardRef<
           appearsOnIndex={0}
           disappearsOnIndex={-1}
         />
+      )}
+      footerComponent={(p) => (
+        <BottomSheetFooter {...p}>
+          <FooterButtons
+            state={state}
+            onClear={clear}
+            onDone={() => {
+              dismiss();
+            }}
+          />
+        </BottomSheetFooter>
       )}
     >
       <BottomSheetView style={{ flex: 1 }}>

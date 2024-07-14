@@ -11,6 +11,8 @@ import {
   BottomSheetView,
   BottomSheetFlatList,
   BottomSheetBackdrop,
+  BottomSheetFooter,
+  useBottomSheetModal,
 } from "@gorhom/bottom-sheet";
 import { benefits as data } from "@/src/constants/benefits";
 import { COLORS, FONTS } from "@/src/constants";
@@ -22,6 +24,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { usePlatform } from "@/src/hooks";
+import FooterButtons from "./FooterButtons";
 
 interface BenefitsBottomSheetProps {
   onChangeValue: (value: string[]) => void;
@@ -31,6 +34,7 @@ const BenefitsBottomSheet = React.forwardRef<
   BenefitsBottomSheetProps
 >(({ onChangeValue }, ref) => {
   const { os } = usePlatform();
+  const { dismiss } = useBottomSheetModal();
   const snapPoints = React.useMemo(() => ["80%"], []);
   const [state, setState] = React.useState<{
     benefit: string;
@@ -71,29 +75,42 @@ const BenefitsBottomSheet = React.forwardRef<
   const onBlur = () => {
     focused.value = withTiming(0, { duration: 400 });
   };
-  const setBenefit = (benefit: string) => {
+
+  const removeBenefit = (val: string) => {
+    const value = state.selected.filter(
+      (s) => s.toLowerCase().trim() !== val.toLowerCase().trim()
+    );
+    setState((state) => ({
+      ...state,
+      selected: value,
+    }));
+    onChangeValue(Array.from(new Set(value)));
+  };
+  const setBenefit = (val: string) => {
     const unique = Array.from(new Set(state.selected));
     if (unique.length === 5) {
       return;
     }
     const found = unique.find(
-      (s) => s.toLowerCase().trim() === benefit.toLowerCase().trim()
+      (s) => s.toLowerCase().trim() === val.toLowerCase().trim()
     );
     if (!!found) {
-      setState((state) => ({
-        ...state,
-        selected: state.selected.filter(
-          (s) => s.toLowerCase().trim() !== benefit.toLowerCase().trim()
-        ),
-      }));
+      removeBenefit(val);
     } else {
+      const value = [...state.selected, val];
       setState((state) => ({
         ...state,
-        selected: [...state.selected, benefit],
+        selected: value,
       }));
+      onChangeValue(Array.from(new Set(value)));
     }
-    onChangeValue(Array.from(new Set(state.selected)));
   };
+
+  const clear = () => {
+    setState((s) => ({ ...s, selected: [] }));
+    onChangeValue([]);
+  };
+
   return (
     <BottomSheetModal
       ref={ref}
@@ -107,6 +124,17 @@ const BenefitsBottomSheet = React.forwardRef<
           appearsOnIndex={0}
           disappearsOnIndex={-1}
         />
+      )}
+      footerComponent={(p) => (
+        <BottomSheetFooter {...p}>
+          <FooterButtons
+            state={state}
+            onClear={clear}
+            onDone={() => {
+              dismiss();
+            }}
+          />
+        </BottomSheetFooter>
       )}
     >
       <BottomSheetView style={{ flex: 1 }}>
