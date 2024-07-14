@@ -26,6 +26,7 @@ import BenefitsBottomSheet from "@/src/components/BottomSheets/BenefitsBottomShe
 import EducationBottomSheet from "@/src/components/BottomSheets/EducationBottomSheet";
 import ExperienceBottomSheet from "@/src/components/BottomSheets/ExperienceBottomSheet";
 import SkillsBottomSheet from "@/src/components/BottomSheets/SkillsBottomSheet";
+import { useCreateFormStore } from "@/src/store/createFormStore";
 
 type StateType = {
   error: string;
@@ -36,6 +37,7 @@ type StateType = {
   experience: string[];
 };
 const Page = () => {
+  const { setAdditional, form } = useCreateFormStore();
   const { os } = usePlatform();
   const skillsBottomSheetRef = React.useRef<BottomSheetModal>(null);
   const benefitsBottomSheetRef = React.useRef<BottomSheetModal>(null);
@@ -53,15 +55,6 @@ const Page = () => {
   const flexWidth = useSharedValue(0);
   const scale = useSharedValue(0);
   const gap = useSharedValue(0);
-  React.useEffect(() => {
-    const { error, loading, ...rest } = state;
-    const hasValues = Object.values(rest)
-      .map((s) => s.length)
-      .filter(Boolean);
-    flexWidth.value = withTiming(hasValues.length !== 0 ? 150 : 0);
-    scale.value = withTiming(hasValues.length !== 0 ? 1 : 0);
-    gap.value = withTiming(hasValues.length !== 0 ? 16 : 0);
-  }, [state]);
 
   const clear = () => {
     setState((s) => ({
@@ -73,6 +66,13 @@ const Page = () => {
       educationLevels: [],
       experience: [],
     }));
+
+    setAdditional({
+      benefits: [],
+      educationLevels: [],
+      experience: [],
+      skills: [],
+    });
   };
 
   const animatedWidth = useAnimatedStyle(() => {
@@ -92,6 +92,36 @@ const Page = () => {
   });
 
   const saveAndGoToNext = () => {
+    if (state.skills.length === 0) {
+      return setState((s) => ({
+        ...s,
+        error: "You should at least add 1 job skill.",
+      }));
+    }
+    if (state.experience.length === 0) {
+      return setState((s) => ({
+        ...s,
+        error: "You should at least add 1 job experience.",
+      }));
+    }
+    if (state.educationLevels.length === 0) {
+      return setState((s) => ({
+        ...s,
+        error: "You should at least add 1 job qualification.",
+      }));
+    }
+    const { error, loading, ...rest } = state;
+    setAdditional(rest);
+
+    setState((s) => ({
+      ...s,
+      error: "",
+      loading: false,
+      skills: [],
+      benefits: [],
+      educationLevels: [],
+      experience: [],
+    }));
     router.navigate({
       pathname: "/(tabs)/create/payment",
       params: {
@@ -99,6 +129,26 @@ const Page = () => {
       },
     });
   };
+
+  React.useEffect(() => {
+    const { error, loading, ...rest } = state;
+    const hasValues = Object.values(rest)
+      .map((s) => s.length)
+      .filter(Boolean);
+    flexWidth.value = withTiming(hasValues.length !== 0 ? 150 : 0);
+    scale.value = withTiming(hasValues.length !== 0 ? 1 : 0);
+    gap.value = withTiming(hasValues.length !== 0 ? 16 : 0);
+  }, [state]);
+
+  React.useEffect(() => {
+    setState((s) => ({
+      ...s,
+      skills: form.skills,
+      benefits: form.benefits,
+      educationLevels: form.educationLevels,
+      experience: form.experience,
+    }));
+  }, [form]);
 
   return (
     <>
@@ -110,6 +160,7 @@ const Page = () => {
       />
       <SkillsBottomSheet
         ref={skillsBottomSheetRef}
+        initialState={state.skills}
         onChangeValue={(skills) =>
           setState((s) => ({
             ...s,
@@ -118,6 +169,7 @@ const Page = () => {
         }
       />
       <BenefitsBottomSheet
+        initialState={state.benefits}
         ref={benefitsBottomSheetRef}
         onChangeValue={(benefits) =>
           setState((s) => ({
@@ -127,6 +179,7 @@ const Page = () => {
         }
       />
       <EducationBottomSheet
+        initialState={state.educationLevels}
         ref={educationBottomSheetRef}
         onChangeValue={(educationLevels) =>
           setState((s) => ({
@@ -136,6 +189,7 @@ const Page = () => {
         }
       />
       <ExperienceBottomSheet
+        initialState={state.experience}
         ref={experienceBottomSheetRef}
         onChangeValue={(experience) =>
           setState((s) => ({

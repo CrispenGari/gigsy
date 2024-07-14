@@ -28,18 +28,19 @@ import FooterButtons from "./FooterButtons";
 
 interface BenefitsBottomSheetProps {
   onChangeValue: (value: string[]) => void;
+  initialState: string[];
 }
 const BenefitsBottomSheet = React.forwardRef<
   BottomSheetModal,
   BenefitsBottomSheetProps
->(({ onChangeValue }, ref) => {
+>(({ onChangeValue, initialState }, ref) => {
   const { os } = usePlatform();
   const { dismiss } = useBottomSheetModal();
   const snapPoints = React.useMemo(() => ["80%"], []);
   const [state, setState] = React.useState<{
     benefit: string;
     selected: string[];
-  }>({ benefit: "", selected: [] });
+  }>({ benefit: "", selected: initialState });
   const benefits = React.useMemo(() => {
     if (state.benefit.trim().length === 0) return data;
     const benefitLowerCase = state.benefit.toLowerCase();

@@ -18,6 +18,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useRouter } from "expo-router";
+import { useCreateFormStore } from "@/src/store/createFormStore";
 
 type StateType = {
   error: string;
@@ -30,24 +31,19 @@ type StateType = {
 const Page = () => {
   const { os } = usePlatform();
   const router = useRouter();
+  const { setBasic, form } = useCreateFormStore();
   const [state, setState] = React.useState<StateType>({
     error: "",
     loading: false,
-    title: "",
-    description: "",
-    company: "",
-    companyDescription: "",
+    title: form.title,
+    description: form.description,
+    company: form.company,
+    companyDescription: form.companyDescription ?? "",
   });
+
   const flexWidth = useSharedValue(0);
   const scale = useSharedValue(0);
   const gap = useSharedValue(0);
-  React.useEffect(() => {
-    const { error, loading, ...rest } = state;
-    const hasValues = Object.values(rest).filter(Boolean);
-    flexWidth.value = withTiming(hasValues.length !== 0 ? 150 : 0);
-    scale.value = withTiming(hasValues.length !== 0 ? 1 : 0);
-    gap.value = withTiming(hasValues.length !== 0 ? 16 : 0);
-  }, [state]);
 
   const clear = () => {
     setState((s) => ({
@@ -59,6 +55,12 @@ const Page = () => {
       company: "",
       companyDescription: "",
     }));
+    setBasic({
+      company: "",
+      description: "",
+      title: "",
+      companyDescription: "",
+    });
   };
 
   const animatedWidth = useAnimatedStyle(() => {
@@ -78,6 +80,36 @@ const Page = () => {
   });
 
   const saveAndGoToNext = () => {
+    if (state.title.trim().length < 5) {
+      return setState((s) => ({
+        ...s,
+        error: "The job description should contain at least 5 characters.",
+      }));
+    }
+    if (state.company.trim().length < 3) {
+      return setState((s) => ({
+        ...s,
+        error: "Company name should contain at least 3 characters.",
+      }));
+    }
+    if (state.description.trim().length < 30) {
+      return setState((s) => ({
+        ...s,
+        error: "The job description should contain at least 30 characters.",
+      }));
+    }
+    const { error, loading, ...rest } = state;
+    setBasic(rest);
+
+    setState((s) => ({
+      ...s,
+      error: "",
+      loading: false,
+      title: "",
+      description: "",
+      company: "",
+      companyDescription: "",
+    }));
     router.navigate({
       pathname: "/(tabs)/create/contact",
       params: {
@@ -86,6 +118,23 @@ const Page = () => {
     });
   };
 
+  React.useEffect(() => {
+    const { error, loading, ...rest } = state;
+    const hasValues = Object.values(rest).filter(Boolean);
+    flexWidth.value = withTiming(hasValues.length !== 0 ? 150 : 0);
+    scale.value = withTiming(hasValues.length !== 0 ? 1 : 0);
+    gap.value = withTiming(hasValues.length !== 0 ? 16 : 0);
+  }, [state]);
+
+  React.useEffect(() => {
+    setState((s) => ({
+      ...s,
+      title: form.title,
+      description: form.description,
+      company: form.company,
+      companyDescription: form.companyDescription ?? "",
+    }));
+  }, [form]);
   return (
     <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView

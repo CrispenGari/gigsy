@@ -19,6 +19,8 @@ import Animated, {
 } from "react-native-reanimated";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import HeaderBackButton from "@/src/components/HeaderBackButton/HeaderBackButton";
+import { useCreateFormStore } from "@/src/store/createFormStore";
+import { isValidEmail } from "@crispengari/regex-validator";
 
 type StateType = {
   error: string;
@@ -28,6 +30,7 @@ type StateType = {
   contactPhone: string;
 };
 const Page = () => {
+  const { setContact, form } = useCreateFormStore();
   const { os } = usePlatform();
   const { from } = useLocalSearchParams<{ from: string }>();
   const [state, setState] = React.useState<StateType>({
@@ -40,13 +43,6 @@ const Page = () => {
   const flexWidth = useSharedValue(0);
   const scale = useSharedValue(0);
   const gap = useSharedValue(0);
-  React.useEffect(() => {
-    const { error, loading, ...rest } = state;
-    const hasValues = Object.values(rest).filter(Boolean);
-    flexWidth.value = withTiming(hasValues.length !== 0 ? 150 : 0);
-    scale.value = withTiming(hasValues.length !== 0 ? 1 : 0);
-    gap.value = withTiming(hasValues.length !== 0 ? 16 : 0);
-  }, [state]);
 
   const clear = () => {
     setState((s) => ({
@@ -57,6 +53,7 @@ const Page = () => {
       contactEmail: "",
       contactPhone: "",
     }));
+    setContact({ contactEmail: "", contactName: "", contactPhone: "" });
   };
 
   const animatedWidth = useAnimatedStyle(() => {
@@ -76,6 +73,30 @@ const Page = () => {
   });
 
   const saveAndGoToNext = () => {
+    if (state.contactName.trim().length < 3) {
+      return setState((s) => ({
+        ...s,
+        error: "The Contact name must contain at least 3 characters.",
+      }));
+    }
+
+    if (!isValidEmail(state.contactEmail.trim())) {
+      return setState((s) => ({
+        ...s,
+        error: "The email address is invalid.",
+      }));
+    }
+
+    const { error, loading, ...rest } = state;
+    setContact(rest);
+    setState((s) => ({
+      ...s,
+      error: "",
+      loading: false,
+      contactName: "",
+      contactEmail: "",
+      contactPhone: "",
+    }));
     router.navigate({
       pathname: "/(tabs)/create/other",
       params: {
@@ -83,6 +104,23 @@ const Page = () => {
       },
     });
   };
+
+  React.useEffect(() => {
+    const { error, loading, ...rest } = state;
+    const hasValues = Object.values(rest).filter(Boolean);
+    flexWidth.value = withTiming(hasValues.length !== 0 ? 150 : 0);
+    scale.value = withTiming(hasValues.length !== 0 ? 1 : 0);
+    gap.value = withTiming(hasValues.length !== 0 ? 16 : 0);
+  }, [state]);
+
+  React.useEffect(() => {
+    setState((s) => ({
+      ...s,
+      contactEmail: form.contactEmail,
+      contactName: form.contactName,
+      contactPhone: form.contactPhone ?? "",
+    }));
+  }, [form]);
 
   return (
     <>

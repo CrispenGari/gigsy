@@ -20,6 +20,7 @@ import Animated, {
 import { Stack, useLocalSearchParams } from "expo-router";
 import HeaderBackButton from "@/src/components/HeaderBackButton/HeaderBackButton";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
+import { useCreateFormStore } from "@/src/store/createFormStore";
 
 type StateType = {
   error: string;
@@ -32,6 +33,7 @@ type StateType = {
 };
 const Page = () => {
   const { os } = usePlatform();
+  const { setPayment, form } = useCreateFormStore();
   const { from } = useLocalSearchParams<{ from: string }>();
   const [state, setState] = React.useState<StateType>({
     error: "",
@@ -58,6 +60,10 @@ const Page = () => {
       type: "part-time",
       salaryRange: { min: "", max: "" },
     }));
+    setPayment({
+      type: "part-time",
+      salaryRange: { min: "", max: "" },
+    });
   };
 
   const animatedWidth = useAnimatedStyle(() => {
@@ -76,7 +82,29 @@ const Page = () => {
     };
   });
 
-  const publishJob = () => {};
+  const publishJob = () => {
+    if (!!!state.salaryRange.max.trim().length) {
+      return setState((s) => ({
+        ...s,
+        error: "The maximum salary should be set.",
+      }));
+    }
+    const { error, loading, ...rest } = state;
+    setPayment(rest);
+
+    console.log(JSON.stringify({ form }, null, 2));
+  };
+
+  React.useEffect(() => {
+    setState((s) => ({
+      ...s,
+      type: form.type,
+      salaryRange: {
+        min: state.salaryRange.min,
+        max: state.salaryRange.max,
+      },
+    }));
+  }, [form]);
 
   return (
     <>

@@ -30,3 +30,9 @@ export const IMAGES = {
   logo: require("@/assets/images/icon.png"),
   profile: require("@/assets/images/profile.png"),
 };
+
+export const STORAGE_NAME = {
+  CREATE_FORM: "create-form",
+};
+
+export const KEYS = {};

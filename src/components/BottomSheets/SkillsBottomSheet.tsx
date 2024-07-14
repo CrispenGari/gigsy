@@ -28,18 +28,19 @@ import FooterButtons from "./FooterButtons";
 
 interface SkillsBottomSheetProps {
   onChangeValue: (value: string[]) => void;
+  initialState: string[];
 }
 const SkillsBottomSheet = React.forwardRef<
   BottomSheetModal,
   SkillsBottomSheetProps
->(({ onChangeValue }, ref) => {
+>(({ onChangeValue, initialState }, ref) => {
   const { dismiss } = useBottomSheetModal();
   const { os } = usePlatform();
   const snapPoints = React.useMemo(() => ["80%"], []);
   const [state, setState] = React.useState<{
     skill: string;
     selected: string[];
-  }>({ skill: "", selected: [] });
+  }>({ skill: "", selected: initialState });
   const skills = React.useMemo(() => {
     if (state.skill.trim().length === 0) return data;
     const skillLowerCase = state.skill.toLowerCase();

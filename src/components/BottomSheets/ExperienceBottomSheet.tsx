@@ -15,16 +15,17 @@ import FooterButtons from "./FooterButtons";
 
 interface ExperienceBottomSheetProps {
   onChangeValue: (value: string[]) => void;
+  initialState: string[];
 }
 const ExperienceBottomSheet = React.forwardRef<
   BottomSheetModal,
   ExperienceBottomSheetProps
->(({ onChangeValue }, ref) => {
+>(({ onChangeValue, initialState }, ref) => {
   const { dismiss } = useBottomSheetModal();
   const snapPoints = React.useMemo(() => ["25%"], []);
   const [state, setState] = React.useState<{
     selected: string[];
-  }>({ selected: [] });
+  }>({ selected: initialState });
   const experiences = React.useMemo(() => {
     return data;
   }, []);

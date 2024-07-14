@@ -28,17 +28,18 @@ import FooterButtons from "./FooterButtons";
 
 interface EducationBottomSheetProps {
   onChangeValue: (value: string[]) => void;
+  initialState: string[];
 }
 const EducationBottomSheet = React.forwardRef<
   BottomSheetModal,
   EducationBottomSheetProps
->(({ onChangeValue }, ref) => {
+>(({ onChangeValue, initialState }, ref) => {
   const { os } = usePlatform();
   const snapPoints = React.useMemo(() => ["80%"], []);
   const [state, setState] = React.useState<{
     education: string;
     selected: string[];
-  }>({ education: "", selected: [] });
+  }>({ education: "", selected: initialState });
   const { dismiss } = useBottomSheetModal();
   const requirements = React.useMemo(() => {
     if (state.education.trim().length === 0) return data;
