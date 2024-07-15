@@ -43,3 +43,25 @@ export const create = mutation({
     }
   },
 });
+
+export const updateProfilePicture = mutation({
+  args: {
+    url: v.string(),
+    id: v.string(),
+  },
+  handler: async ({ db }, { id, url }) => {
+    try {
+      const me = await db
+        .query("users")
+        .filter((q) => q.eq(q.field("id"), id))
+        .first();
+      if (!!!me) {
+        return { success: false };
+      }
+      await db.patch(me._id, { image: url });
+      return { success: true };
+    } catch (error) {
+      return { success: false };
+    }
+  },
+});

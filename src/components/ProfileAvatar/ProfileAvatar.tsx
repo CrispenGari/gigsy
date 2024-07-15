@@ -1,10 +1,4 @@
-import {
-  View,
-  Image,
-  TouchableOpacity,
-  Text,
-  SafeAreaView,
-} from "react-native";
+import { View, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { COLORS, IMAGES } from "@/src/constants";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,6 +10,7 @@ import {
 import Typography from "../Typography/Typography";
 import { useMediaPermission } from "@/src/hooks";
 import * as ImagePicker from "expo-image-picker";
+import Animated from "react-native-reanimated";
 
 interface Props {
   uri?: string;
@@ -102,7 +97,7 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
         activeOpacity={0.7}
         style={{ position: "relative" }}
       >
-        <Image
+        <Animated.Image
           source={{
             uri: image.uri
               ? image.uri
@@ -130,7 +125,7 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
             onPress={openPhotoOptions}
             activeOpacity={0.7}
             style={{
-              backgroundColor: COLORS.green,
+              backgroundColor: COLORS.gray,
               justifyContent: "center",
               alignItems: "center",
               width: 60,
@@ -148,7 +143,7 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
         ref={bottomSheetModalRef}
         snapPoints={snapPoints}
         enablePanDownToClose={true}
-        backgroundStyle={{ backgroundColor: COLORS.tertiary }}
+        backgroundStyle={{ backgroundColor: COLORS.white }}
         style={{ borderRadius: 0 }}
         handleComponent={() => (
           <View
@@ -164,7 +159,7 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
         )}
       >
         <BottomSheetView
-          style={{ flex: 1, padding: 10, backgroundColor: COLORS.tertiary }}
+          style={{ flex: 1, padding: 10, backgroundColor: COLORS.white }}
         >
           <Typography
             variant="h6"
@@ -196,7 +191,7 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
                 borderRadius: 10,
                 width: 50,
                 height: 50,
-                backgroundColor: COLORS.primary,
+                backgroundColor: COLORS.semiGray,
               }}
             >
               <Ionicons name="camera-outline" size={24} color={COLORS.black} />
@@ -228,7 +223,7 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
                 borderRadius: 10,
                 width: 50,
                 height: 50,
-                backgroundColor: COLORS.primary,
+                backgroundColor: COLORS.semiGray,
               }}
             >
               <Ionicons name="image-outline" size={24} color={COLORS.green} />
@@ -261,7 +256,7 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
                 borderRadius: 10,
                 width: 50,
                 height: 50,
-                backgroundColor: COLORS.primary,
+                backgroundColor: COLORS.semiGray,
               }}
             >
               <Ionicons name="close-outline" size={24} color={COLORS.red} />
