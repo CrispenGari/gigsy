@@ -8,6 +8,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import { useMeStore } from "@/src/store/meStore";
 import { COLORS, FONTS } from "@/src/constants";
@@ -16,6 +17,8 @@ import { useUser } from "@clerk/clerk-expo";
 import Spinner from "react-native-loading-spinner-overlay";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { FlatList } from "react-native";
+import UserAdverts from "@/src/components/ProfileComponents/UserAdverts";
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
@@ -52,11 +55,20 @@ const Page = () => {
     };
   });
   const animatedButtonStyles = useAnimatedStyle(() => {
-    const width = interpolate(hasNewImage.value, [0, 1], [0, 200]);
-    const height = interpolate(hasNewImage.value, [0, 1], [0, 40]);
+    const width = withTiming(interpolate(hasNewImage.value, [0, 1], [0, 200]));
+    const height = withTiming(interpolate(hasNewImage.value, [0, 1], [0, 40]));
+    const paddingVertical = withTiming(
+      interpolate(hasNewImage.value, [0, 1], [0, 10])
+    );
+    const marginTop = withTiming(
+      interpolate(hasNewImage.value, [0, 1], [0, 10])
+    );
+
     return {
       width,
       height,
+      paddingVertical,
+      marginTop,
     };
   });
 
@@ -71,14 +83,17 @@ const Page = () => {
           headerShadowVisible: false,
           headerTitle: "",
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="chevron-back" size={18} />
+            <TouchableOpacity
+              style={{ width: 40 }}
+              onPress={() => router.back()}
+            >
+              <Ionicons name="chevron-back" size={20} />
             </TouchableOpacity>
           ),
         }}
       />
       <Spinner visible={state.loading} animation="fade" />
-      <View style={{ padding: 10 }}>
+      <View style={{ padding: 10, flex: 1 }}>
         <Card
           style={{
             padding: 20,
@@ -91,9 +106,11 @@ const Page = () => {
           }}
         >
           <View style={{ alignItems: "center" }}>
-            <View style={{}}>
-              <ProfileAvatar setBase64={setImage} uri={me?.imageUrl} />
-            </View>
+            <ProfileAvatar
+              setBase64={setImage}
+              uri={me?.imageUrl}
+              sharedTransitionTag="me-profile-avatar"
+            />
             <Text
               style={{ fontSize: 18, fontFamily: FONTS.bold, marginTop: 20 }}
             >
@@ -103,17 +120,14 @@ const Page = () => {
               {me?.email}
             </Text>
           </View>
-
           <AnimatedTouchableOpacity
             onPress={updateAvatar}
             style={[
               animatedButtonStyles,
               {
-                marginTop: 20,
                 backgroundColor: COLORS.green,
                 maxWidth: 200,
                 borderRadius: 5,
-                paddingVertical: 10,
                 justifyContent: "center",
                 alignItems: "center",
                 flexGrow: 0,
@@ -135,6 +149,7 @@ const Page = () => {
             </Animated.Text>
           </AnimatedTouchableOpacity>
         </Card>
+        <UserAdverts />
       </View>
     </>
   );

@@ -3,6 +3,7 @@ import React from "react";
 import { COLORS, IMAGES } from "@/src/constants";
 import { Ionicons } from "@expo/vector-icons";
 import {
+  BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetView,
   useBottomSheetModal,
@@ -11,12 +12,14 @@ import Typography from "../Typography/Typography";
 import { useMediaPermission } from "@/src/hooks";
 import * as ImagePicker from "expo-image-picker";
 import Animated from "react-native-reanimated";
+import { sharedElementTransition } from "@/src/utils/SharedTransition";
 
 interface Props {
   uri?: string;
   setBase64: React.Dispatch<React.SetStateAction<string | null | undefined>>;
+  sharedTransitionTag?: string;
 }
-const ProfileAvatar = ({ uri, setBase64 }: Props) => {
+const ProfileAvatar = ({ uri, setBase64, sharedTransitionTag }: Props) => {
   const { camera, gallery } = useMediaPermission();
   const [image, setImage] = React.useState<{
     uri?: string;
@@ -108,6 +111,8 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
             height: 250,
             borderRadius: 250,
           }}
+          sharedTransitionStyle={sharedElementTransition}
+          sharedTransitionTag={sharedTransitionTag}
         />
         <View
           style={{
@@ -155,6 +160,13 @@ const ProfileAvatar = ({ uri, setBase64 }: Props) => {
               backgroundColor: COLORS.black,
               marginVertical: 10,
             }}
+          />
+        )}
+        backdropComponent={(props) => (
+          <BottomSheetBackdrop
+            {...props}
+            appearsOnIndex={0}
+            disappearsOnIndex={-1}
           />
         )}
       >

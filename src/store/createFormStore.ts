@@ -2,12 +2,14 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { zustandStorage } from "./storage";
 import { STORAGE_NAME } from "../constants";
+import { TLoc } from "./locationStore";
 
 type TBasic = {
   title: string;
   description: string;
   company: string;
   companyDescription?: string;
+  location: TLoc;
 };
 type TAdditional = {
   skills: string[];
@@ -27,7 +29,12 @@ type TContact = {
   contactEmail: string;
   contactPhone?: string;
 };
-type TFormState = TPayment & TContact & TAdditional & TBasic;
+type TFormState = TPayment &
+  TContact &
+  TAdditional &
+  TBasic & {
+    location: TLoc;
+  };
 type TCreateFormState = {
   form: TFormState;
   setForm: (form: TFormState) => void;
@@ -36,6 +43,7 @@ type TCreateFormState = {
   setAdditional: (state: TAdditional) => void;
   setPayment: (state: TPayment) => void;
   clearForm: () => void;
+  setLocation: (location: TLoc) => void;
 };
 
 const initialFormState: TFormState = {
@@ -52,6 +60,21 @@ const initialFormState: TFormState = {
   type: "part-time",
   companyDescription: "",
   contactPhone: "",
+  location: {
+    lat: 51.507351,
+    lon: -0.127758,
+    address: {
+      city: null,
+      country: null,
+      district: null,
+      isoCountryCode: null,
+      name: null,
+      postalCode: null,
+      region: null,
+      street: null,
+      streetNumber: null,
+    },
+  },
 };
 
 export const useCreateFormStore = create<TCreateFormState>()(
@@ -63,7 +86,12 @@ export const useCreateFormStore = create<TCreateFormState>()(
       setContact: (state) => set({ form: { ..._get().form, ...state } }),
       setAdditional: (state) => set({ form: { ..._get().form, ...state } }),
       setPayment: (state) => set({ form: { ..._get().form, ...state } }),
-      clearForm: () => set({ form: initialFormState }),
+      clearForm: () => {
+        // we don't remove location
+        const location = _get().form.location;
+        set({ form: { ...initialFormState, location } });
+      },
+      setLocation: (location) => set({ form: { ..._get().form, location } }),
     }),
     {
       name: STORAGE_NAME.CREATE_FORM,

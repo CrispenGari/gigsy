@@ -20,6 +20,11 @@ import Animated, {
 } from "react-native-reanimated";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCreateFormStore } from "@/src/store/createFormStore";
+import { useCurrentLocation } from "@/src/hooks/useCurrentLocation";
+import { TLoc, useLocationStore } from "@/src/store/locationStore";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import LocationPickerBottomSheet from "@/src/components/BottomSheets/LocationPickerBottomSheet";
+import MapView from "react-native-maps";
 type StateType = {
   error: string;
   loading: boolean;
@@ -27,12 +32,16 @@ type StateType = {
   description: string;
   company: string;
   companyDescription: string;
+  location: TLoc;
 };
 const Page = () => {
+  const locationBottomSheetRef = React.useRef<BottomSheetModal>(null);
   const { action } = useLocalSearchParams<{ action: string }>();
+  const { location } = useLocationStore();
   const { os } = usePlatform();
   const router = useRouter();
   const { setBasic, form } = useCreateFormStore();
+
   const [state, setState] = React.useState<StateType>({
     error: "",
     loading: false,
@@ -40,6 +49,21 @@ const Page = () => {
     description: form.description,
     company: form.company,
     companyDescription: form.companyDescription ?? "",
+    location: {
+      lat: 51.507351,
+      lon: -0.127758,
+      address: {
+        city: null,
+        country: null,
+        district: null,
+        isoCountryCode: null,
+        name: null,
+        postalCode: null,
+        region: null,
+        street: null,
+        streetNumber: null,
+      },
+    },
   });
 
   const flexWidth = useSharedValue(0);
@@ -61,6 +85,7 @@ const Page = () => {
       description: "",
       title: "",
       companyDescription: "",
+      location,
     });
   };
 
@@ -119,8 +144,10 @@ const Page = () => {
     });
   };
 
+  const selectLocation = () => locationBottomSheetRef.current?.present();
+
   React.useEffect(() => {
-    const { error, loading, ...rest } = state;
+    const { error, loading, location, ...rest } = state;
     const hasValues = Object.values(rest).filter(Boolean);
     flexWidth.value = withTiming(hasValues.length !== 0 ? 150 : 0);
     scale.value = withTiming(hasValues.length !== 0 ? 1 : 0);
@@ -134,8 +161,9 @@ const Page = () => {
       description: form.description,
       company: form.company,
       companyDescription: form.companyDescription ?? "",
+      location: form.location.address.isoCountryCode ? form.location : location,
     }));
-  }, [form]);
+  }, [form, location]);
 
   React.useEffect(() => {
     if (!!action) {
@@ -153,178 +181,220 @@ const Page = () => {
     }
   }, [action]);
   return (
-    <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView
-        style={{ padding: 10, flex: 1 }}
-        behavior={os === "ios" ? "padding" : "height"}
-      >
-        <Card style={{ marginTop: 5, marginBottom: 10 }}>
-          <>
-            <Text
-              style={{
-                fontFamily: FONTS.bold,
-                color: COLORS.gray,
-                marginBottom: 10,
-              }}
-            >
-              Field marked (*) are required.
-            </Text>
-            <View style={{ flexDirection: "row", gap: 10 }}>
+    <>
+      <LocationPickerBottomSheet
+        initialState={location}
+        ref={locationBottomSheetRef}
+        onChangeValue={(value) => {
+          setState((s) => ({ ...s, location: value }));
+        }}
+      />
+      <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
+        <KeyboardAvoidingView
+          style={{ padding: 10, flex: 1 }}
+          behavior={os === "ios" ? "padding" : "height"}
+        >
+          <Card style={{ marginTop: 5, marginBottom: 10 }}>
+            <>
+              <Text
+                style={{
+                  fontFamily: FONTS.bold,
+                  color: COLORS.gray,
+                  marginBottom: 10,
+                }}
+              >
+                Field marked (*) are required.
+              </Text>
+              <View style={{ flexDirection: "row", gap: 10 }}>
+                <CreateInput
+                  label="Job Title(*)"
+                  placeholder="Job Title"
+                  Icon={
+                    <TouchableOpacity>
+                      <MaterialIcons
+                        name="perm-identity"
+                        size={16}
+                        color="black"
+                      />
+                    </TouchableOpacity>
+                  }
+                  value={state.title}
+                  onChangeText={(text) =>
+                    setState((s) => ({ ...s, title: text }))
+                  }
+                  containerStyle={{ flex: 1 }}
+                />
+                <CreateInput
+                  label="Company Name(*)"
+                  placeholder="Company Name"
+                  Icon={
+                    <TouchableOpacity>
+                      <Ionicons
+                        name="accessibility-outline"
+                        size={16}
+                        color="black"
+                      />
+                    </TouchableOpacity>
+                  }
+                  value={state.company}
+                  onChangeText={(text) =>
+                    setState((s) => ({ ...s, company: text }))
+                  }
+                  containerStyle={{ flex: 1 }}
+                />
+              </View>
+
               <CreateInput
-                label="Job Title(*)"
-                placeholder="Job Title"
+                label="Job Description(*)"
+                placeholder="Job Description"
                 Icon={
                   <TouchableOpacity>
-                    <MaterialIcons
-                      name="perm-identity"
-                      size={16}
-                      color="black"
-                    />
+                    <MaterialIcons name="animation" size={16} color="black" />
                   </TouchableOpacity>
                 }
-                value={state.title}
+                value={state.description}
                 onChangeText={(text) =>
-                  setState((s) => ({ ...s, title: text }))
+                  setState((s) => ({ ...s, description: text }))
                 }
-                containerStyle={{ flex: 1 }}
+                containerStyle={{ marginTop: 5 }}
+                inputStyle={{ maxHeight: 80 }}
+                inputContainerStyle={{ alignItems: "flex-start" }}
+                multiline={true}
+                iconStyle={{ marginTop: 5 }}
               />
               <CreateInput
-                label="Company Name(*)"
-                placeholder="Company Name"
+                label="Location(*)"
+                placeholder="Location"
+                editable={false}
+                onIconPress={selectLocation}
+                Icon={
+                  <TouchableOpacity>
+                    <Ionicons name="location-outline" size={16} color="black" />
+                  </TouchableOpacity>
+                }
+                value={state.location.address.city || ""}
+                onChangeText={(text) =>
+                  setState((s) => ({
+                    ...s,
+                    location: {
+                      ...s.location,
+                      address: {
+                        ...s.location.address,
+                        city: text,
+                      },
+                    },
+                  }))
+                }
+                containerStyle={{ marginTop: 5 }}
+                inputStyle={{ maxHeight: 80 }}
+                inputContainerStyle={{ alignItems: "flex-start" }}
+                multiline={true}
+                iconStyle={{ marginTop: 5 }}
+              />
+              <CreateInput
+                label="Company Description"
+                placeholder="Company Description"
                 Icon={
                   <TouchableOpacity>
                     <Ionicons
-                      name="accessibility-outline"
+                      name="git-commit-outline"
                       size={16}
                       color="black"
                     />
                   </TouchableOpacity>
                 }
-                value={state.company}
+                value={state.companyDescription}
                 onChangeText={(text) =>
-                  setState((s) => ({ ...s, company: text }))
+                  setState((s) => ({ ...s, companyDescription: text }))
                 }
-                containerStyle={{ flex: 1 }}
+                containerStyle={{ marginTop: 5 }}
+                inputStyle={{ maxHeight: 80 }}
+                inputContainerStyle={{ alignItems: "flex-start" }}
+                multiline={true}
+                iconStyle={{ marginTop: 5 }}
               />
-            </View>
 
-            <CreateInput
-              label="Job Description(*)"
-              placeholder="Job Description"
-              Icon={
-                <TouchableOpacity>
-                  <MaterialIcons name="animation" size={16} color="black" />
-                </TouchableOpacity>
-              }
-              value={state.description}
-              onChangeText={(text) =>
-                setState((s) => ({ ...s, description: text }))
-              }
-              containerStyle={{ marginTop: 5 }}
-              inputStyle={{ maxHeight: 80 }}
-              inputContainerStyle={{ alignItems: "flex-start" }}
-              multiline={true}
-              iconStyle={{ marginTop: 5 }}
-            />
-            <CreateInput
-              label="Company Description"
-              placeholder="Company Description"
-              Icon={
-                <TouchableOpacity>
-                  <Ionicons name="git-commit-outline" size={16} color="black" />
-                </TouchableOpacity>
-              }
-              value={state.companyDescription}
-              onChangeText={(text) =>
-                setState((s) => ({ ...s, companyDescription: text }))
-              }
-              containerStyle={{ marginTop: 5 }}
-              inputStyle={{ maxHeight: 80 }}
-              inputContainerStyle={{ alignItems: "flex-start" }}
-              multiline={true}
-              iconStyle={{ marginTop: 5 }}
-            />
-
-            <Text
-              style={{
-                fontFamily: FONTS.regular,
-                color: COLORS.red,
-                marginTop: 10,
-              }}
-            >
-              {state.error}
-            </Text>
-          </>
-        </Card>
-        <Card
-          style={{
-            marginTop: 5,
-            marginBottom: 10,
-          }}
-        >
-          <Animated.View
-            style={[
-              gapStyle,
-              {
-                flexDirection: "row",
-                alignItems: "center",
-                width: "100%",
-                justifyContent: "space-between",
-                height: 50,
-              },
-            ]}
+              <Text
+                style={{
+                  fontFamily: FONTS.regular,
+                  color: COLORS.red,
+                  marginTop: 10,
+                }}
+              >
+                {state.error}
+              </Text>
+            </>
+          </Card>
+          <Card
+            style={{
+              marginTop: 5,
+              marginBottom: 10,
+            }}
           >
             <Animated.View
               style={[
-                animatedWidth,
+                gapStyle,
                 {
-                  backgroundColor: COLORS.semiGray,
+                  flexDirection: "row",
                   alignItems: "center",
-                  borderRadius: 5,
+                  width: "100%",
+                  justifyContent: "space-between",
+                  height: 50,
                 },
               ]}
             >
-              <TouchableOpacity style={{ padding: 10 }} onPress={clear}>
-                <Animated.Text
-                  style={[
-                    animatedText,
-                    {
-                      color: COLORS.black,
-                      fontSize: 20,
-                      fontFamily: FONTS.bold,
-                    },
-                  ]}
+              <Animated.View
+                style={[
+                  animatedWidth,
+                  {
+                    backgroundColor: COLORS.semiGray,
+                    alignItems: "center",
+                    borderRadius: 5,
+                  },
+                ]}
+              >
+                <TouchableOpacity style={{ padding: 10 }} onPress={clear}>
+                  <Animated.Text
+                    style={[
+                      animatedText,
+                      {
+                        color: COLORS.black,
+                        fontSize: 20,
+                        fontFamily: FONTS.bold,
+                      },
+                    ]}
+                  >
+                    Clear
+                  </Animated.Text>
+                </TouchableOpacity>
+              </Animated.View>
+
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  backgroundColor: COLORS.green,
+                  padding: 10,
+                  alignItems: "center",
+                  borderRadius: 5,
+                  maxWidth: 400,
+                }}
+                onPress={saveAndGoToNext}
+              >
+                <Text
+                  style={{
+                    color: COLORS.white,
+                    fontSize: 20,
+                    fontFamily: FONTS.bold,
+                  }}
                 >
-                  clear
-                </Animated.Text>
+                  Next
+                </Text>
               </TouchableOpacity>
             </Animated.View>
-
-            <TouchableOpacity
-              style={{
-                flex: 1,
-                backgroundColor: COLORS.green,
-                padding: 10,
-                alignItems: "center",
-                borderRadius: 5,
-                maxWidth: 400,
-              }}
-              onPress={saveAndGoToNext}
-            >
-              <Text
-                style={{
-                  color: COLORS.white,
-                  fontSize: 20,
-                  fontFamily: FONTS.bold,
-                }}
-              >
-                next
-              </Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </Card>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+          </Card>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+    </>
   );
 };
 

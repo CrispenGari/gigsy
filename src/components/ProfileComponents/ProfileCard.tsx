@@ -6,6 +6,7 @@ import Card from "../Card/Card";
 import Animated, { SlideInLeft, ZoomInUp } from "react-native-reanimated";
 import { useMeStore } from "@/src/store/meStore";
 import { Link } from "expo-router";
+import { sharedElementTransition } from "@/src/utils/SharedTransition";
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
@@ -39,6 +40,8 @@ const ProfileCard = () => {
           <Animated.Image
             source={{ uri: me?.imageUrl }}
             style={{ width: 50, height: 50, borderRadius: 50 }}
+            sharedTransitionTag="me-profile-avatar"
+            sharedTransitionStyle={sharedElementTransition}
           />
           <View style={{ flex: 1 }}>
             <Text style={{ fontFamily: FONTS.bold, fontSize: 16 }}>

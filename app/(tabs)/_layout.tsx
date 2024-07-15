@@ -1,6 +1,9 @@
 import HomeHeader from "@/src/components/HomeHeader/HomeHeader";
 import { COLORS, FONTS } from "@/src/constants";
 import { usePlatform } from "@/src/hooks";
+import { useCurrentLocation } from "@/src/hooks/useCurrentLocation";
+import { useCreateFormStore } from "@/src/store/createFormStore";
+import { useLocationStore } from "@/src/store/locationStore";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { Tabs } from "expo-router";
@@ -8,6 +11,15 @@ import React from "react";
 import { StyleSheet } from "react-native";
 const Layout = () => {
   const { os } = usePlatform();
+  const location = useCurrentLocation();
+  const { update } = useLocationStore();
+  const { setLocation } = useCreateFormStore();
+  React.useEffect(() => {
+    if (location) {
+      update(location);
+      setLocation(location);
+    }
+  }, [location]);
   return (
     <Tabs
       initialRouteName="create"

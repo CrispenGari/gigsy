@@ -244,7 +244,7 @@ const Page = () => {
                       },
                     ]}
                   >
-                    clear
+                    Clear
                   </Animated.Text>
                 </TouchableOpacity>
               </Animated.View>
@@ -267,7 +267,7 @@ const Page = () => {
                     fontFamily: FONTS.bold,
                   }}
                 >
-                  next
+                  Next
                 </Text>
               </TouchableOpacity>
             </Animated.View>

@@ -65,3 +65,25 @@ export const updateProfilePicture = mutation({
     }
   },
 });
+
+export const userAdverts = query({
+  args: {
+    id: v.string(),
+  },
+  handler: async ({ db }, { id }) => {
+    try {
+      const me = await db
+        .query("users")
+        .filter((q) => q.eq(q.field("id"), id))
+        .first();
+      if (!!!me) return { jobs: [] };
+      const jobs = await db
+        .query("jobs")
+        .filter((q) => q.eq(q.field("userId"), me?._id))
+        .collect();
+      return { jobs };
+    } catch (error) {
+      return { jobs: [] };
+    }
+  },
+});

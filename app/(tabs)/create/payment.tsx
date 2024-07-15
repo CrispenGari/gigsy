@@ -128,6 +128,11 @@ const Page = () => {
     const { success } = await publishMutation({
       ...form,
       userId: _id,
+      salaryRange: {
+        max: state.salaryRange.max,
+        min: state.salaryRange.min,
+      },
+      type: state.type,
     });
     if (success) {
       setState((s) => ({ ...s, loading: false }));
@@ -152,8 +157,8 @@ const Page = () => {
       ...s,
       type: form.type,
       salaryRange: {
-        min: state.salaryRange.min,
-        max: state.salaryRange.max,
+        min: form.salaryRange.min ?? "",
+        max: form.salaryRange.max,
       },
     }));
   }, [form]);
@@ -296,7 +301,7 @@ const Page = () => {
                       },
                     ]}
                   >
-                    clear
+                    Clear
                   </Animated.Text>
                 </TouchableOpacity>
               </Animated.View>
@@ -319,7 +324,7 @@ const Page = () => {
                     fontFamily: FONTS.bold,
                   }}
                 >
-                  publish
+                  Publish
                 </Text>
               </TouchableOpacity>
             </Animated.View>

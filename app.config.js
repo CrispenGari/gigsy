@@ -26,7 +26,17 @@ module.exports = {
       output: "static",
       favicon: "./assets/images/icon.png",
     },
-    plugins: ["expo-router", "expo-secure-store"],
+    plugins: [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          locationAlwaysAndWhenInUsePermission:
+            "Allow $(PRODUCT_NAME) to use your location.",
+        },
+      ],
+    ],
 
     experiments: {
       typedRoutes: true,

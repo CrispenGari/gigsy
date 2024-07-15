@@ -34,6 +34,23 @@ export const IMAGES = {
 export const STORAGE_NAME = {
   CREATE_FORM: "create-form",
   ME: "user-me",
+  LOCATION: "my-location",
 };
 
 export const KEYS = {};
+
+export const relativeTimeObject = {
+  future: "in %s",
+  past: "%s",
+  s: "now",
+  m: "1m",
+  mm: "%dm",
+  h: "1h",
+  hh: "%dh",
+  d: "1d",
+  dd: "%dd",
+  M: "1M",
+  MM: "%dM",
+  y: "1y",
+  yy: "%dy",
+};

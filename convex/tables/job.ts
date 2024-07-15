@@ -18,8 +18,22 @@ export const jobArguments = {
     max: v.string(),
     min: v.optional(v.string()),
   }),
+  location: v.object({
+    lat: v.number(),
+    lon: v.number(),
+    address: v.object({
+      city: v.union(v.string(), v.null()),
+      country: v.union(v.null(), v.string()),
+      district: v.union(v.null(), v.string()),
+      isoCountryCode: v.union(v.null(), v.string()),
+      name: v.union(v.null(), v.string()),
+      postalCode: v.union(v.null(), v.string()),
+      region: v.union(v.null(), v.string()),
+      street: v.union(v.null(), v.string()),
+      streetNumber: v.union(v.null(), v.string()),
+    }),
+  }),
   //   relations
-
   userId: v.id("users"),
 };
 export const jobs = defineTable(jobArguments).index("userId", ["userId"]);

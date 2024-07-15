@@ -7,7 +7,6 @@ import {
   View,
   TextInput,
   Text,
-  TouchableOpacity,
   TextStyle,
   KeyboardTypeOptions,
 } from "react-native";
@@ -19,6 +18,7 @@ import Animated, {
   AnimatedStyle,
 } from "react-native-reanimated";
 
+import { TouchableOpacity } from "react-native-gesture-handler";
 interface CreateInputProps {
   label: string;
   placeholder?: string;
@@ -32,6 +32,7 @@ interface CreateInputProps {
   inputContainerStyle?: StyleProp<AnimatedStyle<StyleProp<ViewStyle>>>;
   inputStyle?: StyleProp<TextStyle>;
   keyboardType?: KeyboardTypeOptions;
+  editable?: boolean;
 }
 
 const CreateInput: React.FC<CreateInputProps> = ({
@@ -47,6 +48,7 @@ const CreateInput: React.FC<CreateInputProps> = ({
   inputStyle,
   keyboardType,
   iconStyle,
+  editable,
 }) => {
   const focused = useSharedValue(0);
   const { os } = usePlatform();
@@ -77,7 +79,14 @@ const CreateInput: React.FC<CreateInputProps> = ({
           inputContainerStyle,
         ]}
       >
-        <TouchableOpacity style={[iconStyle]} onPress={onIconPress}>
+        <TouchableOpacity
+          style={[iconStyle]}
+          onPress={() => {
+            if (typeof onIconPress !== "undefined") {
+              onIconPress();
+            }
+          }}
+        >
           {Icon}
         </TouchableOpacity>
         <TextInput
@@ -93,6 +102,7 @@ const CreateInput: React.FC<CreateInputProps> = ({
           multiline={multiline}
           keyboardType={keyboardType}
           placeholderTextColor={COLORS.black}
+          editable={editable}
         />
       </Animated.View>
     </View>
