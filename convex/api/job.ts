@@ -1,4 +1,5 @@
-import { mutation } from "../_generated/server";
+import { v } from "convex/values";
+import { mutation, query } from "../_generated/server";
 import { jobArguments } from "../tables/job";
 
 export const publish = mutation({
@@ -12,6 +13,22 @@ export const publish = mutation({
     } catch (error) {
       return {
         success: false,
+      };
+    }
+  },
+});
+
+export const get = query({
+  args: { limit: v.number() },
+  handler: async ({ db }, { limit }) => {
+    try {
+      const jobs = await db.query("jobs").order("desc").take(limit);
+      return {
+        jobs,
+      };
+    } catch (error) {
+      return {
+        jobs: [],
       };
     }
   },

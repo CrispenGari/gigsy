@@ -83,6 +83,7 @@ const Layout = () => {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-circle-outline" color={color} size={size} />
           ),
+          headerShown: false,
         }}
       />
     </Tabs>

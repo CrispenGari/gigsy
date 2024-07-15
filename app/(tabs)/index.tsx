@@ -1,31 +1,18 @@
-import { View } from "react-native";
+import { ScrollView, TouchableOpacity, Text } from "react-native";
 import React from "react";
-import Typography from "@/src/components/Typography/Typography";
-import { useUser, useClerk } from "@clerk/clerk-expo";
-import { Button } from "react-native";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 const Home = () => {
-  const { user } = useUser();
-  const { signOut } = useClerk();
+  const jobs = useQuery(api.api.job.get, { limit: 10 });
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Typography
-        variant="h3"
-        style={{
-          textDecorationStyle: "solid",
-          textDecorationLine: "underline",
-        }}
-      >
-        {JSON.stringify({
-          user: {
-            email: user?.primaryEmailAddressId,
-            firstName: user?.firstName,
-            lastName: user?.lastName,
-          },
-        })}
-      </Typography>
-      <Button title="Sign Out" onPress={signOut} />
-    </View>
+    <ScrollView style={{ flex: 1, padding: 10 }}>
+      {jobs?.jobs.map((job) => (
+        <TouchableOpacity key={job._id}>
+          <Text>{job.title}</Text>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
   );
 };
 

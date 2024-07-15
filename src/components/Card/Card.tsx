@@ -13,7 +13,6 @@ const Card = ({
     <View
       style={[
         {
-          width: "100%",
           padding: 10,
           borderRadius: 10,
           elevation: 1,

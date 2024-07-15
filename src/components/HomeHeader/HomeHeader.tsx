@@ -58,7 +58,7 @@ const HomeHeader = ({}: BottomTabHeaderProps) => {
       <View
         style={{
           paddingTop: os === "ios" ? 0 : top,
-          paddingBottom: 20,
+          paddingBottom: 14,
           borderBottomWidth: StyleSheet.hairlineWidth,
           borderBottomColor: COLORS.lightGray,
         }}
@@ -67,7 +67,7 @@ const HomeHeader = ({}: BottomTabHeaderProps) => {
           style={{
             fontFamily: FONTS.bold,
             fontSize: 20,
-            marginVertical: 20,
+            marginVertical: 14,
             textAlign: "center",
           }}
         >
