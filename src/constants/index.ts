@@ -33,6 +33,7 @@ export const IMAGES = {
 
 export const STORAGE_NAME = {
   CREATE_FORM: "create-form",
+  ME: "user-me",
 };
 
 export const KEYS = {};

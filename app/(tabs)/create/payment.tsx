@@ -17,10 +17,14 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import HeaderBackButton from "@/src/components/HeaderBackButton/HeaderBackButton";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { useCreateFormStore } from "@/src/store/createFormStore";
+import Spinner from "react-native-loading-spinner-overlay";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useMeStore } from "@/src/store/meStore";
 
 type StateType = {
   error: string;
@@ -32,8 +36,12 @@ type StateType = {
   type: "part-time" | "full-time";
 };
 const Page = () => {
+  const router = useRouter();
+  const publishMutation = useMutation(api.api.job.publish);
+  const findUserMutation = useMutation(api.api.user.findUserOrCreateOne);
+  const { me } = useMeStore();
   const { os } = usePlatform();
-  const { setPayment, form } = useCreateFormStore();
+  const { setPayment, form, clearForm } = useCreateFormStore();
   const { from } = useLocalSearchParams<{ from: string }>();
   const [state, setState] = React.useState<StateType>({
     error: "",
@@ -82,17 +90,61 @@ const Page = () => {
     };
   });
 
-  const publishJob = () => {
+  const publishJob = async () => {
+    setState((s) => ({
+      ...s,
+      loading: true,
+    }));
     if (!!!state.salaryRange.max.trim().length) {
       return setState((s) => ({
         ...s,
         error: "The maximum salary should be set.",
+        loading: false,
+      }));
+    }
+    if (!!!me) {
+      return setState((s) => ({
+        ...s,
+        error: "You are not authenticated.",
+        loading: false,
       }));
     }
     const { error, loading, ...rest } = state;
     setPayment(rest);
+    const { _id } = await findUserMutation({
+      email: me.email,
+      firstName: me.firstName || "",
+      lastName: me.lastName || "",
+      id: me.id,
+      image: me.imageUrl,
+    });
 
-    console.log(JSON.stringify({ form }, null, 2));
+    if (!!!_id)
+      return setState((s) => ({
+        ...s,
+        error: "Failed to find the user in our gigsy system.",
+        loading: false,
+      }));
+    const { success } = await publishMutation({
+      ...form,
+      userId: _id,
+    });
+    if (success) {
+      setState((s) => ({ ...s, loading: false }));
+      clearForm();
+      router.replace({
+        pathname: "/(tabs)/create",
+        params: {
+          action: "published",
+        },
+      });
+    } else {
+      setState((s) => ({
+        ...s,
+        error: "Failed to publish your job advert try again.",
+        loading: false,
+      }));
+    }
   };
 
   React.useEffect(() => {
@@ -114,7 +166,7 @@ const Page = () => {
           headerTitle: "Payments",
         }}
       />
-
+      <Spinner visible={state.loading} animation="fade" />
       <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
           style={{ padding: 10, flex: 1 }}
@@ -267,7 +319,7 @@ const Page = () => {
                     fontFamily: FONTS.bold,
                   }}
                 >
-                  next
+                  publish
                 </Text>
               </TouchableOpacity>
             </Animated.View>

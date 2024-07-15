@@ -1,4 +1,12 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import {
+  Dimensions,
+  Keyboard,
+  KeyboardAvoidingView,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import React from "react";
 import { COLORS, FONTS } from "@/src/constants";
 import Divider from "@/src/components/Divider/Divider";
@@ -6,19 +14,13 @@ import { AppLogo, Typography } from "@/src/components";
 import { styles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import CustomTextInput from "@/src/components/CustomTextInput/CustomTextInput";
-import Animated, {
-  SlideInRight,
-  SlideInLeft,
-  SlideInUp,
-  SlideInDown,
-} from "react-native-reanimated";
+import Animated, { SlideInLeft, SlideInDown } from "react-native-reanimated";
 import { Link, useRouter } from "expo-router";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Ripple from "@/src/components/Ripple/Ripple";
 import { useOAuth, useSignIn } from "@clerk/clerk-expo";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
-import { useWarmUpBrowser } from "@/src/hooks";
+import { usePlatform, useWarmUpBrowser } from "@/src/hooks";
 
 WebBrowser.maybeCompleteAuthSession();
 const Login = () => {
@@ -39,7 +41,7 @@ const Login = () => {
     loading: false,
     error_msg: "",
   });
-
+  const { os } = usePlatform();
   const login = React.useCallback(async () => {
     if (!isLoaded) return;
     setState((state) => ({
@@ -195,36 +197,34 @@ const Login = () => {
   }, []);
 
   return (
-    <KeyboardAwareScrollView
-      showsVerticalScrollIndicator={false}
-      showsHorizontalScrollIndicator={false}
-      bounces={false}
-      style={{ backgroundColor: COLORS.white }}
-      contentContainerStyle={{ flex: 1 }}
-    >
-      <View
+    <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
+      <KeyboardAvoidingView
         style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: COLORS.white,
-          padding: 10,
+          minHeight: Dimensions.get("window").height,
         }}
+        behavior={os === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={100}
+        enabled
       >
-        <AppLogo />
         <View
-          style={[
-            {
-              flex: 1,
-              width: "100%",
-              maxWidth: 400,
-            },
-          ]}
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: COLORS.white,
+            padding: 10,
+          }}
         >
+          <AppLogo />
           <Animated.View
-            entering={SlideInRight}
-            exiting={SlideInLeft}
-            style={{ flex: 1, justifyContent: "center" }}
+            style={[
+              {
+                flex: 1,
+                width: "100%",
+                maxWidth: 400,
+              },
+            ]}
+            entering={SlideInLeft.duration(200).delay(200)}
           >
             <CustomTextInput
               placeholder="Email Address"
@@ -233,7 +233,7 @@ const Login = () => {
               onChangeText={(text) =>
                 setState((state) => ({ ...state, email: text }))
               }
-              leftIcon={<Ionicons name="mail" size={24} color={COLORS.green} />}
+              leftIcon={<Ionicons name="mail" size={24} color={COLORS.gray} />}
               inputStyle={{ fontSize: 20 }}
               containerStyles={{
                 borderRadius: 0,
@@ -244,7 +244,7 @@ const Login = () => {
             <CustomTextInput
               placeholder="Password"
               leftIcon={
-                <Ionicons name="lock-closed" size={24} color={COLORS.green} />
+                <Ionicons name="lock-closed" size={24} color={COLORS.gray} />
               }
               inputStyle={{ fontSize: 20 }}
               containerStyles={{
@@ -256,7 +256,7 @@ const Login = () => {
                 <Ionicons
                   name={!state.showPassword ? "eye-off" : "eye"}
                   size={24}
-                  color={COLORS.green}
+                  color={COLORS.gray}
                 />
               }
               onRightIconPress={() =>
@@ -272,26 +272,25 @@ const Login = () => {
               secureTextEntry={!state.showPassword}
               onSubmitEditing={login}
             />
-            <Text
-              onPress={() =>
-                router.navigate({
-                  pathname: "/forgot_password",
-                  params: {
-                    email_address: state.email,
-                  },
-                })
-              }
+            <Link
+              href={{
+                pathname: "/forgot_password",
+                params: {
+                  email_address: state.email,
+                },
+              }}
               style={{
                 color: COLORS.green,
                 fontSize: 18,
                 marginVertical: 20,
-                textAlign: "right",
+                alignSelf: "flex-end",
                 fontFamily: FONTS.regular,
                 textDecorationLine: "underline",
+                maxWidth: 150,
               }}
             >
               Forgot Password?
-            </Text>
+            </Link>
             {!!state.error_msg ? (
               <Typography
                 style={{
@@ -340,87 +339,92 @@ const Login = () => {
               </Text>
               {state.loading ? <Ripple size={5} color={COLORS.white} /> : null}
             </TouchableOpacity>
-          </Animated.View>
-          <Animated.View
-            entering={SlideInUp}
-            exiting={SlideInDown}
-            style={{ width: "100%", alignItems: "center" }}
-          >
-            <Divider
-              title="or"
-              position="center"
-              titleStyles={{
-                color: COLORS.black,
-              }}
-            />
-            <TouchableOpacity
-              disabled={state.loading}
-              activeOpacity={0.7}
+            <Animated.View
               style={{
-                borderRadius: 999,
-                maxWidth: 400,
                 width: "100%",
                 alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "row",
-                paddingHorizontal: 10,
-                backgroundColor: COLORS.green,
-                padding: 15,
-                gap: 10,
-                marginTop: 20,
+                marginTop: 30,
               }}
-              onPress={google}
+              entering={SlideInDown.duration(400).delay(200).mass(1)}
             >
-              <Ionicons name="logo-google" size={30} color={COLORS.white} />
-              <Text style={[styles.p, { color: COLORS.white, fontSize: 20 }]}>
-                Continue with Google
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              activeOpacity={0.7}
-              onPress={github}
-              style={{
-                borderRadius: 999,
-                maxWidth: 400,
-                width: "100%",
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "row",
-                paddingHorizontal: 10,
-                backgroundColor: COLORS.white,
-                padding: 15,
-                gap: 10,
-                marginTop: 20,
-                borderWidth: 1,
-                borderColor: COLORS.green,
-              }}
-              disabled={state.loading}
-            >
-              <Ionicons name="logo-github" size={30} />
-              <Text style={[styles.p, { color: COLORS.black, fontSize: 20 }]}>
-                Continue with Github
-              </Text>
-            </TouchableOpacity>
-
-            <Link href={"(modals)/register"} style={{ marginVertical: 30 }}>
-              <Text
-                style={[
-                  styles.p,
-                  {
-                    textDecorationStyle: "solid",
-                    textDecorationLine: "underline",
-                    color: COLORS.green,
-                    fontSize: 16,
-                  },
-                ]}
+              <Divider
+                title="or"
+                position="center"
+                titleStyles={{
+                  color: COLORS.black,
+                }}
+              />
+              <TouchableOpacity
+                disabled={state.loading}
+                activeOpacity={0.7}
+                style={{
+                  borderRadius: 999,
+                  maxWidth: 300,
+                  width: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "row",
+                  paddingHorizontal: 10,
+                  backgroundColor: COLORS.green,
+                  padding: 10,
+                  gap: 10,
+                  marginTop: 20,
+                }}
+                onPress={google}
               >
-                Create a new Account.
-              </Text>
-            </Link>
+                <Ionicons name="logo-google" size={30} color={COLORS.white} />
+                <Text style={[styles.p, { color: COLORS.white, fontSize: 18 }]}>
+                  Continue with Google
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={github}
+                style={{
+                  borderRadius: 999,
+                  maxWidth: 300,
+                  width: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "row",
+                  paddingHorizontal: 10,
+                  backgroundColor: COLORS.white,
+                  padding: 10,
+                  gap: 10,
+                  marginTop: 20,
+                  borderWidth: 1,
+                  borderColor: COLORS.green,
+                }}
+                disabled={state.loading}
+              >
+                <Ionicons name="logo-github" size={30} />
+                <Text style={[styles.p, { color: COLORS.black, fontSize: 18 }]}>
+                  Continue with Github
+                </Text>
+              </TouchableOpacity>
+
+              <Link href={"(modals)/register"} style={{ marginVertical: 30 }}>
+                <Text
+                  style={[
+                    styles.p,
+                    {
+                      textDecorationStyle: "solid",
+                      textDecorationLine: "underline",
+                      color: COLORS.green,
+                      fontSize: 16,
+                      position: "absolute",
+                      bottom: 0,
+                    },
+                  ]}
+                >
+                  Create a new Account.
+                </Text>
+              </Link>
+            </Animated.View>
           </Animated.View>
         </View>
-      </View>
-    </KeyboardAwareScrollView>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 };
 

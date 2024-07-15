@@ -35,6 +35,7 @@ type TCreateFormState = {
   setContact: (state: TContact) => void;
   setAdditional: (state: TAdditional) => void;
   setPayment: (state: TPayment) => void;
+  clearForm: () => void;
 };
 
 const initialFormState: TFormState = {
@@ -62,6 +63,7 @@ export const useCreateFormStore = create<TCreateFormState>()(
       setContact: (state) => set({ form: { ..._get().form, ...state } }),
       setAdditional: (state) => set({ form: { ..._get().form, ...state } }),
       setPayment: (state) => set({ form: { ..._get().form, ...state } }),
+      clearForm: () => set({ form: initialFormState }),
     }),
     {
       name: STORAGE_NAME.CREATE_FORM,

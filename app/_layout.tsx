@@ -6,12 +6,19 @@ import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React from "react";
 import { ClerkProvider } from "@/src/providers";
-import { useAuth } from "@clerk/clerk-expo";
+import { useAuth, useUser } from "@clerk/clerk-expo";
 import { TouchableOpacity, LogBox, StatusBar, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Typography } from "@/src/components";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { usePlatform } from "@/src/hooks";
+import { useMeStore } from "@/src/store/meStore";
+
+const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
+  unsavedChangesWarning: false,
+});
 
 LogBox.ignoreLogs;
 LogBox.ignoreAllLogs();
@@ -37,9 +44,11 @@ const Layout = () => {
       />
       <GestureHandlerRootView>
         <BottomSheetModalProvider>
-          <ClerkProvider>
-            <RootLayout />
-          </ClerkProvider>
+          <ConvexProvider client={convex}>
+            <ClerkProvider>
+              <RootLayout />
+            </ClerkProvider>
+          </ConvexProvider>
         </BottomSheetModalProvider>
       </GestureHandlerRootView>
     </View>
@@ -49,20 +58,44 @@ const Layout = () => {
 export default Layout;
 
 const RootLayout = () => {
-  const { isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
+  const { user, isLoaded, isSignedIn } = useUser();
+  const { os } = usePlatform();
 
-  // React.useEffect(() => {
-  //   if (isLoaded && !isSignedIn) {
-  //     router.navigate("/login");
-  //   }
-  // }, [isLoaded, isSignedIn]);
+  const { save } = useMeStore();
+
+  React.useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.navigate("/login");
+    }
+  }, [isLoaded, isSignedIn]);
+
+  React.useEffect(() => {
+    if (!isSignedIn) {
+      save(null);
+    }
+    if (!!user) {
+      const me = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        id: user.id,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        imageUrl: user.imageUrl,
+        lastLoginAt: user.lastSignInAt,
+        email: user.emailAddresses[0].emailAddress,
+      };
+      save(me);
+    } else {
+      save(null);
+    }
+  }, [user, isSignedIn]);
 
   return (
     <Stack>
       <Stack.Screen
         options={{
-          presentation: "modal",
+          presentation: os === "ios" ? "modal" : "fullScreenModal",
           headerTitle: "Sign In",
           headerTitleStyle: {
             fontFamily: FONTS.bold,

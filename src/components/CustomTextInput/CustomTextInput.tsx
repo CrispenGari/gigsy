@@ -12,7 +12,7 @@ import {
   TextInputFocusEventData,
 } from "react-native";
 import React from "react";
-import { FONTS } from "@/src/constants";
+import { COLORS, FONTS } from "@/src/constants";
 
 interface Props {
   containerStyles: StyleProp<ViewStyle>;
@@ -106,6 +106,7 @@ const CustomTextInput: React.FunctionComponent<Partial<Props>> = ({
           numberOfLines={numberOfLines}
           multiline={multiline}
           onFocus={onFocus}
+          placeholderTextColor={COLORS.gray}
         />
         <TouchableOpacity activeOpacity={0.7} onPress={onRightIconPress}>
           {rightIcon}

@@ -1,7 +1,7 @@
 import HomeHeader from "@/src/components/HomeHeader/HomeHeader";
 import { COLORS, FONTS } from "@/src/constants";
 import { usePlatform } from "@/src/hooks";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { Tabs } from "expo-router";
 import React from "react";
@@ -61,29 +61,9 @@ const Layout = () => {
         name="create"
         options={{
           headerShown: false,
-          tabBarItemStyle: {
-            borderRadius: 90,
-            width: 90,
-            height: 90,
-            top: -20,
-            backgroundColor: COLORS.white,
-            shadowOffset: { height: -2, width: 0 },
-            shadowColor: COLORS.secondary,
-            shadowOpacity: 0.25,
-            shadowRadius: 5,
-            elevation: 5,
-            flex: 0,
-          },
-          tabBarLabelStyle: {
-            fontFamily: FONTS.regular,
-            fontSize: 12,
-            marginTop: -10,
-            marginBottom: 10,
-            display: "none",
-          },
-          title: "Create",
+          title: "Publish",
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="post-add" color={color} size={size + 15} />
+            <Ionicons name="cloud-upload-outline" color={color} size={size} />
           ),
         }}
       />

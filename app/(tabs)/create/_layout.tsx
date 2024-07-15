@@ -1,8 +1,9 @@
 import React from "react";
-import { Stack, Tabs } from "expo-router";
+import { Stack, Tabs, useRouter } from "expo-router";
 import HeaderBackButton from "@/src/components/HeaderBackButton/HeaderBackButton";
 
 const Layout = () => {
+  const router = useRouter();
   return (
     <>
       <Tabs.Screen
@@ -20,7 +21,12 @@ const Layout = () => {
           name="index"
           options={{
             headerTitle: "Basic Information",
-            headerLeft: () => <HeaderBackButton title="Explore" />,
+            headerLeft: () => (
+              <HeaderBackButton
+                title="Explore"
+                onBackButtonPress={() => router.replace("/")}
+              />
+            ),
           }}
         />
         <Stack.Screen name="contact" />

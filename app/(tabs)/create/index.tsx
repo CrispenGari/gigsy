@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
+  Alert,
 } from "react-native";
 import React from "react";
 import Card from "@/src/components/Card/Card";
@@ -17,9 +18,8 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCreateFormStore } from "@/src/store/createFormStore";
-
 type StateType = {
   error: string;
   loading: boolean;
@@ -29,6 +29,7 @@ type StateType = {
   companyDescription: string;
 };
 const Page = () => {
+  const { action } = useLocalSearchParams<{ action: string }>();
   const { os } = usePlatform();
   const router = useRouter();
   const { setBasic, form } = useCreateFormStore();
@@ -135,6 +136,22 @@ const Page = () => {
       companyDescription: form.companyDescription ?? "",
     }));
   }, [form]);
+
+  React.useEffect(() => {
+    if (!!action) {
+      Alert.alert(
+        "Job published",
+        "Your job has been published successfully. Do you want to create a new job advert?",
+        [
+          { text: "NO", onPress: () => router.replace("/") },
+          {
+            text: "YES",
+            style: "destructive",
+          },
+        ]
+      );
+    }
+  }, [action]);
   return (
     <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView

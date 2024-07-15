@@ -12,6 +12,7 @@ import { COLORS, FONTS } from "@/src/constants";
 import { Ionicons } from "@expo/vector-icons";
 import { FlatList } from "react-native-gesture-handler";
 import FooterButtons from "./FooterButtons";
+import { usePlatform } from "@/src/hooks";
 
 interface ExperienceBottomSheetProps {
   onChangeValue: (value: string[]) => void;
@@ -22,7 +23,8 @@ const ExperienceBottomSheet = React.forwardRef<
   ExperienceBottomSheetProps
 >(({ onChangeValue, initialState }, ref) => {
   const { dismiss } = useBottomSheetModal();
-  const snapPoints = React.useMemo(() => ["25%"], []);
+  const { os } = usePlatform();
+  const snapPoints = React.useMemo(() => [os === "ios" ? "30%" : "25%"], [os]);
   const [state, setState] = React.useState<{
     selected: string[];
   }>({ selected: initialState });
@@ -199,11 +201,3 @@ const ExperienceBottomSheet = React.forwardRef<
 });
 
 export default ExperienceBottomSheet;
-
-const usePrevious = (value: any) => {
-  const ref = React.useRef();
-  React.useEffect(() => {
-    ref.current = value;
-  }, [value]);
-  return ref.current;
-};

@@ -4,7 +4,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { COLORS, FONTS } from "@/src/constants";
 import { useNavigation } from "expo-router";
 
-const HeaderBackButton = ({ title }: { title: string }) => {
+const HeaderBackButton = ({
+  title,
+  onBackButtonPress,
+}: {
+  title: string;
+  onBackButtonPress?: () => void;
+}) => {
   const navigation = useNavigation();
   return (
     <TouchableOpacity
@@ -13,7 +19,13 @@ const HeaderBackButton = ({ title }: { title: string }) => {
         alignItems: "center",
         marginRight: 20,
       }}
-      onPress={() => navigation.goBack()}
+      onPress={() => {
+        if (typeof onBackButtonPress !== "undefined") {
+          onBackButtonPress();
+        } else {
+          navigation.goBack();
+        }
+      }}
     >
       <Ionicons name="chevron-back-outline" size={18} color={COLORS.green} />
       <Text

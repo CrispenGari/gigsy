@@ -21,6 +21,7 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 import HeaderBackButton from "@/src/components/HeaderBackButton/HeaderBackButton";
 import { useCreateFormStore } from "@/src/store/createFormStore";
 import { isValidEmail } from "@crispengari/regex-validator";
+import { useMeStore } from "@/src/store/meStore";
 
 type StateType = {
   error: string;
@@ -32,6 +33,7 @@ type StateType = {
 const Page = () => {
   const { setContact, form } = useCreateFormStore();
   const { os } = usePlatform();
+  const { me } = useMeStore();
   const { from } = useLocalSearchParams<{ from: string }>();
   const [state, setState] = React.useState<StateType>({
     error: "",
@@ -116,11 +118,11 @@ const Page = () => {
   React.useEffect(() => {
     setState((s) => ({
       ...s,
-      contactEmail: form.contactEmail,
+      contactEmail: form.contactEmail || me?.email || "",
       contactName: form.contactName,
       contactPhone: form.contactPhone ?? "",
     }));
-  }, [form]);
+  }, [form, me]);
 
   return (
     <>
