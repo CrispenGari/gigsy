@@ -12,6 +12,7 @@ import updateLocal from "dayjs/plugin/updateLocale";
 import { useMeStore } from "@/src/store/meStore";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import JobDetailsBottomSheet from "../BottomSheets/JobDetailsBottomSheet";
+import { Link } from "expo-router";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
@@ -26,13 +27,11 @@ interface HomeJobProps {
 const HomeJob: React.FunctionComponent<HomeJobProps> = ({ _id }) => {
   const job = useQuery(api.api.job.getJobById, { id: _id });
   const { me } = useMeStore();
-
   const jobBottomSheet = React.useRef<BottomSheetModal>(null);
+
   return (
     <>
-      {!!job ? (
-        <JobDetailsBottomSheet ref={jobBottomSheet} job={job as any} />
-      ) : null}
+      {!!job ? <JobDetailsBottomSheet ref={jobBottomSheet} id={_id} /> : null}
       <TouchableOpacity
         style={{
           padding: 10,
@@ -45,30 +44,41 @@ const HomeJob: React.FunctionComponent<HomeJobProps> = ({ _id }) => {
         }}
         onPress={() => jobBottomSheet.current?.present()}
       >
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            flexDirection: "row",
-            gap: 10,
-            marginBottom: 5,
-            alignItems: "flex-start",
-          }}
+        <Link
+          href={
+            me?.id === job?.user?.id
+              ? {
+                  pathname: "/(profile)/me",
+                }
+              : { pathname: "/(user)/[id]", params: { id: job?.user?._id } }
+          }
+          asChild
         >
-          <Animated.Image
-            style={{ width: 50, height: 50, borderRadius: 50 }}
-            source={{
-              uri: job?.user?.image,
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              gap: 10,
+              marginBottom: 5,
+              alignItems: "flex-start",
             }}
-          />
-          <View style={{ flex: 1, gap: 2 }}>
-            <Text style={{ fontFamily: FONTS.bold, fontSize: 18 }}>
-              {job?.user?.firstName} {job?.user?.lastName}
-            </Text>
-            <Text style={styles.mutedText}>
-              {job?.user?.email} {job?.user?.email === me?.email && "● you"}
-            </Text>
-          </View>
-        </TouchableOpacity>
+          >
+            <Animated.Image
+              style={{ width: 50, height: 50, borderRadius: 50 }}
+              source={{
+                uri: job?.user?.image,
+              }}
+            />
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text style={{ fontFamily: FONTS.bold, fontSize: 18 }}>
+                {job?.user?.firstName} {job?.user?.lastName}
+              </Text>
+              <Text style={styles.mutedText}>
+                {job?.user?.email} {job?.user?.id === me?.id && "● you"}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </Link>
         <Text
           style={{ fontSize: 18, fontFamily: FONTS.regular, marginBottom: 10 }}
         >

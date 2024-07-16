@@ -17,7 +17,6 @@ import { useUser } from "@clerk/clerk-expo";
 import Spinner from "react-native-loading-spinner-overlay";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { FlatList } from "react-native";
 import UserAdverts from "@/src/components/ProfileComponents/UserAdverts";
 
 const AnimatedTouchableOpacity =
@@ -81,6 +80,7 @@ const Page = () => {
       <Stack.Screen
         options={{
           headerShadowVisible: false,
+          headerTitleStyle: { fontFamily: FONTS.bold },
           headerTitle: "Profile",
           headerLeft: () => (
             <TouchableOpacity

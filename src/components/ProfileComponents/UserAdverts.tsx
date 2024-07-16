@@ -21,16 +21,20 @@ import { Link } from "expo-router";
 import Animated, { SlideInRight } from "react-native-reanimated";
 import Spinner from "react-native-loading-spinner-overlay";
 import { TJob } from "@/convex/tables/job";
-
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
 dayjs.updateLocale("en", {
   relativeTime: relativeTimeObject,
 });
-const UserAdverts = () => {
+interface UserAdvertsProps {
+  id?: string;
+}
+const UserAdverts = ({ id }: UserAdvertsProps) => {
   const { me } = useMeStore();
-  const jobs = useQuery(api.api.user.userAdverts, { id: me?.id || "" });
+  const jobs = useQuery(api.api.user.userAdverts, {
+    id: id ? id : me?.id || "",
+  });
 
   return (
     <Card style={{ flex: 1, marginVertical: 10 }}>
@@ -38,7 +42,7 @@ const UserAdverts = () => {
         <Text
           style={{ fontFamily: FONTS.bold, marginBottom: 10, fontSize: 20 }}
         >
-          Your Adverts
+          {id ? "Job Adverts" : "Your Adverts"}
         </Text>
 
         {jobs?.jobs.length === 0 ? (

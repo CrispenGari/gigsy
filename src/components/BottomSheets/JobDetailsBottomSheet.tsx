@@ -13,16 +13,18 @@ import { usePlatform } from "@/src/hooks";
 import Animated, { SlideInDown, SlideInLeft } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { TJob } from "@/convex/tables/job";
 import { Id } from "@/convex/_generated/dataModel";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocal from "dayjs/plugin/updateLocale";
-import { Link } from "expo-router";
+import { useRouter } from "expo-router";
 import Card from "../Card/Card";
 import MapView, { PROVIDER_DEFAULT, PROVIDER_GOOGLE } from "react-native-maps";
+import { useMeStore } from "@/src/store/meStore";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useLocationStore } from "@/src/store/locationStore";
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -34,24 +36,18 @@ dayjs.updateLocale("en", {
 });
 
 interface JobDetailsBottomSheetProps {
-  job: TJob & {
-    user: {
-      _id: Id<"users">;
-      _creationTime: number;
-      id: string;
-      image: string;
-      firstName: string;
-      lastName: string;
-      email: string;
-    } | null;
-  };
+  id: Id<"jobs">;
 }
 const JobDetailsBottomSheet = React.forwardRef<
   BottomSheetModal,
   JobDetailsBottomSheetProps
->(({ job }, ref) => {
+>(({ id }, ref) => {
+  const job = useQuery(api.api.job.getJobById, { id });
   const { os } = usePlatform();
   const { dismiss } = useBottomSheetModal();
+  const { location } = useLocationStore();
+  const { me } = useMeStore();
+  const router = useRouter();
   const { bottom } = useSafeAreaInsets();
   const snapPoints = React.useMemo(() => ["80%"], []);
 
@@ -87,10 +83,14 @@ const JobDetailsBottomSheet = React.forwardRef<
                 }}
               >
                 <TouchableOpacity
+                  disabled={me?.id === job?.user?.id}
                   style={[
                     styles.btn,
                     {
-                      backgroundColor: COLORS.gray,
+                      backgroundColor:
+                        me?.id === job?.user?.id
+                          ? COLORS.semiGray
+                          : COLORS.gray,
                     },
                   ]}
                 >
@@ -110,10 +110,14 @@ const JobDetailsBottomSheet = React.forwardRef<
                   />
                 </TouchableOpacity>
                 <TouchableOpacity
+                  disabled={me?.id === job?.user?.id}
                   style={[
                     styles.btn,
                     {
-                      backgroundColor: COLORS.green,
+                      backgroundColor:
+                        me?.id === job?.user?.id
+                          ? COLORS.tertiary
+                          : COLORS.green,
                       flex: 0,
                       minWidth: 150,
                     },
@@ -148,7 +152,7 @@ const JobDetailsBottomSheet = React.forwardRef<
           }}
         >
           <Text style={{ fontFamily: FONTS.bold, fontSize: 20 }}>
-            {job.title}
+            {job?.title}
           </Text>
           <View
             style={{
@@ -215,41 +219,48 @@ const JobDetailsBottomSheet = React.forwardRef<
                 Advertiser Profile
               </Text>
             </View>
-            <Link
-              href={{ pathname: "/(user)/[id]", params: { id: job.user?._id } }}
-              asChild
+
+            <AnimatedTouchableOpacity
+              onPress={() => {
+                dismiss();
+                router.navigate(
+                  me?.id === job?.user?.id
+                    ? {
+                        pathname: "/(profile)/me",
+                      }
+                    : {
+                        pathname: "/(user)/[id]",
+                        params: { id: job?.user?._id },
+                      }
+                );
+              }}
+              style={{
+                gap: 10,
+                flexDirection: "row",
+                alignItems: "center",
+                paddingVertical: 5,
+                paddingBottom: 10,
+              }}
+              entering={SlideInLeft.delay(100).duration(200)}
             >
-              <AnimatedTouchableOpacity
-                style={{
-                  gap: 10,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  paddingVertical: 5,
-                  paddingBottom: 10,
-                }}
-                entering={SlideInLeft.delay(100).duration(200)}
-              >
-                <Animated.Image
-                  source={{ uri: job.user?.image }}
-                  style={{ width: 50, height: 50, borderRadius: 50 }}
-                />
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontFamily: FONTS.bold, fontSize: 16 }}>
-                    {job.user?.firstName} {job.user?.lastName}
-                  </Text>
-                  <Text
-                    style={{ fontFamily: FONTS.regular, color: COLORS.gray }}
-                  >
-                    {job.user?.email}
-                  </Text>
-                </View>
-                <Ionicons
-                  name="chevron-forward-outline"
-                  size={20}
-                  color={COLORS.gray}
-                />
-              </AnimatedTouchableOpacity>
-            </Link>
+              <Animated.Image
+                source={{ uri: job?.user?.image }}
+                style={{ width: 50, height: 50, borderRadius: 50 }}
+              />
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontFamily: FONTS.bold, fontSize: 16 }}>
+                  {job?.user?.firstName} {job?.user?.lastName}
+                </Text>
+                <Text style={{ fontFamily: FONTS.regular, color: COLORS.gray }}>
+                  {job?.user?.email} {job?.user?.id === me?.id && "● you"}
+                </Text>
+              </View>
+              <Ionicons
+                name="chevron-forward-outline"
+                size={20}
+                color={COLORS.gray}
+              />
+            </AnimatedTouchableOpacity>
           </Card>
 
           <Text style={styles.headerText}>Basic Information</Text>
@@ -283,17 +294,17 @@ const JobDetailsBottomSheet = React.forwardRef<
               <Text
                 style={{ fontFamily: FONTS.bold, fontSize: 18, marginTop: 10 }}
               >
-                Location: {job?.location.address.city}
+                Location: {job?.location?.address.city}
               </Text>
               <Text style={{ fontFamily: FONTS.regular, color: COLORS.black }}>
-                {job?.location.address.country} (
-                {job?.location.address.isoCountryCode?.toLocaleLowerCase()})
+                {job?.location?.address.country} (
+                {job?.location?.address.isoCountryCode?.toLocaleLowerCase()})
               </Text>
 
               <MapView
                 initialRegion={{
-                  latitude: job.location.lat,
-                  longitude: job.location.lon,
+                  latitude: job?.location?.lat || location.lat,
+                  longitude: job?.location?.lon || location.lon,
                   latitudeDelta: 0.0922,
                   longitudeDelta: 0.0421,
                 }}
@@ -313,8 +324,8 @@ const JobDetailsBottomSheet = React.forwardRef<
                 loadingEnabled={true}
                 provider={os === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
                 region={{
-                  latitude: job.location.lat,
-                  longitude: job.location.lon,
+                  latitude: job?.location?.lat || location.lat,
+                  longitude: job?.location?.lon || location.lon,
                   latitudeDelta: 0.0922,
                   longitudeDelta: 0.0421,
                 }}
@@ -407,7 +418,7 @@ const JobDetailsBottomSheet = React.forwardRef<
                   <Text
                     style={{ fontFamily: FONTS.regular, color: COLORS.gray }}
                   >
-                    R {job?.salaryRange.min || 0}
+                    R {job?.salaryRange?.min || 0}
                   </Text>
                 </View>
                 <View style={{ flex: 1 }}>
@@ -423,7 +434,7 @@ const JobDetailsBottomSheet = React.forwardRef<
                   <Text
                     style={{ fontFamily: FONTS.regular, color: COLORS.gray }}
                   >
-                    R {job?.salaryRange.max}
+                    R {job?.salaryRange?.max}
                   </Text>
                 </View>
               </View>
@@ -445,7 +456,7 @@ const JobDetailsBottomSheet = React.forwardRef<
                   <Text style={{ fontFamily: FONTS.bold, fontSize: 18 }}>
                     Skills Required
                   </Text>
-                  {job?.skills.map((skill) => (
+                  {job?.skills?.map((skill) => (
                     <TouchableOpacity
                       key={skill}
                       style={{ flexDirection: "row", gap: 10 }}
@@ -490,7 +501,7 @@ const JobDetailsBottomSheet = React.forwardRef<
                   >
                     Job Experience
                   </Text>
-                  {job?.experience.map((exp) => (
+                  {job?.experience?.map((exp) => (
                     <View key={exp} style={{ flexDirection: "row", gap: 10 }}>
                       <Ionicons
                         name="star-outline"
@@ -511,7 +522,7 @@ const JobDetailsBottomSheet = React.forwardRef<
                   >
                     Education Qualifications
                   </Text>
-                  {job?.educationLevels.map((level) => {
+                  {job?.educationLevels?.map((level) => {
                     return (
                       <View
                         key={level}

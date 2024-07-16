@@ -50,7 +50,9 @@ const Page = () => {
               <Ionicons name="chevron-back" size={20} color={COLORS.gray} />
             </TouchableOpacity>
           ),
-          // headerTransparent: true,
+
+          headerLargeTitleStyle: { fontFamily: FONTS.bold, fontSize: 25 },
+          headerTitleStyle: { fontFamily: FONTS.bold },
         }}
       />
       <Spinner visible={state.loading} animation="fade" />
