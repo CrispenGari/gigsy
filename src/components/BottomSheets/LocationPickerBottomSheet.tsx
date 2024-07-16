@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View, Image } from "react-native";
 import React from "react";
 import { Svg, Image as ImageSvg } from "react-native-svg";
 
@@ -14,6 +14,7 @@ import { usePlatform } from "@/src/hooks";
 import { TLoc, useLocationStore } from "@/src/store/locationStore";
 import MapView, {
   Callout,
+  MapCallout,
   Marker,
   PROVIDER_DEFAULT,
   PROVIDER_GOOGLE,
@@ -43,7 +44,7 @@ const LocationPickerBottomSheet = React.forwardRef<
 >(({ onChangeValue, initialState }, ref) => {
   const { location } = useLocationStore();
   const { os } = usePlatform();
-  const { me } = useMeStore();
+
   const { dismiss } = useBottomSheetModal();
   const { bottom } = useSafeAreaInsets();
   const snapPoints = React.useMemo(() => ["80%"], []);
@@ -107,6 +108,7 @@ const LocationPickerBottomSheet = React.forwardRef<
       lat: initialState.lat,
       lon: initialState.lon,
     });
+    setSelectedAddress({ ...initialState.address });
   }, [initialState]);
 
   return (
@@ -260,68 +262,13 @@ const LocationPickerBottomSheet = React.forwardRef<
             setSelectedAddress(address);
           }}
         >
-          <Marker
-            coordinate={{
-              latitude: coords.lat,
-              longitude: coords.lon,
-            }}
-            draggable={true}
-            onDragEnd={async ({ nativeEvent: { coordinate } }) => {
-              setSelected(coordinate);
-              setCoord({ lat: coordinate.latitude, lon: coordinate.longitude });
-              const address = await getLocationAddress({
-                latitude: coordinate.latitude,
-                longitude: coordinate.longitude,
-              });
-              setSelectedAddress(address);
-            }}
-          >
-            <Callout tooltip={true}>
-              <View
-                style={{
-                  width: 200,
-                  backgroundColor: COLORS.white,
-                  padding: 10,
-                  alignItems: "center",
-                  height: 130,
-                  borderRadius: 5,
-                }}
-              >
-                <View
-                  style={{
-                    width: 50,
-                    height: 50,
-                    borderRadius: 50,
-                    overflow: "hidden",
-                  }}
-                >
-                  <Svg width={50} height={50}>
-                    <ImageSvg
-                      width={"100%"}
-                      height={"100%"}
-                      href={{
-                        uri: me?.imageUrl,
-                      }}
-                    />
-                  </Svg>
-                </View>
-
-                <Animated.Text
-                  entering={SlideInLeft.delay(200).duration(100)}
-                  style={{ fontFamily: FONTS.bold, fontSize: 20 }}
-                >
-                  {selectedAddress.city}
-                </Animated.Text>
-                <Animated.Text
-                  entering={SlideInRight.delay(400).duration(200)}
-                  style={{ fontFamily: FONTS.regular, color: COLORS.gray }}
-                >
-                  {selectedAddress.name} {selectedAddress.street},{" "}
-                  {selectedAddress.district}
-                </Animated.Text>
-              </View>
-            </Callout>
-          </Marker>
+          <CustomMarker
+            setSelected={setSelected}
+            setSelectedAddress={setSelectedAddress}
+            coords={coords}
+            selectedAddress={selectedAddress}
+            setCoord={setCoord}
+          />
         </MapView>
         <Animated.View style={{ height: 130 }} />
       </BottomSheetView>
@@ -330,3 +277,109 @@ const LocationPickerBottomSheet = React.forwardRef<
 });
 
 export default LocationPickerBottomSheet;
+
+type TAddress = {
+  city: string | null;
+  country: string | null;
+  district: string | null;
+  isoCountryCode: string | null;
+  name: string | null;
+  postalCode: string | null;
+  region: string | null;
+  street: string | null;
+  streetNumber: string | null;
+};
+
+const CustomMarker = ({
+  coords,
+  setSelected,
+  setSelectedAddress,
+  setCoord,
+  selectedAddress,
+}: {
+  setSelected: React.Dispatch<
+    React.SetStateAction<{
+      latitude: number;
+      longitude: number;
+    } | null>
+  >;
+  setSelectedAddress: React.Dispatch<React.SetStateAction<TAddress>>;
+  setCoord: React.Dispatch<
+    React.SetStateAction<{
+      lat: number;
+      lon: number;
+    }>
+  >;
+  selectedAddress: TAddress;
+  coords: {
+    lat: number;
+    lon: number;
+  };
+}) => {
+  const { me } = useMeStore();
+
+  return (
+    <Marker
+      coordinate={{
+        latitude: coords.lat,
+        longitude: coords.lon,
+      }}
+      draggable={true}
+      onDragEnd={async ({ nativeEvent: { coordinate } }) => {
+        setSelected(coordinate);
+        setCoord({ lat: coordinate.latitude, lon: coordinate.longitude });
+        const address = await getLocationAddress({
+          latitude: coordinate.latitude,
+          longitude: coordinate.longitude,
+        });
+        setSelectedAddress(address);
+      }}
+    >
+      <Callout tooltip={true}>
+        <View
+          style={{
+            width: 200,
+            backgroundColor: COLORS.white,
+            padding: 10,
+            alignItems: "center",
+            height: 130,
+            borderRadius: 5,
+          }}
+        >
+          <View
+            style={{
+              width: 50,
+              height: 50,
+              borderRadius: 50,
+              overflow: "hidden",
+            }}
+          >
+            <Svg width={50} height={50}>
+              <ImageSvg
+                width={"100%"}
+                height={"100%"}
+                href={{
+                  uri: me?.imageUrl,
+                }}
+              />
+            </Svg>
+          </View>
+
+          <Animated.Text
+            entering={SlideInLeft.delay(200).duration(100)}
+            style={{ fontFamily: FONTS.bold, fontSize: 20 }}
+          >
+            {selectedAddress.city}
+          </Animated.Text>
+          <Animated.Text
+            entering={SlideInRight.delay(400).duration(200)}
+            style={{ fontFamily: FONTS.regular, color: COLORS.gray }}
+          >
+            {selectedAddress.name} {selectedAddress.street},{" "}
+            {selectedAddress.district}
+          </Animated.Text>
+        </View>
+      </Callout>
+    </Marker>
+  );
+};

@@ -81,7 +81,7 @@ const Page = () => {
       <Stack.Screen
         options={{
           headerShadowVisible: false,
-          headerTitle: "",
+          headerTitle: "Profile",
           headerLeft: () => (
             <TouchableOpacity
               style={{ width: 40 }}

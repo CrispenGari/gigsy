@@ -33,3 +33,30 @@ export const get = query({
     }
   },
 });
+
+export const getById = query({
+  args: { id: v.id("jobs") },
+  handler: async ({ db }, { id }) => {
+    try {
+      const job = await db
+        .query("jobs")
+        .filter((q) => q.eq(q.field("_id"), id))
+        .unique();
+      return job;
+    } catch (error) {
+      return null;
+    }
+  },
+});
+
+export const deleteById = mutation({
+  args: { id: v.id("jobs") },
+  handler: async ({ db }, { id }) => {
+    try {
+      await db.delete(id);
+      return { success: true };
+    } catch (error) {
+      return { success: false };
+    }
+  },
+});

@@ -1,14 +1,26 @@
-import { View, Text, FlatList, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from "react-native";
 import React from "react";
 import { useMeStore } from "@/src/store/meStore";
 import Card from "../Card/Card";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { COLORS, FONTS, relativeTimeObject } from "@/src/constants";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocal from "dayjs/plugin/updateLocale";
 import { Ionicons } from "@expo/vector-icons";
+import { Swipeable } from "react-native-gesture-handler";
+import { Link } from "expo-router";
+import Animated, { SlideInRight } from "react-native-reanimated";
+import Spinner from "react-native-loading-spinner-overlay";
+
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -27,43 +39,150 @@ const UserAdverts = () => {
         >
           Your Adverts
         </Text>
-        <FlatList
-          data={jobs?.jobs}
-          keyExtractor={({ _id }) => _id}
-          renderItem={({ item }) => {
-            return (
-              <TouchableOpacity
-                style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text
-                    style={{
-                      fontFamily: FONTS.bold,
-                      fontSize: 18,
-                      paddingVertical: 5,
-                    }}
-                  >
-                    {item.title}
-                  </Text>
-                  <Text
-                    style={{ fontFamily: FONTS.regular, color: COLORS.gray }}
-                  >
-                    {item.type === "full-time" ? "Full Time" : "Part Time"} ●{" "}
-                    {dayjs(new Date(item._creationTime)).fromNow()} ago
-                  </Text>
-                </View>
-                <Ionicons
-                  name="chevron-forward-outline"
-                  size={20}
-                  color={COLORS.gray}
-                />
-              </TouchableOpacity>
-            );
-          }}
-        />
+
+        {jobs?.jobs.length === 0 ? (
+          <Animated.View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              padding: 60,
+            }}
+            entering={SlideInRight.duration(200).delay(200)}
+          >
+            <Text style={{ fontFamily: FONTS.bold, fontSize: 18 }}>
+              No jobs adverts.
+            </Text>
+          </Animated.View>
+        ) : (
+          <FlatList
+            data={jobs?.jobs}
+            keyExtractor={({ _id }) => _id}
+            renderItem={({ item }) => <Item item={item} />}
+          />
+        )}
       </View>
     </Card>
   );
 };
 
 export default UserAdverts;
+
+const Item = ({ item }: { item: any }) => {
+  const [state, setState] = React.useState({
+    loading: false,
+  });
+  const deleteMutation = useMutation(api.api.job.deleteById);
+  const deleteJob = async () => {
+    setState((s) => ({ ...s, loading: true }));
+    const { success } = await deleteMutation({ id: item._id });
+    setState((s) => ({ ...s, loading: false }));
+    if (!success) {
+      Alert.alert(
+        "Failed Operation",
+        "Failed to delete a Job Advert from gigsy."
+      );
+    }
+  };
+  return (
+    <>
+      <Spinner visible={state.loading} animation="fade" />
+
+      <Swipeable
+        overshootLeft={false}
+        friction={3}
+        overshootFriction={8}
+        enableTrackpadTwoFingerGesture
+        renderRightActions={(_progress, _dragX) => {
+          return (
+            <TouchableOpacity
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                minWidth: 50,
+                backgroundColor: COLORS.red,
+                borderTopRightRadius: 5,
+                borderBottomRightRadius: 5,
+              }}
+              onPress={deleteJob}
+            >
+              <Ionicons name="trash-bin-outline" size={24} color="white" />
+            </TouchableOpacity>
+          );
+        }}
+        renderLeftActions={(_progress, _dragX) => {
+          return (
+            <Link
+              href={{
+                pathname: "/(profile)/[id]",
+                params: {
+                  id: item._id,
+                },
+              }}
+              asChild
+            >
+              <TouchableOpacity
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  minWidth: 50,
+                  backgroundColor: COLORS.green,
+                  borderTopLeftRadius: 5,
+                  borderBottomLeftRadius: 5,
+                }}
+              >
+                <Text style={{ fontFamily: FONTS.bold, color: COLORS.white }}>
+                  Open
+                </Text>
+              </TouchableOpacity>
+            </Link>
+          );
+        }}
+      >
+        <Link
+          href={{
+            pathname: "/(profile)/[id]",
+            params: {
+              id: item._id,
+            },
+          }}
+          asChild
+        >
+          <TouchableOpacity
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 10,
+              borderBottomWidth: StyleSheet.hairlineWidth,
+              borderBottomColor: COLORS.gray,
+              paddingBottom: 5,
+              backgroundColor: COLORS.white,
+              marginBottom: 1,
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              <Animated.Text
+                style={{
+                  fontFamily: FONTS.bold,
+                  fontSize: 18,
+                  paddingVertical: 5,
+                }}
+              >
+                {item.title}
+              </Animated.Text>
+              <Text style={{ fontFamily: FONTS.regular, color: COLORS.gray }}>
+                {item.type === "full-time" ? "Full Time" : "Part Time"} ●{" "}
+                {dayjs(new Date(item._creationTime)).fromNow()} ago ●{" "}
+                {item.location.address.city}
+              </Text>
+            </View>
+            <Ionicons
+              name="chevron-forward-outline"
+              size={20}
+              color={COLORS.gray}
+            />
+          </TouchableOpacity>
+        </Link>
+      </Swipeable>
+    </>
+  );
+};

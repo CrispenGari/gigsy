@@ -1,5 +1,5 @@
 import { defineTable } from "convex/server";
-import { v } from "convex/values";
+import { Infer, v } from "convex/values";
 
 export const jobArguments = {
   type: v.union(v.literal("part-time"), v.literal("full-time")),
@@ -37,3 +37,5 @@ export const jobArguments = {
   userId: v.id("users"),
 };
 export const jobs = defineTable(jobArguments).index("userId", ["userId"]);
+
+export type TJob = typeof jobs;
