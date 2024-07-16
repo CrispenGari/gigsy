@@ -21,6 +21,8 @@ import { Link } from "expo-router";
 import Animated, { SlideInRight } from "react-native-reanimated";
 import Spinner from "react-native-loading-spinner-overlay";
 import { TJob } from "@/convex/tables/job";
+import JobDetailsBottomSheet from "../BottomSheets/JobDetailsBottomSheet";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -62,7 +64,13 @@ const UserAdverts = ({ id }: UserAdvertsProps) => {
           <FlatList
             data={jobs?.jobs}
             keyExtractor={({ _id }) => _id}
-            renderItem={({ item }) => <Item item={item as any} />}
+            renderItem={({ item }) => {
+              if (!!id) {
+                return <PressableItem item={item as any} />;
+              } else {
+                return <SwipableItem item={item as any} />;
+              }
+            }}
           />
         )}
       </View>
@@ -72,7 +80,51 @@ const UserAdverts = ({ id }: UserAdvertsProps) => {
 
 export default UserAdverts;
 
-const Item = ({ item }: { item: TJob }) => {
+const PressableItem = ({ item }: { item: TJob }) => {
+  const jobBottomSheetRef = React.useRef<BottomSheetModal>(null);
+  return (
+    <>
+      <JobDetailsBottomSheet ref={jobBottomSheetRef} id={item._id} />
+      <TouchableOpacity
+        onPress={() => jobBottomSheetRef.current?.present()}
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 10,
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: COLORS.gray,
+          paddingBottom: 5,
+          backgroundColor: COLORS.white,
+          marginBottom: 1,
+        }}
+      >
+        <View style={{ flex: 1 }}>
+          <Animated.Text
+            style={{
+              fontFamily: FONTS.bold,
+              fontSize: 18,
+              paddingVertical: 5,
+            }}
+          >
+            {item.title}
+          </Animated.Text>
+          <Text style={{ fontFamily: FONTS.regular, color: COLORS.gray }}>
+            {item.type === "full-time" ? "Full Time" : "Part Time"} ●{" "}
+            {dayjs(new Date(item._creationTime)).fromNow()} ago ●{" "}
+            {item.location.address.city}
+          </Text>
+        </View>
+        <Ionicons
+          name="chevron-forward-outline"
+          size={20}
+          color={COLORS.gray}
+        />
+      </TouchableOpacity>
+    </>
+  );
+};
+
+const SwipableItem = ({ item }: { item: TJob }) => {
   const [state, setState] = React.useState({
     loading: false,
   });
