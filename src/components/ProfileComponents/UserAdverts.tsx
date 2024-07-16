@@ -20,6 +20,7 @@ import { Swipeable } from "react-native-gesture-handler";
 import { Link } from "expo-router";
 import Animated, { SlideInRight } from "react-native-reanimated";
 import Spinner from "react-native-loading-spinner-overlay";
+import { TJob } from "@/convex/tables/job";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
@@ -57,7 +58,7 @@ const UserAdverts = () => {
           <FlatList
             data={jobs?.jobs}
             keyExtractor={({ _id }) => _id}
-            renderItem={({ item }) => <Item item={item} />}
+            renderItem={({ item }) => <Item item={item as any} />}
           />
         )}
       </View>
@@ -67,7 +68,7 @@ const UserAdverts = () => {
 
 export default UserAdverts;
 
-const Item = ({ item }: { item: any }) => {
+const Item = ({ item }: { item: TJob }) => {
   const [state, setState] = React.useState({
     loading: false,
   });

@@ -108,7 +108,13 @@ const RootLayout = () => {
                 marginRight: 20,
               }}
               activeOpacity={0.7}
-              onPress={() => router.back()}
+              onPress={() => {
+                if (router.canGoBack()) {
+                  router.back();
+                } else {
+                  router.replace("/");
+                }
+              }}
             >
               <Ionicons name="close-outline" size={30} color={COLORS.black} />
             </TouchableOpacity>

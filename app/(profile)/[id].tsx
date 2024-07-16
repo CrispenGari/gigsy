@@ -157,7 +157,6 @@ const Page = () => {
                   style={{
                     fontFamily: FONTS.bold,
                     fontSize: 18,
-                    marginTop: 10,
                   }}
                 >
                   Contact Email
@@ -247,7 +246,7 @@ const Page = () => {
                   Maximum Salary
                 </Text>
                 <Text style={{ fontFamily: FONTS.regular, color: COLORS.gray }}>
-                  {job?.salaryRange.max}
+                  R {job?.salaryRange.max}
                 </Text>
               </View>
             </View>

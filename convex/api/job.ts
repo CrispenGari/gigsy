@@ -23,13 +23,9 @@ export const get = query({
   handler: async ({ db }, { limit }) => {
     try {
       const jobs = await db.query("jobs").order("desc").take(limit);
-      return {
-        jobs,
-      };
+      return jobs.map(({ _id }) => _id);
     } catch (error) {
-      return {
-        jobs: [],
-      };
+      return [];
     }
   },
 });
@@ -49,6 +45,28 @@ export const getById = query({
   },
 });
 
+export const getJobById = query({
+  args: { id: v.id("jobs") },
+  handler: async ({ db }, { id }) => {
+    try {
+      const job = await db
+        .query("jobs")
+        .filter((q) => q.eq(q.field("_id"), id))
+        .unique();
+      const user = await db
+        .query("users")
+        .filter((q) => q.eq(q.field("_id"), job?.userId))
+        .unique();
+
+      return {
+        ...job,
+        user,
+      };
+    } catch (error) {
+      return null;
+    }
+  },
+});
 export const deleteById = mutation({
   args: { id: v.id("jobs") },
   handler: async ({ db }, { id }) => {

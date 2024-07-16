@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View, Image } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { Svg, Image as ImageSvg } from "react-native-svg";
 
@@ -14,7 +14,6 @@ import { usePlatform } from "@/src/hooks";
 import { TLoc, useLocationStore } from "@/src/store/locationStore";
 import MapView, {
   Callout,
-  MapCallout,
   Marker,
   PROVIDER_DEFAULT,
   PROVIDER_GOOGLE,

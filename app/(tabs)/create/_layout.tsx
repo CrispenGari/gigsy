@@ -1,9 +1,16 @@
 import React from "react";
 import { Stack, Tabs, useRouter } from "expo-router";
 import HeaderBackButton from "@/src/components/HeaderBackButton/HeaderBackButton";
+import { useAuth } from "@clerk/clerk-expo";
 
 const Layout = () => {
   const router = useRouter();
+  const { isLoaded, isSignedIn } = useAuth();
+  React.useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.replace("/login");
+    }
+  }, [isLoaded, isSignedIn]);
   return (
     <>
       <Tabs.Screen

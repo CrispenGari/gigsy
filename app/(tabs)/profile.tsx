@@ -1,31 +1,39 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { Text, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import { useRouter } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
 import Card from "@/src/components/Card/Card";
-import Animated from "react-native-reanimated";
+
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { COLORS, FONTS } from "@/src/constants";
-import { useMeStore } from "@/src/store/meStore";
 import ProfileCard from "@/src/components/ProfileComponents/ProfileCard";
 import SettingItem from "@/src/components/ProfileComponents/SettingItem";
-
+import * as Constants from "expo-constants";
+import { useMeStore } from "@/src/store/meStore";
+import { useLocationStore } from "@/src/store/locationStore";
+import { useCreateFormStore } from "@/src/store/createFormStore";
 const Profile = () => {
-  const { isLoaded, isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn, signOut } = useAuth();
   const headerHeight = useHeaderHeight();
   const router = useRouter();
+  const { destroy } = useMeStore();
+  const { reset } = useLocationStore();
+  const { clearForm } = useCreateFormStore();
   React.useEffect(() => {
     if (isLoaded && !isSignedIn) {
-      router.navigate("/login");
+      router.replace("/login");
     }
   }, [isLoaded, isSignedIn]);
+
+  const logout = () => {
+    signOut().then(() => {
+      destroy();
+      reset();
+      clearForm();
+      router.replace("/");
+    });
+  };
 
   return (
     <ScrollView
@@ -80,6 +88,41 @@ const Profile = () => {
             <Ionicons name="location-outline" size={18} color={COLORS.gray} />
           }
         />
+        <SettingItem
+          onPress={() => {}}
+          title="App Sound and Haptics"
+          Icon={
+            <MaterialIcons name="vibration" size={18} color={COLORS.gray} />
+          }
+        />
+      </Card>
+
+      <Text style={styles.headerText}>Misc</Text>
+      <Card
+        style={{
+          marginHorizontal: 10,
+          paddingVertical: 10,
+          paddingHorizontal: 0,
+          maxWidth: "100%",
+        }}
+      >
+        <SettingItem
+          onPress={() => {}}
+          title="Check for Updates"
+          Icon={<MaterialIcons name="update" size={18} color={COLORS.gray} />}
+        />
+
+        <SettingItem
+          onPress={() => {}}
+          title="Customize App Icon"
+          Icon={
+            <MaterialIcons
+              name="insert-emoticon"
+              size={18}
+              color={COLORS.gray}
+            />
+          }
+        />
       </Card>
       <Text style={styles.headerText}>Support</Text>
       <Card
@@ -97,7 +140,12 @@ const Profile = () => {
         />
         <SettingItem
           onPress={() => {}}
-          title="How does gisgy works"
+          title="Rate gigys"
+          Icon={<Ionicons name="star-outline" size={18} color={COLORS.gray} />}
+        />
+        <SettingItem
+          onPress={() => {}}
+          title="How does gigsy works"
           Icon={<Ionicons name="help" size={18} color={COLORS.gray} />}
         />
         <SettingItem
@@ -138,6 +186,34 @@ const Profile = () => {
           }
         />
       </Card>
+
+      <TouchableOpacity
+        style={{ alignSelf: "center", marginTop: 20 }}
+        onPress={logout}
+      >
+        <Text
+          style={{
+            fontFamily: FONTS.bold,
+            color: COLORS.red,
+            textDecorationLine: "underline",
+            fontSize: 16,
+          }}
+        >
+          Logout
+        </Text>
+      </TouchableOpacity>
+      <Text
+        style={{
+          fontFamily: FONTS.regular,
+          color: COLORS.gray,
+          padding: 10,
+          textAlign: "center",
+        }}
+      >
+        {Constants.default.expoConfig?.name}
+        {" version: "}
+        {Constants.default.expoConfig?.version}
+      </Text>
     </ScrollView>
   );
 };

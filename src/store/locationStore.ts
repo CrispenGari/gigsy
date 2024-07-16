@@ -21,6 +21,7 @@ export type TLoc = {
 interface TLocState {
   location: TLoc;
   update: (loc: TLoc) => void;
+  reset: () => void;
 }
 
 const initialState: TLoc = {
@@ -43,6 +44,7 @@ export const useLocationStore = create<TLocState>()(
     (set, _get) => ({
       location: initialState,
       update: (location) => set({ ..._get(), location }),
+      reset: () => set({ location: initialState }),
     }),
     {
       name: STORAGE_NAME.LOCATION,

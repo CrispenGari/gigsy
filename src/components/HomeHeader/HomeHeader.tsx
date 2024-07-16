@@ -133,7 +133,7 @@ const HomeHeader = ({}: BottomTabHeaderProps) => {
             <TouchableOpacity
               style={{
                 paddingHorizontal: 10,
-                backgroundColor: COLORS.secondary,
+                backgroundColor: COLORS.lightGray,
                 borderRadius: 999,
                 paddingVertical: 4,
               }}
