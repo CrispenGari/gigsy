@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { COLORS, FONTS } from "@/src/constants";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -32,7 +32,7 @@ const Page = () => {
               style={{ width: 40 }}
               onPress={() => router.back()}
             >
-              <Ionicons name="chevron-back" size={20} color={COLORS.green} />
+              <Ionicons name="chevron-back" size={20} color={COLORS.gray} />
             </TouchableOpacity>
           ),
         }}
@@ -51,13 +51,27 @@ const Page = () => {
           }}
         >
           <View style={{ alignItems: "center" }}>
-            <Animated.Image
-              style={{ width: 150, height: 150, borderRadius: 150 }}
-              source={{
-                uri: user?.image,
+            <Link
+              asChild
+              href={{
+                pathname: "/(user)/picture",
+                params: {
+                  uri: user?.image,
+                  fullName: `${user?.firstName} ${user?.lastName}`.trim(),
+                  uid: user?._id,
+                },
               }}
-            />
-
+            >
+              <TouchableOpacity>
+                <Animated.Image
+                  style={{ width: 150, height: 150, borderRadius: 150 }}
+                  source={{
+                    uri: user?.image,
+                  }}
+                  sharedTransitionTag="user-profile-image"
+                />
+              </TouchableOpacity>
+            </Link>
             <Text
               style={{ fontSize: 18, fontFamily: FONTS.bold, marginTop: 20 }}
             >
