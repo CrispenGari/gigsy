@@ -12,7 +12,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import Spinner from "react-native-loading-spinner-overlay";
-import Animated from "react-native-reanimated";
+import Animated, { SlideInLeft, SlideOutLeft } from "react-native-reanimated";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocal from "dayjs/plugin/updateLocale";
@@ -31,12 +31,27 @@ dayjs.updateLocale("en", {
 const Saved = () => {
   const { isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
-  const { wishlists } = useWishlistStore();
+  const { wishlists, clear } = useWishlistStore();
+  const [state, setState] = React.useState({
+    loading: false,
+  });
+  const { me } = useMeStore();
+  const clearAllMutation = useMutation(api.api.wishlist.clear);
   React.useEffect(() => {
     if (isLoaded && !isSignedIn) {
       router.replace("/login");
     }
   }, [isLoaded, isSignedIn]);
+
+  const clearAll = async () => {
+    if (!!!me) return;
+    setState((s) => ({ ...s, loading: true }));
+    const success = await clearAllMutation({ id: me.id });
+    if (success) {
+      clear();
+    }
+    setState((s) => ({ ...s, loading: false }));
+  };
   return (
     <>
       <Tabs.Screen
@@ -45,7 +60,36 @@ const Saved = () => {
           headerShadowVisible: false,
         }}
       />
+      <Spinner visible={state.loading} animation="fade" />
       <ScrollView style={{ flex: 1 }}>
+        {wishlists.length !== 0 ? (
+          <Animated.View
+            style={{
+              backgroundColor: COLORS.white,
+              paddingHorizontal: 20,
+            }}
+            entering={SlideInLeft.duration(200).delay(100)}
+            exiting={SlideOutLeft.duration(200).delay(100)}
+          >
+            <TouchableOpacity
+              style={{
+                alignSelf: "flex-end",
+                maxWidth: 100,
+              }}
+              onPress={clearAll}
+            >
+              <Text
+                style={{
+                  color: COLORS.red,
+                  fontFamily: FONTS.bold,
+                  fontSize: 18,
+                }}
+              >
+                Clear All
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+        ) : null}
         <ProfileCard cardStyle={{ paddingTop: 40 }} title="Your Wishlists" />
         <Text
           style={{
@@ -167,8 +211,10 @@ const Wishlist = ({ id }: { id: Id<"jobs"> }) => {
             paddingBottom: 5,
             backgroundColor: COLORS.white,
             marginBottom: 1,
-            maxWidth: 400,
+            maxWidth: 450,
             paddingHorizontal: 10,
+            width: "100%",
+            alignSelf: "center",
           }}
         >
           <View style={{ flex: 1 }}>

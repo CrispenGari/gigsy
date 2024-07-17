@@ -21,6 +21,36 @@ export const getMyWishLists = query({
     }
   },
 });
+
+const asyncFunction = async <T>(id: T, db: any): Promise<void> => {
+  return new Promise((resolve) => {
+    db.delete(id);
+    resolve();
+  });
+};
+export const clear = mutation({
+  args: { id: v.string() },
+  handler: async ({ db }, { id }) => {
+    try {
+      const user = await db
+        .query("users")
+        .filter((q) => q.eq(q.field("id"), id))
+        .unique();
+      if (!!!user) return false;
+      const res = await db
+        .query("wishlists")
+        .filter((q) => q.eq(q.field("userId"), user._id))
+        .collect();
+      const promises = res.map(async ({ _id }) => {
+        return await asyncFunction(_id, db);
+      });
+      await Promise.all(promises);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  },
+});
 export const get = query({
   args: { id: v.id("wishlists") },
   handler: async ({ db }, { id }) => {
