@@ -44,12 +44,13 @@ const ExperienceBottomSheet = React.forwardRef<
   };
   const selectExperience = (experience: string) => {
     const unique = Array.from(new Set(state.selected));
-    if (unique.length === 5) {
-      return;
-    }
     const found = unique.find(
       (s) => s.toLowerCase().trim() === experience.toLowerCase().trim()
     );
+    if (unique.length === 5) {
+      if (found) return removeExperience(experience);
+      return;
+    }
     if (!!found) {
       removeExperience(experience);
     } else {
@@ -66,6 +67,9 @@ const ExperienceBottomSheet = React.forwardRef<
     setState((s) => ({ ...s, selected: [] }));
     onChangeValue([]);
   };
+  React.useEffect(() => {
+    setState((s) => ({ ...s, selected: initialState }));
+  }, [initialState]);
 
   return (
     <BottomSheetModal

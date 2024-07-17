@@ -88,12 +88,14 @@ const SkillsBottomSheet = React.forwardRef<
   };
   const selectSkill = (val: string) => {
     const unique = Array.from(new Set(state.selected));
-    if (unique.length === 5) {
-      return;
-    }
     const found = unique.find(
       (s) => s.toLowerCase().trim() === val.toLowerCase().trim()
     );
+    if (unique.length === 5) {
+      if (found) return removeSkill(val);
+      return;
+    }
+
     if (!!found) {
       removeSkill(val);
     } else {
@@ -110,6 +112,10 @@ const SkillsBottomSheet = React.forwardRef<
     setState((s) => ({ ...s, selected: [] }));
     onChangeValue([]);
   };
+
+  React.useEffect(() => {
+    setState((s) => ({ ...s, selected: initialState }));
+  }, [initialState]);
 
   return (
     <BottomSheetModal

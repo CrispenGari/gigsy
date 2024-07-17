@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
-  Alert,
 } from "react-native";
 import React from "react";
 import Card from "@/src/components/Card/Card";
@@ -18,12 +17,14 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useCreateFormStore } from "@/src/store/createFormStore";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { TLoc, useLocationStore } from "@/src/store/locationStore";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import LocationPickerBottomSheet from "@/src/components/BottomSheets/LocationPickerBottomSheet";
-
+import { Id } from "@/convex/_generated/dataModel";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import Spinner from "react-native-loading-spinner-overlay";
 type StateType = {
   error: string;
   loading: boolean;
@@ -35,19 +36,20 @@ type StateType = {
 };
 const Page = () => {
   const locationBottomSheetRef = React.useRef<BottomSheetModal>(null);
-  const { action } = useLocalSearchParams<{ action: string }>();
+  const { id } = useLocalSearchParams<{ id: Id<"jobs"> }>();
+  const job = useQuery(api.api.job.getById, { id: id! });
+  const updateJobMutation = useMutation(api.api.job.update);
   const { location } = useLocationStore();
   const { os } = usePlatform();
   const router = useRouter();
-  const { setBasic, form } = useCreateFormStore();
 
   const [state, setState] = React.useState<StateType>({
     error: "",
     loading: false,
-    title: form.title,
-    description: form.description,
-    company: form.company,
-    companyDescription: form.companyDescription ?? "",
+    title: "",
+    description: "",
+    company: "",
+    companyDescription: "",
     location: {
       lat: 51.507351,
       lon: -0.127758,
@@ -79,13 +81,6 @@ const Page = () => {
       company: "",
       companyDescription: "",
     }));
-    setBasic({
-      company: "",
-      description: "",
-      title: "",
-      companyDescription: "",
-      location,
-    });
   };
 
   const animatedWidth = useAnimatedStyle(() => {
@@ -104,43 +99,59 @@ const Page = () => {
     };
   });
 
-  const saveAndGoToNext = () => {
+  const update = async () => {
+    if (!!!job) return;
+    setState((s) => ({
+      ...s,
+      loading: true,
+    }));
     if (state.title.trim().length < 5) {
       return setState((s) => ({
         ...s,
         error: "The job description should contain at least 5 characters.",
+        loading: false,
       }));
     }
     if (state.company.trim().length < 3) {
       return setState((s) => ({
         ...s,
         error: "Company name should contain at least 3 characters.",
+        loading: false,
       }));
     }
     if (state.description.trim().length < 30) {
       return setState((s) => ({
         ...s,
         error: "The job description should contain at least 30 characters.",
+        loading: false,
       }));
     }
-    const { error, loading, ...rest } = state;
-    setBasic(rest);
-
-    setState((s) => ({
-      ...s,
-      error: "",
-      loading: false,
-      title: "",
-      description: "",
-      company: "",
-      companyDescription: "",
-    }));
-    router.navigate({
-      pathname: "/(tabs)/create/contact",
-      params: {
-        from: "Basic",
+    const { _creationTime, _id, userId, ...rest } = job;
+    const { success } = await updateJobMutation({
+      id: job._id,
+      values: {
+        ...rest,
+        location: state.location,
+        title: state.title,
+        description: state.description,
+        company: state.company,
+        companyDescription: state.companyDescription,
       },
     });
+    if (success) {
+      setState((s) => ({
+        ...s,
+        error: "",
+        loading: false,
+      }));
+      router.back();
+    } else {
+      setState((s) => ({
+        ...s,
+        error: "Failed to update the job advert.",
+        loading: false,
+      }));
+    }
   };
 
   const selectLocation = () => locationBottomSheetRef.current?.present();
@@ -154,33 +165,37 @@ const Page = () => {
   }, [state]);
 
   React.useEffect(() => {
-    setState((s) => ({
-      ...s,
-      title: form.title,
-      description: form.description,
-      company: form.company,
-      companyDescription: form.companyDescription ?? "",
-      location: form.location.address.isoCountryCode ? form.location : location,
-    }));
-  }, [form, location]);
-
-  React.useEffect(() => {
-    if (!!action) {
-      Alert.alert(
-        "Job published",
-        "Your job has been published successfully. Do you want to create a new job advert?",
-        [
-          { text: "NO", onPress: () => router.replace("/") },
-          {
-            text: "YES",
-            style: "destructive",
-          },
-        ]
-      );
+    if (!!job) {
+      setState((s) => ({
+        ...s,
+        title: job.title,
+        description: job.description,
+        company: job.company,
+        companyDescription: job.companyDescription ?? "",
+        location: job.location.address.isoCountryCode ? job.location : location,
+      }));
     }
-  }, [action]);
+  }, [job]);
+
   return (
     <>
+      <Stack.Screen
+        options={{
+          headerTitle: "Basic Information",
+          headerShadowVisible: false,
+          headerLeft: () => (
+            <TouchableOpacity
+              style={{ width: 40 }}
+              onPress={() => router.back()}
+            >
+              <Ionicons name="chevron-back" size={20} color={COLORS.gray} />
+            </TouchableOpacity>
+          ),
+
+          headerLargeTitleStyle: { fontFamily: FONTS.bold, fontSize: 25 },
+          headerTitleStyle: { fontFamily: FONTS.bold },
+        }}
+      />
       <LocationPickerBottomSheet
         initialState={location}
         ref={locationBottomSheetRef}
@@ -188,6 +203,8 @@ const Page = () => {
           setState((s) => ({ ...s, location: value }));
         }}
       />
+
+      <Spinner visible={state.loading} animation="fade" />
       <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
           style={{ padding: 10, flex: 1 }}
@@ -377,7 +394,7 @@ const Page = () => {
                   borderRadius: 5,
                   maxWidth: 400,
                 }}
-                onPress={saveAndGoToNext}
+                onPress={update}
               >
                 <Text
                   style={{
@@ -386,7 +403,7 @@ const Page = () => {
                     fontFamily: FONTS.bold,
                   }}
                 >
-                  Next
+                  Update
                 </Text>
               </TouchableOpacity>
             </Animated.View>

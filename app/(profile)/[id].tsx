@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import React from "react";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { COLORS, FONTS } from "@/src/constants";
 import Animated, { SlideInLeft } from "react-native-reanimated";
@@ -9,18 +9,20 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import Card from "@/src/components/Card/Card";
 import Spinner from "react-native-loading-spinner-overlay";
-
+import { usePlatform } from "@/src/hooks";
+import { useHeaderHeight } from "@react-navigation/elements";
 const Page = () => {
   const { id } = useLocalSearchParams<{
     id: Id<"jobs">;
   }>();
+  const headerHeight = useHeaderHeight();
   const job = useQuery(api.api.job.getById, { id: id! });
+  const { os } = usePlatform();
   const router = useRouter();
   const [state, setState] = React.useState({
     loading: false,
   });
   const deleteMutation = useMutation(api.api.job.deleteById);
-
   const deleteJob = async () => {
     setState((s) => ({ ...s, loading: true }));
     const { success } = await deleteMutation({ id: id! });
@@ -38,7 +40,7 @@ const Page = () => {
     <>
       <Stack.Screen
         options={{
-          headerTitle: job?.title,
+          headerTitle: job?.title || "Job Position",
           headerLargeTitle: true,
           headerLargeTitleShadowVisible: true,
           headerShadowVisible: false,
@@ -60,6 +62,7 @@ const Page = () => {
         contentContainerStyle={{
           padding: 10,
           paddingBottom: 100,
+          paddingTop: os === "ios" ? headerHeight + 50 : 10,
         }}
         style={{}}
         showsHorizontalScrollIndicator={false}
@@ -107,28 +110,36 @@ const Page = () => {
               {job?.location.address.country} (
               {job?.location.address.isoCountryCode?.toLocaleLowerCase()})
             </Text>
-            <TouchableOpacity
-              style={{
-                flex: 1,
-                backgroundColor: COLORS.green,
-                padding: 10,
-                alignItems: "center",
-                borderRadius: 5,
-                maxWidth: 200,
-                marginTop: 20,
+            <Link
+              asChild
+              href={{
+                pathname: "/(profile)/(job)/basic",
+                params: { id: job?._id },
               }}
-              onPress={() => {}}
             >
-              <Text
+              <TouchableOpacity
                 style={{
-                  color: COLORS.white,
-                  fontSize: 20,
-                  fontFamily: FONTS.bold,
+                  flex: 1,
+                  backgroundColor: COLORS.green,
+                  padding: 10,
+                  alignItems: "center",
+                  borderRadius: 5,
+                  maxWidth: 200,
+                  marginTop: 20,
                 }}
+                onPress={() => {}}
               >
-                Edit
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={{
+                    color: COLORS.white,
+                    fontSize: 20,
+                    fontFamily: FONTS.bold,
+                  }}
+                >
+                  Edit
+                </Text>
+              </TouchableOpacity>
+            </Link>
           </Animated.View>
         </Card>
 
@@ -178,28 +189,36 @@ const Page = () => {
               {job?.contactPhone || "None."}
             </Text>
 
-            <TouchableOpacity
-              style={{
-                flex: 1,
-                backgroundColor: COLORS.green,
-                padding: 10,
-                alignItems: "center",
-                borderRadius: 5,
-                maxWidth: 200,
-                marginTop: 20,
+            <Link
+              asChild
+              href={{
+                pathname: "/(profile)/(job)/contact",
+                params: { id: job?._id },
               }}
-              onPress={() => {}}
             >
-              <Text
+              <TouchableOpacity
                 style={{
-                  color: COLORS.white,
-                  fontSize: 20,
-                  fontFamily: FONTS.bold,
+                  flex: 1,
+                  backgroundColor: COLORS.green,
+                  padding: 10,
+                  alignItems: "center",
+                  borderRadius: 5,
+                  maxWidth: 200,
+                  marginTop: 20,
                 }}
+                onPress={() => {}}
               >
-                Edit
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={{
+                    color: COLORS.white,
+                    fontSize: 20,
+                    fontFamily: FONTS.bold,
+                  }}
+                >
+                  Edit
+                </Text>
+              </TouchableOpacity>
+            </Link>
           </Animated.View>
         </Card>
 
@@ -252,28 +271,36 @@ const Page = () => {
                 </Text>
               </View>
             </View>
-            <TouchableOpacity
-              style={{
-                flex: 1,
-                backgroundColor: COLORS.green,
-                padding: 10,
-                alignItems: "center",
-                borderRadius: 5,
-                maxWidth: 200,
-                marginTop: 20,
+            <Link
+              asChild
+              href={{
+                pathname: "/(profile)/(job)/payment",
+                params: { id: job?._id },
               }}
-              onPress={() => {}}
             >
-              <Text
+              <TouchableOpacity
                 style={{
-                  color: COLORS.white,
-                  fontSize: 20,
-                  fontFamily: FONTS.bold,
+                  flex: 1,
+                  backgroundColor: COLORS.green,
+                  padding: 10,
+                  alignItems: "center",
+                  borderRadius: 5,
+                  maxWidth: 200,
+                  marginTop: 20,
                 }}
+                onPress={() => {}}
               >
-                Edit
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={{
+                    color: COLORS.white,
+                    fontSize: 20,
+                    fontFamily: FONTS.bold,
+                  }}
+                >
+                  Edit
+                </Text>
+              </TouchableOpacity>
+            </Link>
           </Animated.View>
         </Card>
 
@@ -306,7 +333,9 @@ const Page = () => {
                 <Text style={{ fontFamily: FONTS.bold }}>{skill}</Text>
               </TouchableOpacity>
             ))}
-            <Text style={{ fontFamily: FONTS.bold, fontSize: 18 }}>
+            <Text
+              style={{ fontFamily: FONTS.bold, fontSize: 18, marginTop: 10 }}
+            >
               Job Benefits
             </Text>
             {job?.benefits?.map((bene) => (
@@ -347,28 +376,36 @@ const Page = () => {
               );
             })}
 
-            <TouchableOpacity
-              style={{
-                flex: 1,
-                backgroundColor: COLORS.green,
-                padding: 10,
-                alignItems: "center",
-                borderRadius: 5,
-                maxWidth: 200,
-                marginTop: 20,
+            <Link
+              asChild
+              href={{
+                pathname: "/(profile)/(job)/other",
+                params: { id: job?._id },
               }}
-              onPress={() => {}}
             >
-              <Text
+              <TouchableOpacity
                 style={{
-                  color: COLORS.white,
-                  fontSize: 20,
-                  fontFamily: FONTS.bold,
+                  flex: 1,
+                  backgroundColor: COLORS.green,
+                  padding: 10,
+                  alignItems: "center",
+                  borderRadius: 5,
+                  maxWidth: 200,
+                  marginTop: 20,
                 }}
+                onPress={() => {}}
               >
-                Edit
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={{
+                    color: COLORS.white,
+                    fontSize: 20,
+                    fontFamily: FONTS.bold,
+                  }}
+                >
+                  Edit
+                </Text>
+              </TouchableOpacity>
+            </Link>
           </Animated.View>
         </Card>
 

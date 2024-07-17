@@ -25,6 +25,10 @@ import EducationBottomSheet from "@/src/components/BottomSheets/EducationBottomS
 import ExperienceBottomSheet from "@/src/components/BottomSheets/ExperienceBottomSheet";
 import SkillsBottomSheet from "@/src/components/BottomSheets/SkillsBottomSheet";
 import { useCreateFormStore } from "@/src/store/createFormStore";
+import Spinner from "react-native-loading-spinner-overlay";
+import { Id } from "@/convex/_generated/dataModel";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 type StateType = {
   error: string;
@@ -35,13 +39,14 @@ type StateType = {
   experience: string[];
 };
 const Page = () => {
-  const { setAdditional, form } = useCreateFormStore();
   const { os } = usePlatform();
   const skillsBottomSheetRef = React.useRef<BottomSheetModal>(null);
   const benefitsBottomSheetRef = React.useRef<BottomSheetModal>(null);
   const educationBottomSheetRef = React.useRef<BottomSheetModal>(null);
   const experienceBottomSheetRef = React.useRef<BottomSheetModal>(null);
-  const { from } = useLocalSearchParams<{ from: string }>();
+  const { id } = useLocalSearchParams<{ id: Id<"jobs"> }>();
+  const updateJobMutation = useMutation(api.api.job.update);
+  const job = useQuery(api.api.job.getById, { id: id! });
   const [state, setState] = React.useState<StateType>({
     error: "",
     loading: false,
@@ -64,13 +69,6 @@ const Page = () => {
       educationLevels: [],
       experience: [],
     }));
-
-    setAdditional({
-      benefits: [],
-      educationLevels: [],
-      experience: [],
-      skills: [],
-    });
   };
 
   const animatedWidth = useAnimatedStyle(() => {
@@ -89,7 +87,9 @@ const Page = () => {
     };
   });
 
-  const saveAndGoToNext = () => {
+  const update = async () => {
+    if (!!!job) return;
+    setState((s) => ({ ...s, loading: true }));
     if (state.skills.length === 0) {
       return setState((s) => ({
         ...s,
@@ -108,24 +108,32 @@ const Page = () => {
         error: "You should at least add 1 job qualification.",
       }));
     }
-    const { error, loading, ...rest } = state;
-    setAdditional(rest);
 
-    setState((s) => ({
-      ...s,
-      error: "",
-      loading: false,
-      skills: [],
-      benefits: [],
-      educationLevels: [],
-      experience: [],
-    }));
-    router.navigate({
-      pathname: "/(tabs)/create/payment",
-      params: {
-        from: "Additional Info",
+    const { _creationTime, _id, userId, ...rest } = job;
+    const { success } = await updateJobMutation({
+      id: job._id,
+      values: {
+        ...rest,
+        skills: state.skills,
+        benefits: state.benefits,
+        educationLevels: state.educationLevels,
+        experience: state.experience,
       },
     });
+    if (success) {
+      setState((s) => ({
+        ...s,
+        error: "",
+        loading: false,
+      }));
+      router.back();
+    } else {
+      setState((s) => ({
+        ...s,
+        error: "Failed to update the job advert.",
+        loading: false,
+      }));
+    }
   };
 
   React.useEffect(() => {
@@ -139,23 +147,37 @@ const Page = () => {
   }, [state]);
 
   React.useEffect(() => {
-    setState((s) => ({
-      ...s,
-      skills: form.skills,
-      benefits: form.benefits,
-      educationLevels: form.educationLevels,
-      experience: form.experience,
-    }));
-  }, [form]);
+    if (!!job) {
+      setState((s) => ({
+        ...s,
+        skills: job.skills,
+        benefits: job.benefits || [],
+        educationLevels: job.educationLevels,
+        experience: job.experience,
+      }));
+    }
+  }, [job]);
 
   return (
     <>
       <Stack.Screen
         options={{
-          headerLeft: () => <HeaderBackButton title={from!} />,
           headerTitle: "Additional Information",
+          headerShadowVisible: false,
+          headerLeft: () => (
+            <TouchableOpacity
+              style={{ width: 40 }}
+              onPress={() => router.back()}
+            >
+              <Ionicons name="chevron-back" size={20} color={COLORS.gray} />
+            </TouchableOpacity>
+          ),
+
+          headerLargeTitleStyle: { fontFamily: FONTS.bold, fontSize: 25 },
+          headerTitleStyle: { fontFamily: FONTS.bold },
         }}
       />
+      <Spinner visible={state.loading} animation="fade" />
       <SkillsBottomSheet
         ref={skillsBottomSheetRef}
         initialState={state.skills}
@@ -166,6 +188,7 @@ const Page = () => {
           }))
         }
       />
+
       <BenefitsBottomSheet
         initialState={state.benefits}
         ref={benefitsBottomSheetRef}
@@ -388,7 +411,7 @@ const Page = () => {
                   borderRadius: 5,
                   maxWidth: 400,
                 }}
-                onPress={saveAndGoToNext}
+                onPress={update}
               >
                 <Text
                   style={{
@@ -397,7 +420,7 @@ const Page = () => {
                     fontFamily: FONTS.bold,
                   }}
                 >
-                  Next
+                  Update
                 </Text>
               </TouchableOpacity>
             </Animated.View>
