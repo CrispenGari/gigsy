@@ -9,12 +9,3 @@ export const userArguments = {
   image: v.string(),
 };
 export const user = defineTable(userArguments);
-
-//   firstName: user?.firstName,
-//     lastName: user?.lastName,
-//     id: user?.id,
-//     createdAt: user?.createdAt,
-//     updatedAt: user?.updatedAt,
-//     imageUrl: user?.imageUrl,
-//     lastLoginAt: user?.lastSignInAt,
-//     email: user?.emailAddresses[0].emailAddress,

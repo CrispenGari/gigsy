@@ -13,6 +13,7 @@ import * as Constants from "expo-constants";
 import { useMeStore } from "@/src/store/meStore";
 import { useLocationStore } from "@/src/store/locationStore";
 import { useCreateFormStore } from "@/src/store/createFormStore";
+import { useWishlistStore } from "@/src/store/wishlistStore";
 const Profile = () => {
   const { isLoaded, isSignedIn, signOut } = useAuth();
   const headerHeight = useHeaderHeight();
@@ -20,6 +21,7 @@ const Profile = () => {
   const { destroy } = useMeStore();
   const { reset } = useLocationStore();
   const { clearForm } = useCreateFormStore();
+  const { clear } = useWishlistStore();
   React.useEffect(() => {
     if (isLoaded && !isSignedIn) {
       router.replace("/login");
@@ -31,6 +33,7 @@ const Profile = () => {
       destroy();
       reset();
       clearForm();
+      clear();
       router.replace("/");
     });
   };

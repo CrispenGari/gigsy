@@ -27,11 +27,11 @@ const HeaderBackButton = ({
         }
       }}
     >
-      <Ionicons name="chevron-back-outline" size={18} color={COLORS.green} />
+      <Ionicons name="chevron-back-outline" size={18} color={COLORS.gray} />
       <Text
         style={{
           fontFamily: FONTS.bold,
-          color: COLORS.green,
+          color: COLORS.gray,
           fontSize: 18,
         }}
       >

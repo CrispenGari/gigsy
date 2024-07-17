@@ -1,10 +1,14 @@
+import { api } from "@/convex/_generated/api";
 import HomeHeader from "@/src/components/HomeHeader/HomeHeader";
 import { COLORS, FONTS } from "@/src/constants";
 import { usePlatform } from "@/src/hooks";
 import { useCurrentLocation } from "@/src/hooks/useCurrentLocation";
 import { useCreateFormStore } from "@/src/store/createFormStore";
 import { useLocationStore } from "@/src/store/locationStore";
+import { useMeStore } from "@/src/store/meStore";
+import { useWishlistStore } from "@/src/store/wishlistStore";
 import { Ionicons } from "@expo/vector-icons";
+import { useQuery } from "convex/react";
 import { BlurView } from "expo-blur";
 import { Tabs } from "expo-router";
 import React from "react";
@@ -14,6 +18,18 @@ const Layout = () => {
   const location = useCurrentLocation();
   const { update } = useLocationStore();
   const { setLocation } = useCreateFormStore();
+  const { addAll } = useWishlistStore();
+  const { me } = useMeStore();
+  const wishlists = useQuery(api.api.wishlist.getMyWishLists, {
+    id: me?.id || "",
+  });
+
+  React.useEffect(() => {
+    if (!!wishlists) {
+      addAll(wishlists);
+    }
+  }, [wishlists]);
+
   React.useEffect(() => {
     if (location) {
       update(location);
@@ -30,7 +46,6 @@ const Layout = () => {
           position: "absolute",
           elevation: 0,
         },
-
         tabBarHideOnKeyboard: true,
         tabBarActiveTintColor: COLORS.green,
         tabBarInactiveTintColor: COLORS.gray,

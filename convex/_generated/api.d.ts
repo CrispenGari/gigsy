@@ -16,8 +16,10 @@ import type {
 } from "convex/server";
 import type * as api_job from "../api/job.js";
 import type * as api_user from "../api/user.js";
+import type * as api_wishlist from "../api/wishlist.js";
 import type * as tables_job from "../tables/job.js";
 import type * as tables_user from "../tables/user.js";
+import type * as tables_whishlist from "../tables/whishlist.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -30,8 +32,10 @@ import type * as tables_user from "../tables/user.js";
 declare const fullApi: ApiFromModules<{
   "api/job": typeof api_job;
   "api/user": typeof api_user;
+  "api/wishlist": typeof api_wishlist;
   "tables/job": typeof tables_job;
   "tables/user": typeof tables_user;
+  "tables/whishlist": typeof tables_whishlist;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

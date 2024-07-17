@@ -35,6 +35,7 @@ export const STORAGE_NAME = {
   CREATE_FORM: "create-form",
   ME: "user-me",
   LOCATION: "my-location",
+  WISHLIST: "my-wish-list",
 };
 
 export const KEYS = {};

@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleProp,
+  ViewStyle,
+} from "react-native";
 import React from "react";
 import { FONTS, COLORS } from "@/src/constants";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,21 +16,29 @@ import { sharedElementTransition } from "@/src/utils/SharedTransition";
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
-const ProfileCard = () => {
+
+interface ProfileCardProps {
+  cardStyle?: StyleProp<ViewStyle>;
+  title?: string;
+}
+const ProfileCard = ({ cardStyle, title }: ProfileCardProps) => {
   const { me } = useMeStore();
   return (
     <Card
-      style={{
-        paddingTop: 80,
-        paddingHorizontal: 50,
-        borderRadius: 0,
-      }}
+      style={[
+        {
+          paddingTop: 80,
+          paddingHorizontal: 50,
+          borderRadius: 0,
+        },
+        cardStyle,
+      ]}
     >
       <Animated.Text
         style={{ fontFamily: FONTS.bold, fontSize: 25, marginBottom: 20 }}
         entering={ZoomInUp.duration(200).delay(100)}
       >
-        Profile
+        {title ? title : "Profile"}
       </Animated.Text>
       <Link href={"/(profile)/me"} asChild>
         <AnimatedTouchableOpacity
