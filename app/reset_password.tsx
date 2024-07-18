@@ -10,9 +10,12 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSignIn } from "@clerk/clerk-expo";
 import Ripple from "@/src/components/Ripple/Ripple";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 const ResetPassword = () => {
   const { isLoaded, setActive, signIn } = useSignIn();
+  const { settings } = useSettingsStore();
   const router = useRouter();
   const params = useLocalSearchParams();
   const [state, setState] = React.useState({
@@ -24,6 +27,9 @@ const ResetPassword = () => {
   });
 
   const resetPassword = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!isLoaded) return;
     setState((s) => ({ ...s, loading: true }));
 
@@ -191,14 +197,17 @@ const ResetPassword = () => {
             />
 
             <Text
-              onPress={() =>
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
                 router.replace({
                   pathname: "/forgot_password",
                   params: {
                     email_address: params.email_address,
                   },
-                })
-              }
+                });
+              }}
               style={{
                 color: COLORS.green,
                 fontSize: 18,

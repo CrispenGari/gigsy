@@ -25,6 +25,8 @@ import Animated, {
 import { Ionicons } from "@expo/vector-icons";
 import { usePlatform } from "@/src/hooks";
 import FooterButtons from "./FooterButtons";
+import { useSettingsStore } from "@/src/store/settingsStore";
+import { onImpact } from "@/src/utils";
 
 interface EducationBottomSheetProps {
   onChangeValue: (value: string[]) => void;
@@ -36,6 +38,7 @@ const EducationBottomSheet = React.forwardRef<
 >(({ onChangeValue, initialState }, ref) => {
   const { os } = usePlatform();
   const snapPoints = React.useMemo(() => ["80%"], []);
+  const { settings } = useSettingsStore();
   const [state, setState] = React.useState<{
     education: string;
     selected: string[];
@@ -233,7 +236,12 @@ const EducationBottomSheet = React.forwardRef<
                     {education}
                   </Text>
                   <TouchableOpacity
-                    onPress={() => setEducation(education)}
+                    onPress={async () => {
+                      if (settings.haptics) {
+                        await onImpact();
+                      }
+                      setEducation(education);
+                    }}
                     key={education}
                   >
                     <Ionicons
@@ -284,7 +292,12 @@ const EducationBottomSheet = React.forwardRef<
                   );
                   return (
                     <TouchableOpacity
-                      onPress={() => setEducation(education)}
+                      onPress={async () => {
+                        if (settings.haptics) {
+                          await onImpact();
+                        }
+                        setEducation(education);
+                      }}
                       key={education}
                       style={{
                         borderWidth: StyleSheet.hairlineWidth,

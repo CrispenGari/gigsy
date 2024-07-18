@@ -1,4 +1,6 @@
 import { COLORS, FONTS } from "@/src/constants";
+import { useSettingsStore } from "@/src/store/settingsStore";
+import { onImpact } from "@/src/utils";
 import { BlurView } from "expo-blur";
 import React from "react";
 import { TouchableOpacity, Text } from "react-native";
@@ -17,7 +19,7 @@ const FooterButtons = <T extends { selected: string[] }>({
   onDone,
 }: FooterButtonsProps<T>) => {
   const { bottom } = useSafeAreaInsets();
-
+  const { settings } = useSettingsStore();
   return (
     <BlurView tint="extraLight" intensity={80}>
       <Animated.View
@@ -45,7 +47,12 @@ const FooterButtons = <T extends { selected: string[] }>({
             borderRadius: 5,
             width: 150,
           }}
-          onPress={onClear}
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+            onClear();
+          }}
         >
           <Text
             style={[
@@ -61,7 +68,12 @@ const FooterButtons = <T extends { selected: string[] }>({
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={onDone}
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+            onDone();
+          }}
           style={{
             flex: 1,
             backgroundColor: COLORS.green,

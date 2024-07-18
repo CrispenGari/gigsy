@@ -19,11 +19,13 @@ import Ripple from "@/src/components/Ripple/Ripple";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
 import { useWarmUpBrowser } from "@/src/hooks";
+import { useSettingsStore } from "@/src/store/settingsStore";
+import { onImpact } from "@/src/utils";
 
 WebBrowser.maybeCompleteAuthSession();
 const Register = () => {
   useWarmUpBrowser();
-
+  const { settings } = useSettingsStore();
   const { startOAuthFlow: startOAuthFlowGoogle } = useOAuth({
     strategy: "oauth_google",
   });
@@ -41,6 +43,9 @@ const Register = () => {
     loading: false,
   });
   const register = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!isLoaded) return;
     setState((state) => ({
       ...state,
@@ -99,6 +104,9 @@ const Register = () => {
   };
 
   const google = React.useCallback(async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!isLoaded) return;
     setState((state) => ({
       ...state,
@@ -150,6 +158,9 @@ const Register = () => {
   }, []);
 
   const github = React.useCallback(async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!isLoaded) return;
     setState((state) => ({
       ...state,

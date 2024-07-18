@@ -15,6 +15,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { usePlatform } from "@/src/hooks";
 import { useMeStore } from "@/src/store/meStore";
+import { useSettingsStore } from "@/src/store/settingsStore";
+import { onImpact } from "@/src/utils";
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
@@ -62,6 +64,7 @@ const RootLayout = () => {
   const { user, isLoaded, isSignedIn } = useUser();
   const { os } = usePlatform();
   const { save } = useMeStore();
+  const { settings } = useSettingsStore();
   React.useEffect(() => {
     if (isLoaded && !isSignedIn) {
       router.replace("/login");
@@ -106,7 +109,10 @@ const RootLayout = () => {
                 marginRight: 20,
               }}
               activeOpacity={0.7}
-              onPress={() => {
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
                 router.replace("/");
               }}
             >
@@ -137,7 +143,12 @@ const RootLayout = () => {
                 marginRight: 20,
               }}
               activeOpacity={0.7}
-              onPress={() => router.back()}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                router.back();
+              }}
             >
               <Ionicons name="close-outline" size={30} color={COLORS.black} />
             </TouchableOpacity>
@@ -169,7 +180,12 @@ const RootLayout = () => {
                 alignItems: "center",
               }}
               activeOpacity={0.7}
-              onPress={() => router.back()}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                router.back();
+              }}
             >
               <Ionicons name="chevron-back" size={30} color={COLORS.green} />
               <Typography
@@ -234,7 +250,12 @@ const RootLayout = () => {
                 alignItems: "center",
               }}
               activeOpacity={0.7}
-              onPress={() => router.back()}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                router.back();
+              }}
             >
               <Ionicons name="chevron-back" size={30} color={COLORS.green} />
               <Typography
@@ -274,7 +295,12 @@ const RootLayout = () => {
                 alignItems: "center",
               }}
               activeOpacity={0.7}
-              onPress={() => router.back()}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                router.back();
+              }}
             >
               <Ionicons name="chevron-back" size={30} color={COLORS.green} />
               <Typography

@@ -15,10 +15,13 @@ import { useLocationStore } from "@/src/store/locationStore";
 import { useCreateFormStore } from "@/src/store/createFormStore";
 import { useWishlistStore } from "@/src/store/wishlistStore";
 import Spinner from "react-native-loading-spinner-overlay";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 const Profile = () => {
   const { isLoaded, isSignedIn, signOut } = useAuth();
   const headerHeight = useHeaderHeight();
   const router = useRouter();
+  const { settings } = useSettingsStore();
   const { destroy } = useMeStore();
   const { reset } = useLocationStore();
   const { clearForm } = useCreateFormStore();
@@ -29,7 +32,10 @@ const Profile = () => {
     }
   }, [isLoaded, isSignedIn]);
 
-  const logout = () => {
+  const logout = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     signOut().then(() => {
       destroy();
       reset();
@@ -58,7 +64,10 @@ const Profile = () => {
         }}
       >
         <SettingItem
-          onPress={() => {
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
             router.navigate("/(profile)/pi");
           }}
           title="Personal Information"
@@ -67,7 +76,10 @@ const Profile = () => {
           }
         />
         <SettingItem
-          onPress={() => {
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
             router.navigate("/(profile)/security");
           }}
           title="Account and Security"

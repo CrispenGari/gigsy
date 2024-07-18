@@ -25,6 +25,8 @@ import Animated, {
 import { Ionicons } from "@expo/vector-icons";
 import { usePlatform } from "@/src/hooks";
 import FooterButtons from "./FooterButtons";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 interface SkillsBottomSheetProps {
   onChangeValue: (value: string[]) => void;
@@ -37,6 +39,7 @@ const SkillsBottomSheet = React.forwardRef<
   const { dismiss } = useBottomSheetModal();
   const { os } = usePlatform();
   const snapPoints = React.useMemo(() => ["80%"], []);
+  const { settings } = useSettingsStore();
   const [state, setState] = React.useState<{
     skill: string;
     selected: string[];
@@ -232,7 +235,12 @@ const SkillsBottomSheet = React.forwardRef<
                     {skill}
                   </Text>
                   <TouchableOpacity
-                    onPress={() => selectSkill(skill)}
+                    onPress={async () => {
+                      if (settings.haptics) {
+                        await onImpact();
+                      }
+                      selectSkill(skill);
+                    }}
                     key={skill}
                   >
                     <Ionicons
@@ -282,7 +290,12 @@ const SkillsBottomSheet = React.forwardRef<
                   );
                   return (
                     <TouchableOpacity
-                      onPress={() => selectSkill(skill)}
+                      onPress={async () => {
+                        if (settings.haptics) {
+                          await onImpact();
+                        }
+                        selectSkill(skill);
+                      }}
                       key={skill}
                       style={{
                         borderWidth: StyleSheet.hairlineWidth,

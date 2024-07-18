@@ -13,6 +13,8 @@ import { useMediaPermission } from "@/src/hooks";
 import * as ImagePicker from "expo-image-picker";
 import Animated from "react-native-reanimated";
 import { sharedElementTransition } from "@/src/utils/SharedTransition";
+import { useSettingsStore } from "@/src/store/settingsStore";
+import { onImpact } from "@/src/utils";
 
 interface Props {
   uri?: string;
@@ -29,8 +31,17 @@ const ProfileAvatar = ({ uri, setBase64, sharedTransitionTag }: Props) => {
   const { dismiss } = useBottomSheetModal();
   const bottomSheetModalRef = React.useRef<BottomSheetModal>(null);
   const snapPoints = React.useMemo(() => ["32%"], []);
-  const openPhotoOptions = () => bottomSheetModalRef.current?.present();
+  const { settings } = useSettingsStore();
+  const openPhotoOptions = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
+    bottomSheetModalRef.current?.present();
+  };
   const select = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (gallery) {
       const { assets, canceled } = await ImagePicker.launchImageLibraryAsync({
         quality: 1,
@@ -57,6 +68,9 @@ const ProfileAvatar = ({ uri, setBase64, sharedTransitionTag }: Props) => {
     dismiss();
   };
   const take = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (camera) {
       const { assets, canceled } = await ImagePicker.launchCameraAsync({
         quality: 1,
@@ -83,7 +97,10 @@ const ProfileAvatar = ({ uri, setBase64, sharedTransitionTag }: Props) => {
 
     dismiss();
   };
-  const remove = () => {
+  const remove = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     setImage((state) => ({
       ...state,
       uri: uri ? uri : undefined,

@@ -27,6 +27,8 @@ import Spinner from "react-native-loading-spinner-overlay";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Keyboard } from "react-native";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
@@ -37,6 +39,7 @@ const PersonalInformation = () => {
   const { os } = usePlatform();
   const { me } = useMeStore();
   const { isLoaded, isSignedIn } = useAuth();
+  const { settings } = useSettingsStore();
   const { user } = useUser();
   const [state, setState] = React.useState({
     firstName: "",
@@ -84,6 +87,9 @@ const PersonalInformation = () => {
   });
 
   const save = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!!!user || !!!me) return;
     setState((s) => ({ ...s, loading: true }));
     if (state.firstName.trim().length < 3 || state.lastName.trim().length < 3) {
@@ -144,7 +150,12 @@ const PersonalInformation = () => {
           headerLeft: () => (
             <TouchableOpacity
               style={{ width: 40 }}
-              onPress={() => router.back()}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                router.back();
+              }}
             >
               <Ionicons name="chevron-back" size={20} color={COLORS.gray} />
             </TouchableOpacity>
@@ -207,7 +218,12 @@ const PersonalInformation = () => {
                 </Text>
               </AnimatedTouchableOpacity>
               <AnimatedTouchableOpacity
-                onPress={() => setState((s) => ({ ...s, edit: true }))}
+                onPress={async () => {
+                  if (settings.haptics) {
+                    await onImpact();
+                  }
+                  setState((s) => ({ ...s, edit: true }));
+                }}
                 style={[
                   editButtonStyle,
                   {

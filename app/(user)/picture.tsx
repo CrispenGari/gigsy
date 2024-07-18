@@ -12,11 +12,13 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import ImageInfoBottomSheet from "@/src/components/BottomSheets/ImageInfoBottomSheet";
 import { Id } from "@/convex/_generated/dataModel";
 import { usePlatform } from "@/src/hooks";
-import { saveImageToLibrary, shareSomething } from "@/src/utils";
+import { onImpact, saveImageToLibrary, shareSomething } from "@/src/utils";
 import Spinner from "react-native-loading-spinner-overlay";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 const Page = () => {
   const { os } = usePlatform();
+  const { settings } = useSettingsStore();
   const [state, setState] = React.useState({ loading: false });
   const infoBottomSheet = React.useRef<BottomSheetModal>(null);
   const { uri, fullName, uid } = useLocalSearchParams<{
@@ -27,13 +29,23 @@ const Page = () => {
   const router = useRouter();
   const { bottom } = useSafeAreaInsets();
   const share = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!!!uri) return;
     setState((s) => ({ ...s, loading: true }));
     await shareSomething(uri, "Sharing Image");
     setState((s) => ({ ...s, loading: false }));
   };
-  const report = () => {};
+  const report = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
+  };
   const save = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!!!uri) return;
     setState((s) => ({ ...s, loading: true }));
     saveImageToLibrary(uri);
@@ -60,7 +72,12 @@ const Page = () => {
           headerLeft: () => (
             <TouchableOpacity
               style={{ width: 40 }}
-              onPress={() => router.back()}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                router.back();
+              }}
             >
               <Ionicons name="chevron-back" size={20} color={COLORS.white} />
             </TouchableOpacity>
@@ -144,7 +161,12 @@ const Page = () => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={{ alignItems: "center" }}
-                onPress={() => infoBottomSheet.current?.present()}
+                onPress={async () => {
+                  if (settings.haptics) {
+                    await onImpact();
+                  }
+                  infoBottomSheet.current?.present();
+                }}
               >
                 <MaterialIcons
                   name="info-outline"

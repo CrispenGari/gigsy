@@ -23,6 +23,8 @@ import Spinner from "react-native-loading-spinner-overlay";
 import { TJob } from "@/convex/tables/job";
 import JobDetailsBottomSheet from "../BottomSheets/JobDetailsBottomSheet";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -82,11 +84,17 @@ export default UserAdverts;
 
 const PressableItem = ({ item }: { item: TJob }) => {
   const jobBottomSheetRef = React.useRef<BottomSheetModal>(null);
+  const { settings } = useSettingsStore();
   return (
     <>
       <JobDetailsBottomSheet ref={jobBottomSheetRef} id={item._id} />
       <TouchableOpacity
-        onPress={() => jobBottomSheetRef.current?.present()}
+        onPress={async () => {
+          if (settings.haptics) {
+            await onImpact();
+          }
+          jobBottomSheetRef.current?.present();
+        }}
         style={{
           flexDirection: "row",
           alignItems: "center",
@@ -128,8 +136,12 @@ const SwipableItem = ({ item }: { item: TJob }) => {
   const [state, setState] = React.useState({
     loading: false,
   });
+  const { settings } = useSettingsStore();
   const deleteMutation = useMutation(api.api.job.deleteById);
   const deleteJob = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     setState((s) => ({ ...s, loading: true }));
     const { success } = await deleteMutation({ id: item._id });
     setState((s) => ({ ...s, loading: false }));

@@ -20,6 +20,8 @@ import { useMeStore } from "@/src/store/meStore";
 import Card from "@/src/components/Card/Card";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import JobDetailsBottomSheet from "@/src/components/BottomSheets/JobDetailsBottomSheet";
+import { useSettingsStore } from "@/src/store/settingsStore";
+import { onImpact } from "@/src/utils";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
@@ -35,8 +37,10 @@ const Saved = () => {
   const [state, setState] = React.useState({
     loading: false,
   });
+  const { settings } = useSettingsStore();
   const { me } = useMeStore();
   const clearAllMutation = useMutation(api.api.wishlist.clear);
+
   React.useEffect(() => {
     if (isLoaded && !isSignedIn) {
       router.replace("/login");
@@ -44,6 +48,9 @@ const Saved = () => {
   }, [isLoaded, isSignedIn]);
 
   const clearAll = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!!!me) return;
     setState((s) => ({ ...s, loading: true }));
     const success = await clearAllMutation({ id: me.id });
@@ -133,12 +140,20 @@ const Wishlist = ({ id }: { id: Id<"jobs"> }) => {
   const [state, setState] = React.useState({
     loading: false,
   });
+  const { settings } = useSettingsStore();
   const removeMutation = useMutation(api.api.wishlist.remove);
   const { remove } = useWishlistStore();
   const { me } = useMeStore();
-  const openJobDetailsBottomSheet = () =>
+  const openJobDetailsBottomSheet = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     jobDetailsBottomSheet.current?.present();
-  const removeFromWishList = () => {
+  };
+  const removeFromWishList = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!!!job || !!!me) return;
     setState((s) => ({ ...s, loading: true }));
     removeMutation({ jobId: job._id!, userId: me.id })

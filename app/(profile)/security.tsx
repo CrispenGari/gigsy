@@ -28,6 +28,8 @@ import { Keyboard } from "react-native";
 import { useCreateFormStore } from "@/src/store/createFormStore";
 import { useLocationStore } from "@/src/store/locationStore";
 import { useWishlistStore } from "@/src/store/wishlistStore";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
@@ -38,6 +40,7 @@ const Security = () => {
   const { reset } = useLocationStore();
   const { clearForm } = useCreateFormStore();
   const { clear } = useWishlistStore();
+  const { settings } = useSettingsStore();
   const { os } = usePlatform();
   const { me } = useMeStore();
   const { isLoaded, isSignedIn, signOut } = useAuth();
@@ -103,6 +106,9 @@ const Security = () => {
   });
 
   const savePassword = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!!!me || !!!user) return;
     setState((s) => ({ ...s, loading: true }));
     if (state.newPassword !== state.confirmNewPassword) {
@@ -187,7 +193,12 @@ const Security = () => {
           headerLeft: () => (
             <TouchableOpacity
               style={{ width: 40 }}
-              onPress={() => router.back()}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                router.back();
+              }}
             >
               <Ionicons name="chevron-back" size={20} color={COLORS.gray} />
             </TouchableOpacity>
@@ -373,7 +384,10 @@ const Security = () => {
                       color={COLORS.gray}
                     />
                   }
-                  onRightIconPress={() => {
+                  onRightIconPress={async () => {
+                    if (settings.haptics) {
+                      await onImpact();
+                    }
                     if (!state.editPassword) return;
                     setState((state) => ({
                       ...state,

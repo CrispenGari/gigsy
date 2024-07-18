@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
-  Alert,
 } from "react-native";
 import React from "react";
 import Card from "@/src/components/Card/Card";
@@ -18,11 +17,13 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useCreateFormStore } from "@/src/store/createFormStore";
 import { TLoc, useLocationStore } from "@/src/store/locationStore";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import LocationPickerBottomSheet from "@/src/components/BottomSheets/LocationPickerBottomSheet";
+import { useSettingsStore } from "@/src/store/settingsStore";
+import { onImpact } from "@/src/utils";
 
 type StateType = {
   error: string;
@@ -35,12 +36,12 @@ type StateType = {
 };
 const Page = () => {
   const locationBottomSheetRef = React.useRef<BottomSheetModal>(null);
-  const { action } = useLocalSearchParams<{ action: string }>();
+
   const { location } = useLocationStore();
   const { os } = usePlatform();
   const router = useRouter();
   const { setBasic, form } = useCreateFormStore();
-
+  const { settings } = useSettingsStore();
   const [state, setState] = React.useState<StateType>({
     error: "",
     loading: false,
@@ -69,7 +70,10 @@ const Page = () => {
   const scale = useSharedValue(0);
   const gap = useSharedValue(0);
 
-  const clear = () => {
+  const clear = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     setState((s) => ({
       ...s,
       error: "",
@@ -104,7 +108,10 @@ const Page = () => {
     };
   });
 
-  const saveAndGoToNext = () => {
+  const saveAndGoToNext = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (state.title.trim().length < 5) {
       return setState((s) => ({
         ...s,
@@ -164,21 +171,6 @@ const Page = () => {
     }));
   }, [form, location]);
 
-  React.useEffect(() => {
-    if (!!action) {
-      Alert.alert(
-        "Job published",
-        "Your job has been published successfully. Do you want to create a new job advert?",
-        [
-          { text: "NO", onPress: () => router.replace("/") },
-          {
-            text: "YES",
-            style: "destructive",
-          },
-        ]
-      );
-    }
-  }, [action]);
   return (
     <>
       <LocationPickerBottomSheet

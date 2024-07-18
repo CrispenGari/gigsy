@@ -13,6 +13,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { FlatList } from "react-native-gesture-handler";
 import FooterButtons from "./FooterButtons";
 import { usePlatform } from "@/src/hooks";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 interface ExperienceBottomSheetProps {
   onChangeValue: (value: string[]) => void;
@@ -31,6 +33,7 @@ const ExperienceBottomSheet = React.forwardRef<
   const experiences = React.useMemo(() => {
     return data;
   }, []);
+  const { settings } = useSettingsStore();
 
   const removeExperience = (experience: string) => {
     const value = state.selected.filter(
@@ -141,7 +144,12 @@ const ExperienceBottomSheet = React.forwardRef<
                   {experience}
                 </Text>
                 <TouchableOpacity
-                  onPress={() => removeExperience(experience)}
+                  onPress={async () => {
+                    if (settings.haptics) {
+                      await onImpact();
+                    }
+                    removeExperience(experience);
+                  }}
                   key={experience}
                 >
                   <Ionicons
@@ -173,7 +181,12 @@ const ExperienceBottomSheet = React.forwardRef<
               );
               return (
                 <TouchableOpacity
-                  onPress={() => selectExperience(item.level)}
+                  onPress={async () => {
+                    if (settings.haptics) {
+                      await onImpact();
+                    }
+                    selectExperience(item.level);
+                  }}
                   key={item.level}
                   style={{
                     borderWidth: StyleSheet.hairlineWidth,

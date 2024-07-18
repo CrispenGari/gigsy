@@ -18,10 +18,13 @@ import Spinner from "react-native-loading-spinner-overlay";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import UserAdverts from "@/src/components/ProfileComponents/UserAdverts";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
 const Page = () => {
+  const { settings } = useSettingsStore();
   const { isLoaded, isSignedIn, user } = useUser();
   const [state, setState] = React.useState({
     loading: false,
@@ -35,6 +38,9 @@ const Page = () => {
   );
 
   const updateAvatar = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!!!user || !isLoaded || !isSignedIn || !!!me) return;
     setState((s) => ({ ...s, loading: true }));
     if (!!image) {
@@ -85,7 +91,12 @@ const Page = () => {
           headerLeft: () => (
             <TouchableOpacity
               style={{ width: 40 }}
-              onPress={() => router.back()}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                router.back();
+              }}
             >
               <Ionicons name="chevron-back" size={20} />
             </TouchableOpacity>

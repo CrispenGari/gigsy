@@ -10,11 +10,14 @@ import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Ripple from "@/src/components/Ripple/Ripple";
 import { useSignIn } from "@clerk/clerk-expo";
+import { useSettingsStore } from "@/src/store/settingsStore";
+import { onImpact } from "@/src/utils";
 
 const ForgotPassword = () => {
   const router = useRouter();
   const { isLoaded, signIn } = useSignIn();
   const params = useLocalSearchParams();
+  const { settings } = useSettingsStore();
   const [state, setState] = React.useState({
     email: params?.email_address ? (params.email_address as string) : "",
     error_msg: "",
@@ -22,6 +25,9 @@ const ForgotPassword = () => {
   });
 
   const requestCode = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!isLoaded) return;
     setState((s) => ({
       ...s,

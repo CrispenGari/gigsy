@@ -25,6 +25,8 @@ import EducationBottomSheet from "@/src/components/BottomSheets/EducationBottomS
 import ExperienceBottomSheet from "@/src/components/BottomSheets/ExperienceBottomSheet";
 import SkillsBottomSheet from "@/src/components/BottomSheets/SkillsBottomSheet";
 import { useCreateFormStore } from "@/src/store/createFormStore";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 type StateType = {
   error: string;
@@ -37,6 +39,7 @@ type StateType = {
 const Page = () => {
   const { setAdditional, form } = useCreateFormStore();
   const { os } = usePlatform();
+  const { settings } = useSettingsStore();
   const skillsBottomSheetRef = React.useRef<BottomSheetModal>(null);
   const benefitsBottomSheetRef = React.useRef<BottomSheetModal>(null);
   const educationBottomSheetRef = React.useRef<BottomSheetModal>(null);
@@ -54,7 +57,10 @@ const Page = () => {
   const scale = useSharedValue(0);
   const gap = useSharedValue(0);
 
-  const clear = () => {
+  const clear = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     setState((s) => ({
       ...s,
       error: "",
@@ -89,7 +95,10 @@ const Page = () => {
     };
   });
 
-  const saveAndGoToNext = () => {
+  const saveAndGoToNext = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (state.skills.length === 0) {
       return setState((s) => ({
         ...s,
@@ -216,7 +225,12 @@ const Page = () => {
               <Text style={{ fontFamily: FONTS.bold }}>Skills Required(*)</Text>
               <Card style={styles.list}>
                 <TouchableOpacity
-                  onPress={() => skillsBottomSheetRef.current?.present()}
+                  onPress={async () => {
+                    if (settings.haptics) {
+                      await onImpact();
+                    }
+                    skillsBottomSheetRef.current?.present();
+                  }}
                   style={styles.iconBtn}
                 >
                   <Ionicons name="add" size={20} />
@@ -244,7 +258,12 @@ const Page = () => {
               <Text style={{ fontFamily: FONTS.bold }}>Job Benefits</Text>
               <Card style={styles.list}>
                 <TouchableOpacity
-                  onPress={() => benefitsBottomSheetRef.current?.present()}
+                  onPress={async () => {
+                    if (settings.haptics) {
+                      await onImpact();
+                    }
+                    benefitsBottomSheetRef.current?.present();
+                  }}
                   style={styles.iconBtn}
                 >
                   <Ionicons name="add" size={20} />
@@ -274,7 +293,12 @@ const Page = () => {
               </Text>
               <Card style={styles.list}>
                 <TouchableOpacity
-                  onPress={() => experienceBottomSheetRef.current?.present()}
+                  onPress={async () => {
+                    if (settings.haptics) {
+                      await onImpact();
+                    }
+                    experienceBottomSheetRef.current?.present();
+                  }}
                   style={styles.iconBtn}
                 >
                   <Ionicons name="add" size={20} />
@@ -304,7 +328,12 @@ const Page = () => {
               </Text>
               <Card style={styles.list}>
                 <TouchableOpacity
-                  onPress={() => educationBottomSheetRef.current?.present()}
+                  onPress={async () => {
+                    if (settings.haptics) {
+                      await onImpact();
+                    }
+                    educationBottomSheetRef.current?.present();
+                  }}
                   style={styles.iconBtn}
                 >
                   <Ionicons name="add" size={20} />

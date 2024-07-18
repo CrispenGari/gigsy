@@ -25,6 +25,8 @@ import Spinner from "react-native-loading-spinner-overlay";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useMeStore } from "@/src/store/meStore";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 type StateType = {
   error: string;
@@ -53,6 +55,7 @@ const Page = () => {
   const flexWidth = useSharedValue(0);
   const scale = useSharedValue(0);
   const gap = useSharedValue(0);
+  const { settings } = useSettingsStore();
   React.useEffect(() => {
     const hasValues = Object.values(state.salaryRange).filter(Boolean);
     flexWidth.value = withTiming(hasValues.length !== 0 ? 150 : 0);
@@ -60,7 +63,10 @@ const Page = () => {
     gap.value = withTiming(hasValues.length !== 0 ? 16 : 0);
   }, [state.salaryRange]);
 
-  const clear = () => {
+  const clear = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     setState((s) => ({
       ...s,
       error: "",
@@ -91,6 +97,9 @@ const Page = () => {
   });
 
   const publishJob = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     setState((s) => ({
       ...s,
       loading: true,
@@ -247,7 +256,10 @@ const Page = () => {
                   borderRadius: 2,
                 }}
                 innerIconStyle={{ borderWidth: 0, padding: 2 }}
-                onPress={(isChecked: boolean) => {
+                onPress={async (isChecked: boolean) => {
+                  if (settings.haptics) {
+                    await onImpact();
+                  }
                   setState((s) => ({
                     ...s,
                     type: isChecked ? "part-time" : "full-time",

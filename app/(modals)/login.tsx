@@ -21,11 +21,13 @@ import { useOAuth, useSignIn } from "@clerk/clerk-expo";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
 import { usePlatform, useWarmUpBrowser } from "@/src/hooks";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 WebBrowser.maybeCompleteAuthSession();
 const Login = () => {
   useWarmUpBrowser();
-
+  const { settings } = useSettingsStore();
   const { startOAuthFlow: startOAuthFlowGoogle } = useOAuth({
     strategy: "oauth_google",
   });
@@ -43,7 +45,11 @@ const Login = () => {
   });
   const { os } = usePlatform();
   const login = React.useCallback(async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!isLoaded) return;
+
     setState((state) => ({
       ...state,
       loading: true,
@@ -95,7 +101,11 @@ const Login = () => {
   }, [isLoaded, state]);
 
   const google = React.useCallback(async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!isLoaded) return;
+
     setState((state) => ({
       ...state,
       loading: true,
@@ -146,7 +156,11 @@ const Login = () => {
   }, []);
 
   const github = React.useCallback(async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!isLoaded) return;
+
     setState((state) => ({
       ...state,
       loading: true,
@@ -265,12 +279,15 @@ const Login = () => {
                   color={COLORS.gray}
                 />
               }
-              onRightIconPress={() =>
+              onRightIconPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
                 setState((state) => ({
                   ...state,
                   showPassword: !state.showPassword,
-                }))
-              }
+                }));
+              }}
               text={state.password}
               onChangeText={(text) =>
                 setState((state) => ({ ...state, password: text }))

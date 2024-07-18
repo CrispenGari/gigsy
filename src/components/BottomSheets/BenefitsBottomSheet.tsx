@@ -25,6 +25,8 @@ import Animated, {
 import { Ionicons } from "@expo/vector-icons";
 import { usePlatform } from "@/src/hooks";
 import FooterButtons from "./FooterButtons";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 interface BenefitsBottomSheetProps {
   onChangeValue: (value: string[]) => void;
@@ -36,6 +38,7 @@ const BenefitsBottomSheet = React.forwardRef<
 >(({ onChangeValue, initialState }, ref) => {
   const { os } = usePlatform();
   const { dismiss } = useBottomSheetModal();
+  const { settings } = useSettingsStore();
   const snapPoints = React.useMemo(() => ["80%"], []);
   const [state, setState] = React.useState<{
     benefit: string;
@@ -231,7 +234,12 @@ const BenefitsBottomSheet = React.forwardRef<
                     {benefit}
                   </Text>
                   <TouchableOpacity
-                    onPress={() => setBenefit(benefit)}
+                    onPress={async () => {
+                      if (settings.haptics) {
+                        await onImpact();
+                      }
+                      setBenefit(benefit);
+                    }}
                     key={benefit}
                   >
                     <Ionicons
@@ -282,7 +290,12 @@ const BenefitsBottomSheet = React.forwardRef<
                   );
                   return (
                     <TouchableOpacity
-                      onPress={() => setBenefit(benefit)}
+                      onPress={async () => {
+                        if (settings.haptics) {
+                          await onImpact();
+                        }
+                        setBenefit(benefit);
+                      }}
                       key={benefit}
                       style={{
                         borderWidth: StyleSheet.hairlineWidth,

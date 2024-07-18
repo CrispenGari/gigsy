@@ -13,6 +13,8 @@ import { useMeStore } from "@/src/store/meStore";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import JobDetailsBottomSheet from "../BottomSheets/JobDetailsBottomSheet";
 import { Link } from "expo-router";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
@@ -28,7 +30,7 @@ const HomeJob: React.FunctionComponent<HomeJobProps> = ({ _id }) => {
   const job = useQuery(api.api.job.getJobById, { id: _id });
   const { me } = useMeStore();
   const jobBottomSheet = React.useRef<BottomSheetModal>(null);
-
+  const { settings } = useSettingsStore();
   return (
     <>
       {!!job ? <JobDetailsBottomSheet ref={jobBottomSheet} id={_id} /> : null}
@@ -42,7 +44,12 @@ const HomeJob: React.FunctionComponent<HomeJobProps> = ({ _id }) => {
           width: "100%",
           paddingBottom: 20,
         }}
-        onPress={() => jobBottomSheet.current?.present()}
+        onPress={async () => {
+          if (settings.haptics) {
+            await onImpact();
+          }
+          jobBottomSheet.current?.present();
+        }}
       >
         <Link
           href={

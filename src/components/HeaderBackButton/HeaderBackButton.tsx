@@ -3,6 +3,8 @@ import React from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS, FONTS } from "@/src/constants";
 import { useNavigation } from "expo-router";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 const HeaderBackButton = ({
   title,
@@ -12,6 +14,7 @@ const HeaderBackButton = ({
   onBackButtonPress?: () => void;
 }) => {
   const navigation = useNavigation();
+  const { settings } = useSettingsStore();
   return (
     <TouchableOpacity
       style={{
@@ -19,7 +22,10 @@ const HeaderBackButton = ({
         alignItems: "center",
         marginRight: 20,
       }}
-      onPress={() => {
+      onPress={async () => {
+        if (settings.haptics) {
+          await onImpact();
+        }
         if (typeof onBackButtonPress !== "undefined") {
           onBackButtonPress();
         } else {

@@ -12,9 +12,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { usePlatform } from "@/src/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 const CreateHeader = ({ navigation }: NativeStackHeaderProps) => {
   const { os } = usePlatform();
   const { top } = useSafeAreaInsets();
+  const { settings } = useSettingsStore();
   return (
     <SafeAreaView
       style={{
@@ -36,7 +39,12 @@ const CreateHeader = ({ navigation }: NativeStackHeaderProps) => {
             alignItems: "center",
             marginHorizontal: 10,
           }}
-          onPress={() => navigation.goBack()}
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+            navigation.goBack();
+          }}
         >
           <Ionicons
             name="chevron-back-outline"

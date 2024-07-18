@@ -22,6 +22,8 @@ import HeaderBackButton from "@/src/components/HeaderBackButton/HeaderBackButton
 import { useCreateFormStore } from "@/src/store/createFormStore";
 import { isValidEmail } from "@crispengari/regex-validator";
 import { useMeStore } from "@/src/store/meStore";
+import { useSettingsStore } from "@/src/store/settingsStore";
+import { onImpact } from "@/src/utils";
 
 type StateType = {
   error: string;
@@ -45,8 +47,11 @@ const Page = () => {
   const flexWidth = useSharedValue(0);
   const scale = useSharedValue(0);
   const gap = useSharedValue(0);
-
-  const clear = () => {
+  const { settings } = useSettingsStore();
+  const clear = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     setState((s) => ({
       ...s,
       error: "",
@@ -74,7 +79,10 @@ const Page = () => {
     };
   });
 
-  const saveAndGoToNext = () => {
+  const saveAndGoToNext = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (state.contactName.trim().length < 3) {
       return setState((s) => ({
         ...s,

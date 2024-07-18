@@ -10,6 +10,8 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { useUser } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import Ripple from "@/src/components/Ripple/Ripple";
+import { useSettingsStore } from "@/src/store/settingsStore";
+import { onImpact } from "@/src/utils";
 
 const Profile = () => {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -20,8 +22,12 @@ const Profile = () => {
     error_msg: "",
     loading: false,
   });
+  const { settings } = useSettingsStore();
   const [image, setImage] = React.useState<string | undefined | null>(null);
   const save = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!!!user || !isLoaded || !isSignedIn) return;
     setState((s) => ({
       ...s,

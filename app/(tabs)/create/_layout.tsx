@@ -2,9 +2,12 @@ import React from "react";
 import { Stack, Tabs, useRouter } from "expo-router";
 import HeaderBackButton from "@/src/components/HeaderBackButton/HeaderBackButton";
 import { useAuth } from "@clerk/clerk-expo";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 const Layout = () => {
   const router = useRouter();
+  const { settings } = useSettingsStore();
   const { isLoaded, isSignedIn } = useAuth();
   React.useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -31,7 +34,12 @@ const Layout = () => {
             headerLeft: () => (
               <HeaderBackButton
                 title="Explore"
-                onBackButtonPress={() => router.replace("/")}
+                onBackButtonPress={async () => {
+                  if (settings.haptics) {
+                    await onImpact();
+                  }
+                  router.replace("/");
+                }}
               />
             ),
           }}

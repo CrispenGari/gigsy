@@ -25,6 +25,9 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import Spinner from "react-native-loading-spinner-overlay";
 
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
+
 type StateType = {
   error: string;
   loading: boolean;
@@ -33,6 +36,7 @@ type StateType = {
   contactPhone: string;
 };
 const Page = () => {
+  const { settings } = useSettingsStore();
   const { os } = usePlatform();
   const { me } = useMeStore();
   const router = useRouter();
@@ -50,7 +54,10 @@ const Page = () => {
   const scale = useSharedValue(0);
   const gap = useSharedValue(0);
 
-  const clear = () => {
+  const clear = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     setState((s) => ({
       ...s,
       error: "",
@@ -78,6 +85,9 @@ const Page = () => {
   });
 
   const update = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!!!job) return;
     setState((s) => ({
       ...s,
@@ -152,7 +162,12 @@ const Page = () => {
           headerLeft: () => (
             <TouchableOpacity
               style={{ width: 40 }}
-              onPress={() => router.back()}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                router.back();
+              }}
             >
               <Ionicons name="chevron-back" size={20} color={COLORS.gray} />
             </TouchableOpacity>

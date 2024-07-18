@@ -27,6 +27,8 @@ import { api } from "@/convex/_generated/api";
 import { useLocationStore } from "@/src/store/locationStore";
 import { useWishlistStore } from "@/src/store/wishlistStore";
 import Spinner from "react-native-loading-spinner-overlay";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
@@ -57,8 +59,11 @@ const JobDetailsBottomSheet = React.forwardRef<
   const { wishlists, add, remove } = useWishlistStore();
   const addMutation = useMutation(api.api.wishlist.add);
   const removeMutation = useMutation(api.api.wishlist.remove);
-
-  const addOrRemove = () => {
+  const { settings } = useSettingsStore();
+  const addOrRemove = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!!!job || !!!me) return;
 
     setState((s) => ({ ...s, loading: true }));
@@ -81,7 +86,11 @@ const JobDetailsBottomSheet = React.forwardRef<
     }
   };
 
-  const startChat = () => {};
+  const startChat = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
+  };
 
   React.useEffect(() => {
     const exists = !!wishlists.find((w) => w.jobId === id);
@@ -269,7 +278,10 @@ const JobDetailsBottomSheet = React.forwardRef<
               </View>
 
               <AnimatedTouchableOpacity
-                onPress={() => {
+                onPress={async () => {
+                  if (settings.haptics) {
+                    await onImpact();
+                  }
                   dismiss();
                   router.navigate(
                     me?.id === job?.user?.id

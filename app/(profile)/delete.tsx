@@ -34,6 +34,8 @@ import { useCreateFormStore } from "@/src/store/createFormStore";
 import { useLocationStore } from "@/src/store/locationStore";
 import { useWishlistStore } from "@/src/store/wishlistStore";
 import { reasons } from "@/src/constants/reasons";
+import { useSettingsStore } from "@/src/store/settingsStore";
+import { onImpact } from "@/src/utils";
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -45,6 +47,7 @@ const Page = () => {
       reason: "",
     },
   });
+  const { settings } = useSettingsStore();
   const router = useRouter();
   const { isLoaded, user } = useUser();
   const { me } = useMeStore();
@@ -80,6 +83,9 @@ const Page = () => {
   });
 
   const deleteAccount = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!!!user || !!!me) return;
     setState((s) => ({ ...s, loading: true }));
     const val = await deleteUserMutation({
@@ -126,7 +132,12 @@ const Page = () => {
           headerLeft: () => (
             <TouchableOpacity
               style={{ width: 40 }}
-              onPress={() => router.back()}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                router.back();
+              }}
             >
               <Ionicons name="chevron-back" size={20} color={COLORS.gray} />
             </TouchableOpacity>
@@ -168,7 +179,7 @@ const Page = () => {
                   paddingVertical: 15,
                 }}
               >
-                {reasons.map((reason, index) => (
+                {reasons.map((reason) => (
                   <TouchableOpacity
                     style={{
                       flexDirection: "row",
@@ -177,7 +188,10 @@ const Page = () => {
                       paddingVertical: 3,
                     }}
                     key={reason.id}
-                    onPress={() => {
+                    onPress={async () => {
+                      if (settings.haptics) {
+                        await onImpact();
+                      }
                       if (reason.id === 15) {
                         setState((s) => ({
                           ...s,
@@ -285,7 +299,10 @@ const Page = () => {
               </Card>
             </Animated.View>
             <TouchableOpacity
-              onPress={() => {
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
                 setState({
                   loading: false,
                   reason: { id: 0, reason: "" },

@@ -4,7 +4,10 @@ import mime from "mime";
 import * as FileSystem from "expo-file-system";
 import * as MediaLibrary from "expo-media-library";
 import { Alert } from "react-native";
+import * as Haptics from "expo-haptics";
 
+export const onImpact = async () =>
+  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 export const getMimeType = (url: string) => mime.getType(url) || undefined;
 export const downloadMedia = async (url: string) => {
   const fileName = mime.getExtension(getMimeType(url)!) || "fileName-img.jpg";

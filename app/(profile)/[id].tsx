@@ -11,10 +11,13 @@ import Card from "@/src/components/Card/Card";
 import Spinner from "react-native-loading-spinner-overlay";
 import { usePlatform } from "@/src/hooks";
 import { useHeaderHeight } from "@react-navigation/elements";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 const Page = () => {
   const { id } = useLocalSearchParams<{
     id: Id<"jobs">;
   }>();
+  const { settings } = useSettingsStore();
   const headerHeight = useHeaderHeight();
   const job = useQuery(api.api.job.getById, { id: id! });
   const { os } = usePlatform();
@@ -47,7 +50,12 @@ const Page = () => {
           headerLeft: () => (
             <TouchableOpacity
               style={{ width: 40 }}
-              onPress={() => router.back()}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                router.back();
+              }}
             >
               <Ionicons name="chevron-back" size={20} color={COLORS.gray} />
             </TouchableOpacity>

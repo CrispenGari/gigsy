@@ -25,6 +25,8 @@ import { api } from "@/convex/_generated/api";
 import { useMeStore } from "@/src/store/meStore";
 import { Ionicons } from "@expo/vector-icons";
 import { Id } from "@/convex/_generated/dataModel";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 type StateType = {
   error: string;
@@ -48,7 +50,7 @@ const Page = () => {
     type: "part-time",
     salaryRange: { max: "", min: "" },
   });
-
+  const { settings } = useSettingsStore();
   const flexWidth = useSharedValue(0);
   const scale = useSharedValue(0);
   const gap = useSharedValue(0);
@@ -59,7 +61,10 @@ const Page = () => {
     gap.value = withTiming(hasValues.length !== 0 ? 16 : 0);
   }, [state.salaryRange]);
 
-  const clear = () => {
+  const clear = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     setState((s) => ({
       ...s,
       error: "",
@@ -86,6 +91,9 @@ const Page = () => {
   });
 
   const update = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!!!job) return;
     setState((s) => ({
       ...s,
@@ -153,7 +161,12 @@ const Page = () => {
           headerLeft: () => (
             <TouchableOpacity
               style={{ width: 40 }}
-              onPress={() => router.back()}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                router.back();
+              }}
             >
               <Ionicons name="chevron-back" size={20} color={COLORS.gray} />
             </TouchableOpacity>
@@ -239,7 +252,10 @@ const Page = () => {
                   borderRadius: 2,
                 }}
                 innerIconStyle={{ borderWidth: 0, padding: 2 }}
-                onPress={(isChecked: boolean) => {
+                onPress={async (isChecked: boolean) => {
+                  if (settings.haptics) {
+                    await onImpact();
+                  }
                   setState((s) => ({
                     ...s,
                     type: isChecked ? "part-time" : "full-time",

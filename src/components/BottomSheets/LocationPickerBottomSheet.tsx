@@ -30,6 +30,8 @@ import { useMeStore } from "@/src/store/meStore";
 import { BlurView } from "expo-blur";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getLocationAddress } from "@/src/utils/address";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
@@ -43,7 +45,7 @@ const LocationPickerBottomSheet = React.forwardRef<
 >(({ onChangeValue, initialState }, ref) => {
   const { location } = useLocationStore();
   const { os } = usePlatform();
-
+  const { settings } = useSettingsStore();
   const { dismiss } = useBottomSheetModal();
   const { bottom } = useSafeAreaInsets();
   const snapPoints = React.useMemo(() => ["80%"], []);
@@ -79,7 +81,10 @@ const LocationPickerBottomSheet = React.forwardRef<
       flex,
     };
   });
-  const clear = () => {
+  const clear = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     setSelected(null);
     setCoord({
       lat: initialState.lat,
@@ -87,7 +92,10 @@ const LocationPickerBottomSheet = React.forwardRef<
     });
     setSelectedAddress({ ...initialState.address });
   };
-  const select = () => {
+  const select = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     onChangeValue({
       lat: coords.lat,
       lon: coords.lon,
@@ -252,6 +260,9 @@ const LocationPickerBottomSheet = React.forwardRef<
             longitudeDelta: 0.0421,
           }}
           onPress={async ({ nativeEvent: { coordinate } }) => {
+            if (settings.haptics) {
+              await onImpact();
+            }
             setSelected(coordinate);
             setCoord({ lat: coordinate.latitude, lon: coordinate.longitude });
             const address = await getLocationAddress({

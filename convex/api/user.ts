@@ -1,8 +1,15 @@
 import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
 import { userArguments } from "../tables/user";
+import { Id } from "../_generated/dataModel";
 
-const asyncFunction = async <T>(id: T, db: any): Promise<void> => {
+const asyncFunction = async <
+  T extends Id<"jobs" | "wishlists">,
+  D extends { delete: (id: T) => void },
+>(
+  id: T,
+  db: D
+): Promise<void> => {
   return new Promise((resolve) => {
     db.delete(id);
     resolve();
@@ -78,6 +85,7 @@ export const deleteUser = mutation({
         .query("wishlists")
         .filter((q) => q.eq(q.field("userId"), user._id))
         .collect();
+
       const jobs = await db
         .query("jobs")
         .filter((q) => q.eq(q.field("userId"), user._id))

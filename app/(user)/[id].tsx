@@ -11,6 +11,8 @@ import UserAdverts from "@/src/components/ProfileComponents/UserAdverts";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { useSettingsStore } from "@/src/store/settingsStore";
+import { onImpact } from "@/src/utils";
 
 const Page = () => {
   const router = useRouter();
@@ -18,7 +20,7 @@ const Page = () => {
   const { id } = useLocalSearchParams<{
     id: Id<"users">;
   }>();
-
+  const { settings } = useSettingsStore();
   const user = useQuery(api.api.user.getById, { id: id! });
   return (
     <>
@@ -30,7 +32,12 @@ const Page = () => {
           headerLeft: () => (
             <TouchableOpacity
               style={{ width: 40 }}
-              onPress={() => router.back()}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                router.back();
+              }}
             >
               <Ionicons name="chevron-back" size={20} color={COLORS.gray} />
             </TouchableOpacity>

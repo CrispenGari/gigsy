@@ -25,6 +25,8 @@ import { Id } from "@/convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import Spinner from "react-native-loading-spinner-overlay";
+import { onImpact } from "@/src/utils";
+import { useSettingsStore } from "@/src/store/settingsStore";
 type StateType = {
   error: string;
   loading: boolean;
@@ -36,6 +38,7 @@ type StateType = {
 };
 const Page = () => {
   const locationBottomSheetRef = React.useRef<BottomSheetModal>(null);
+  const { settings } = useSettingsStore();
   const { id } = useLocalSearchParams<{ id: Id<"jobs"> }>();
   const job = useQuery(api.api.job.getById, { id: id! });
   const updateJobMutation = useMutation(api.api.job.update);
@@ -71,7 +74,10 @@ const Page = () => {
   const scale = useSharedValue(0);
   const gap = useSharedValue(0);
 
-  const clear = () => {
+  const clear = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     setState((s) => ({
       ...s,
       error: "",
@@ -100,6 +106,9 @@ const Page = () => {
   });
 
   const update = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
     if (!!!job) return;
     setState((s) => ({
       ...s,
@@ -154,7 +163,12 @@ const Page = () => {
     }
   };
 
-  const selectLocation = () => locationBottomSheetRef.current?.present();
+  const selectLocation = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
+    locationBottomSheetRef.current?.present();
+  };
 
   React.useEffect(() => {
     const { error, loading, location, ...rest } = state;
@@ -186,7 +200,12 @@ const Page = () => {
           headerLeft: () => (
             <TouchableOpacity
               style={{ width: 40 }}
-              onPress={() => router.back()}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                router.back();
+              }}
             >
               <Ionicons name="chevron-back" size={20} color={COLORS.gray} />
             </TouchableOpacity>

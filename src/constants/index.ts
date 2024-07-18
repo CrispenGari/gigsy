@@ -36,6 +36,7 @@ export const STORAGE_NAME = {
   ME: "user-me",
   LOCATION: "my-location",
   WISHLIST: "my-wish-list",
+  SETTINGS: "my-settings",
 };
 
 export const KEYS = {};
