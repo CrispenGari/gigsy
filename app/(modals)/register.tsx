@@ -239,7 +239,13 @@ const Register = () => {
               onChangeText={(text) =>
                 setState((state) => ({ ...state, email: text }))
               }
-              leftIcon={<Ionicons name="mail" size={24} color={COLORS.green} />}
+              leftIcon={
+                <Ionicons
+                  name="mail-open-outline"
+                  size={24}
+                  color={COLORS.green}
+                />
+              }
               inputStyle={{ fontSize: 20 }}
               containerStyles={{
                 borderRadius: 0,
@@ -250,7 +256,11 @@ const Register = () => {
             <CustomTextInput
               placeholder="Password"
               leftIcon={
-                <Ionicons name="lock-closed" size={24} color={COLORS.green} />
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={24}
+                  color={COLORS.green}
+                />
               }
               inputStyle={{ fontSize: 20 }}
               containerStyles={{
@@ -266,7 +276,11 @@ const Register = () => {
               secureTextEntry={true}
               placeholder="Confirm Password"
               leftIcon={
-                <Ionicons name="lock-closed" size={24} color={COLORS.green} />
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={24}
+                  color={COLORS.green}
+                />
               }
               inputStyle={{ fontSize: 20 }}
               containerStyles={{

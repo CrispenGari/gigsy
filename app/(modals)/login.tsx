@@ -233,7 +233,9 @@ const Login = () => {
               onChangeText={(text) =>
                 setState((state) => ({ ...state, email: text }))
               }
-              leftIcon={<Ionicons name="mail" size={24} color={COLORS.gray} />}
+              leftIcon={
+                <Ionicons name="mail-outline" size={24} color={COLORS.gray} />
+              }
               inputStyle={{ fontSize: 20 }}
               containerStyles={{
                 borderRadius: 0,
@@ -244,7 +246,11 @@ const Login = () => {
             <CustomTextInput
               placeholder="Password"
               leftIcon={
-                <Ionicons name="lock-closed" size={24} color={COLORS.gray} />
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={24}
+                  color={COLORS.gray}
+                />
               }
               inputStyle={{ fontSize: 20 }}
               containerStyles={{
@@ -254,7 +260,7 @@ const Login = () => {
               }}
               rightIcon={
                 <Ionicons
-                  name={!state.showPassword ? "eye-off" : "eye"}
+                  name={!state.showPassword ? "eye-off-outline" : "eye-outline"}
                   size={24}
                   color={COLORS.gray}
                 />

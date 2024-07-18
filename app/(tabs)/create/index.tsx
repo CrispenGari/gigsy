@@ -108,7 +108,7 @@ const Page = () => {
     if (state.title.trim().length < 5) {
       return setState((s) => ({
         ...s,
-        error: "The job description should contain at least 5 characters.",
+        error: "The job title should contain at least 5 characters.",
       }));
     }
     if (state.company.trim().length < 3) {

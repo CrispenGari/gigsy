@@ -60,7 +60,7 @@ const Saved = () => {
           headerShadowVisible: false,
         }}
       />
-      <Spinner visible={state.loading} animation="fade" />
+      <Spinner visible={state.loading || !isLoaded} animation="fade" />
       <ScrollView style={{ flex: 1 }}>
         {wishlists.length !== 0 ? (
           <Animated.View

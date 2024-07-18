@@ -18,6 +18,7 @@ import type * as api_job from "../api/job.js";
 import type * as api_user from "../api/user.js";
 import type * as api_wishlist from "../api/wishlist.js";
 import type * as tables_job from "../tables/job.js";
+import type * as tables_reason from "../tables/reason.js";
 import type * as tables_user from "../tables/user.js";
 import type * as tables_whishlist from "../tables/whishlist.js";
 
@@ -34,6 +35,7 @@ declare const fullApi: ApiFromModules<{
   "api/user": typeof api_user;
   "api/wishlist": typeof api_wishlist;
   "tables/job": typeof tables_job;
+  "tables/reason": typeof tables_reason;
   "tables/user": typeof tables_user;
   "tables/whishlist": typeof tables_whishlist;
 }>;

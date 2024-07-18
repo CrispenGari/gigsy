@@ -61,12 +61,10 @@ const RootLayout = () => {
   const router = useRouter();
   const { user, isLoaded, isSignedIn } = useUser();
   const { os } = usePlatform();
-
   const { save } = useMeStore();
-
   React.useEffect(() => {
     if (isLoaded && !isSignedIn) {
-      router.navigate("/login");
+      router.replace("/login");
     }
   }, [isLoaded, isSignedIn]);
 
@@ -109,11 +107,7 @@ const RootLayout = () => {
               }}
               activeOpacity={0.7}
               onPress={() => {
-                if (router.canGoBack()) {
-                  router.back();
-                } else {
-                  router.replace("/");
-                }
+                router.replace("/");
               }}
             >
               <Ionicons name="close-outline" size={30} color={COLORS.black} />

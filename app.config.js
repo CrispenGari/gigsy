@@ -23,11 +23,11 @@ module.exports = {
     },
     web: {
       bundler: "metro",
-      output: "static",
+      output: "server",
       favicon: "./assets/images/icon.png",
     },
     plugins: [
-      "expo-router",
+      ["expo-router", { origin: "http://localhost:8081" }],
       "expo-secure-store",
       [
         "expo-location",

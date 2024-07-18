@@ -13,7 +13,7 @@ import { useSignIn } from "@clerk/clerk-expo";
 
 const ForgotPassword = () => {
   const router = useRouter();
-  const { isLoaded, signIn, setActive } = useSignIn();
+  const { isLoaded, signIn } = useSignIn();
   const params = useLocalSearchParams();
   const [state, setState] = React.useState({
     email: params?.email_address ? (params.email_address as string) : "",
@@ -109,7 +109,9 @@ const ForgotPassword = () => {
               onChangeText={(text) =>
                 setState((state) => ({ ...state, email: text }))
               }
-              leftIcon={<Ionicons name="mail" size={24} color={COLORS.green} />}
+              leftIcon={
+                <Ionicons name="mail-outline" size={24} color={COLORS.green} />
+              }
               inputStyle={{ fontSize: 20 }}
               containerStyles={{
                 borderRadius: 0,

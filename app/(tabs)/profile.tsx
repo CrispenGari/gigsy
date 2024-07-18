@@ -14,6 +14,7 @@ import { useMeStore } from "@/src/store/meStore";
 import { useLocationStore } from "@/src/store/locationStore";
 import { useCreateFormStore } from "@/src/store/createFormStore";
 import { useWishlistStore } from "@/src/store/wishlistStore";
+import Spinner from "react-native-loading-spinner-overlay";
 const Profile = () => {
   const { isLoaded, isSignedIn, signOut } = useAuth();
   const headerHeight = useHeaderHeight();
@@ -45,6 +46,7 @@ const Profile = () => {
       showsHorizontalScrollIndicator={false}
       showsVerticalScrollIndicator={false}
     >
+      <Spinner visible={!isLoaded} animation="fade" />
       <ProfileCard />
       <Text style={styles.headerText}>Settings</Text>
       <Card
@@ -56,15 +58,19 @@ const Profile = () => {
         }}
       >
         <SettingItem
-          onPress={() => {}}
+          onPress={() => {
+            router.navigate("/(profile)/pi");
+          }}
           title="Personal Information"
           Icon={
             <Ionicons name="person-outline" size={18} color={COLORS.gray} />
           }
         />
         <SettingItem
-          onPress={() => {}}
-          title="Login and Security"
+          onPress={() => {
+            router.navigate("/(profile)/security");
+          }}
+          title="Account and Security"
           Icon={
             <Ionicons
               name="lock-closed-outline"
