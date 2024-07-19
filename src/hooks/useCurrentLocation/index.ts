@@ -2,6 +2,7 @@ import React from "react";
 import { useLocationPermission } from "../";
 import * as Location from "expo-location";
 import { getLocationAddress } from "@/src/utils/address";
+import { useSettingsStore } from "@/src/store/settingsStore";
 
 type StateType = {
   lat: number;
@@ -20,6 +21,9 @@ type StateType = {
 };
 export const useCurrentLocation = () => {
   const { granted } = useLocationPermission();
+  const {
+    settings: { location },
+  } = useSettingsStore();
   const [state, setState] = React.useState<StateType>({
     lat: 51.507351,
     lon: -0.127758,
@@ -39,7 +43,7 @@ export const useCurrentLocation = () => {
   React.useEffect(() => {
     (async () => {
       const { coords } = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Highest,
+        accuracy: location.locationAccuracy,
       });
       if (coords) {
         setState((s) => ({
@@ -59,7 +63,7 @@ export const useCurrentLocation = () => {
         address,
       }));
     })();
-  }, [granted]);
+  }, [granted, location]);
 
   return state;
 };

@@ -109,7 +109,12 @@ const Profile = () => {
           }
         />
         <SettingItem
-          onPress={() => {}}
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+            router.navigate("/(profile)/location");
+          }}
           title="Location Settings"
           Icon={
             <Ionicons name="location-outline" size={18} color={COLORS.gray} />
@@ -180,6 +185,7 @@ const Profile = () => {
             if (settings.haptics) {
               await onImpact();
             }
+            router.navigate("/(profile)/feedback");
           }}
           title="Give us Feedback"
           Icon={<MaterialIcons name="feedback" size={18} color={COLORS.gray} />}

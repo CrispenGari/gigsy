@@ -1,6 +1,7 @@
 import { createJSONStorage, persist } from "zustand/middleware";
 import { STORAGE_NAME } from "../constants";
 import { create } from "zustand";
+import * as Location from "expo-location";
 import { zustandStorage } from "./storage";
 
 export type TNotification = {
@@ -8,11 +9,20 @@ export type TNotification = {
   jobs: boolean;
 };
 
+export type TLocation = {
+  showJobsGlobally: boolean;
+  defaultJobListingLocation: "city" | "region" | "country";
+  showDistanceToAdvertiser: boolean;
+  distanceRadius: number;
+  locationAccuracy: Location.LocationAccuracy;
+  metric: "km" | "mi" | "m";
+};
 export type TSettings = {
   haptics: boolean;
   sound: boolean;
   icon: "preset" | "dark" | "gray" | "danger";
   notifications: TNotification;
+  location: TLocation;
 };
 
 const initialSettings: TSettings = {
@@ -23,7 +33,38 @@ const initialSettings: TSettings = {
     jobs: true,
     messages: true,
   },
+  location: {
+    showJobsGlobally: false,
+    defaultJobListingLocation: "city",
+    showDistanceToAdvertiser: true,
+    distanceRadius: 60000, // 60km
+    locationAccuracy: Location.LocationAccuracy.Highest,
+    metric: "km",
+  },
 };
+
+export const locationAccuracies = [
+  {
+    title: "balanced",
+    value: Location.LocationAccuracy.Balanced,
+  },
+  {
+    title: "low",
+    value: Location.LocationAccuracy.Low,
+  },
+  {
+    title: "lowest",
+    value: Location.LocationAccuracy.Lowest,
+  },
+  {
+    title: "high",
+    value: Location.LocationAccuracy.High,
+  },
+  {
+    title: "highest",
+    value: Location.LocationAccuracy.Highest,
+  },
+];
 
 interface TSettingsState {
   settings: TSettings;
