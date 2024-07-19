@@ -6,8 +6,36 @@ import * as MediaLibrary from "expo-media-library";
 import { Alert } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Audio } from "expo-av";
-
+import * as StoreReview from "expo-store-review";
+import * as Updates from "expo-updates";
+import * as Constants from "expo-constants";
 let publishedSound: Audio.Sound | undefined;
+
+export const rateApp = async () => {
+  const available = await StoreReview.isAvailableAsync();
+  if (available) {
+    const hasAction = await StoreReview.hasAction();
+    if (hasAction) {
+      await StoreReview.requestReview();
+    }
+  }
+};
+export const onFetchUpdateAsync = async () => {
+  try {
+    const update = await Updates.checkForUpdateAsync();
+    if (update.isAvailable) {
+      await Updates.fetchUpdateAsync();
+      await Updates.reloadAsync();
+    }
+  } catch (error) {
+    Alert.alert(
+      Constants.default.name,
+      error as any,
+      [{ text: "OK", style: "destructive" }],
+      { cancelable: false }
+    );
+  }
+};
 
 export const playPublishSound = async () => {
   const { sound: s, status } = await Audio.Sound.createAsync(

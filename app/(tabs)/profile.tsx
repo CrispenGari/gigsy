@@ -3,7 +3,7 @@ import React from "react";
 import { useRouter } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
 import Card from "@/src/components/Card/Card";
-
+import * as Linking from "expo-linking";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { COLORS, FONTS } from "@/src/constants";
@@ -15,13 +15,13 @@ import { useLocationStore } from "@/src/store/locationStore";
 import { useCreateFormStore } from "@/src/store/createFormStore";
 import { useWishlistStore } from "@/src/store/wishlistStore";
 import Spinner from "react-native-loading-spinner-overlay";
-import { onImpact } from "@/src/utils";
+import { onFetchUpdateAsync, onImpact, rateApp } from "@/src/utils";
 import { useSettingsStore } from "@/src/store/settingsStore";
 const Profile = () => {
   const { isLoaded, isSignedIn, signOut } = useAuth();
   const headerHeight = useHeaderHeight();
   const router = useRouter();
-  const { settings } = useSettingsStore();
+  const { settings, restore } = useSettingsStore();
   const { destroy } = useMeStore();
   const { reset } = useLocationStore();
   const { clearForm } = useCreateFormStore();
@@ -41,6 +41,7 @@ const Profile = () => {
       reset();
       clearForm();
       clear();
+      restore();
       router.replace("/");
     });
   };
@@ -92,7 +93,12 @@ const Profile = () => {
           }
         />
         <SettingItem
-          onPress={() => {}}
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+            router.navigate("/(profile)/notifications");
+          }}
           title="Notifications"
           Icon={
             <Ionicons
@@ -133,7 +139,12 @@ const Profile = () => {
         }}
       >
         <SettingItem
-          onPress={() => {}}
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+            await onFetchUpdateAsync();
+          }}
           title="Check for Updates"
           Icon={<MaterialIcons name="update" size={18} color={COLORS.gray} />}
         />
@@ -165,22 +176,46 @@ const Profile = () => {
         }}
       >
         <SettingItem
-          onPress={() => {}}
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+          }}
           title="Give us Feedback"
           Icon={<MaterialIcons name="feedback" size={18} color={COLORS.gray} />}
         />
         <SettingItem
-          onPress={() => {}}
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+            await rateApp();
+          }}
           title="Rate gigys"
           Icon={<Ionicons name="star-outline" size={18} color={COLORS.gray} />}
         />
         <SettingItem
-          onPress={() => {}}
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+            router.navigate("/(profile)/help");
+          }}
           title="How does gigsy works"
           Icon={<Ionicons name="help" size={18} color={COLORS.gray} />}
         />
         <SettingItem
-          onPress={() => {}}
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+            const res = await Linking.canOpenURL(
+              "https://github.com/CrispenGari/gigsy/issues"
+            );
+            if (res) {
+              Linking.openURL("https://github.com/CrispenGari/gigsy/issues");
+            }
+          }}
           title="Report an Issue"
           Icon={<Ionicons name="logo-github" size={18} color={COLORS.gray} />}
         />
@@ -195,7 +230,12 @@ const Profile = () => {
         }}
       >
         <SettingItem
-          onPress={() => {}}
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+            router.navigate("/(profile)/tnc");
+          }}
           title="Terms of Service"
           Icon={
             <Ionicons
@@ -206,7 +246,12 @@ const Profile = () => {
           }
         />
         <SettingItem
-          onPress={() => {}}
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+            router.navigate("/(profile)/pp");
+          }}
           title="Privacy Policy"
           Icon={
             <Ionicons

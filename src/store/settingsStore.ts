@@ -3,16 +3,26 @@ import { STORAGE_NAME } from "../constants";
 import { create } from "zustand";
 import { zustandStorage } from "./storage";
 
+export type TNotification = {
+  messages: boolean;
+  jobs: boolean;
+};
+
 export type TSettings = {
   haptics: boolean;
   sound: boolean;
   icon: "preset" | "dark" | "gray" | "danger";
+  notifications: TNotification;
 };
 
 const initialSettings: TSettings = {
   haptics: true,
   sound: true,
   icon: "preset",
+  notifications: {
+    jobs: true,
+    messages: true,
+  },
 };
 
 interface TSettingsState {
