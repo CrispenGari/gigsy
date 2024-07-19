@@ -6,17 +6,18 @@ import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React from "react";
 import { ClerkProvider } from "@/src/providers";
-import { useAuth, useUser } from "@clerk/clerk-expo";
+import { useUser } from "@clerk/clerk-expo";
 import { TouchableOpacity, LogBox, StatusBar, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Typography } from "@/src/components";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { ConvexProvider, ConvexReactClient, useMutation } from "convex/react";
 import { usePlatform } from "@/src/hooks";
 import { useMeStore } from "@/src/store/meStore";
 import { useSettingsStore } from "@/src/store/settingsStore";
 import { onImpact } from "@/src/utils";
+import { api } from "@/convex/_generated/api";
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
@@ -65,6 +66,10 @@ const RootLayout = () => {
   const { os } = usePlatform();
   const { save } = useMeStore();
   const { settings } = useSettingsStore();
+  const { me } = useMeStore();
+  const createUserOrFailMutation = useMutation(
+    api.api.user.findUserOrCreateOne
+  );
   React.useEffect(() => {
     if (isLoaded && !isSignedIn) {
       router.replace("/login");
@@ -91,6 +96,19 @@ const RootLayout = () => {
       save(null);
     }
   }, [user, isSignedIn]);
+
+  // Try to save a user to convex if not exists
+  React.useEffect(() => {
+    if (!!me) {
+      createUserOrFailMutation({
+        email: me.email,
+        firstName: me.firstName || "",
+        id: me.id,
+        image: me.imageUrl,
+        lastName: me.lastName || "",
+      });
+    }
+  }, [me]);
 
   return (
     <Stack>

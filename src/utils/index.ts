@@ -5,7 +5,26 @@ import * as FileSystem from "expo-file-system";
 import * as MediaLibrary from "expo-media-library";
 import { Alert } from "react-native";
 import * as Haptics from "expo-haptics";
+import { Audio } from "expo-av";
 
+let publishedSound: Audio.Sound | undefined;
+
+export const playPublishSound = async () => {
+  const { sound: s, status } = await Audio.Sound.createAsync(
+    require("@/assets/sounds/published.mp3"),
+    {
+      shouldPlay: true,
+      isLooping: false,
+      isMuted: false,
+    }
+  );
+  if (status.isLoaded) {
+    publishedSound = s;
+  }
+  if (!!publishedSound) {
+    await publishedSound.playAsync().catch((err) => console.log(err));
+  }
+};
 export const onImpact = async () =>
   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 export const getMimeType = (url: string) => mime.getType(url) || undefined;

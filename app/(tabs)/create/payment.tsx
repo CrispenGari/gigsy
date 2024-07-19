@@ -25,7 +25,7 @@ import Spinner from "react-native-loading-spinner-overlay";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useMeStore } from "@/src/store/meStore";
-import { onImpact } from "@/src/utils";
+import { onImpact, playPublishSound } from "@/src/utils";
 import { useSettingsStore } from "@/src/store/settingsStore";
 
 type StateType = {
@@ -146,11 +146,11 @@ const Page = () => {
     if (success) {
       setState((s) => ({ ...s, loading: false }));
       clearForm();
+      if (settings.sound) {
+        await playPublishSound();
+      }
       router.replace({
-        pathname: "/(tabs)/create",
-        params: {
-          action: "published",
-        },
+        pathname: "/",
       });
     } else {
       setState((s) => ({

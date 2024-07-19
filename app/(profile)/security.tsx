@@ -235,6 +235,7 @@ const Security = () => {
                 style={{
                   padding: 10,
                   maxWidth: 400,
+                  alignSelf: "center",
                   borderRadius: 5,
                   width: "100%",
                   paddingVertical: 15,
@@ -288,6 +289,7 @@ const Security = () => {
                 style={{
                   padding: 10,
                   maxWidth: 400,
+                  alignSelf: "center",
                   borderRadius: 5,
                   width: "100%",
                   paddingVertical: 20,
@@ -311,6 +313,7 @@ const Security = () => {
                       borderRadius: 5,
                       alignItems: "center",
                       maxWidth: 400,
+                      alignSelf: "center",
                     },
                   ]}
                 >

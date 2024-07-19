@@ -194,6 +194,7 @@ const PersonalInformation = () => {
                 borderRadius: 5,
                 width: "100%",
                 paddingVertical: 20,
+                alignSelf: "center",
               }}
             >
               <AnimatedTouchableOpacity

@@ -150,7 +150,12 @@ const Page = () => {
     });
   };
 
-  const selectLocation = () => locationBottomSheetRef.current?.present();
+  const selectLocation = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
+    locationBottomSheetRef.current?.present();
+  };
 
   React.useEffect(() => {
     const { error, loading, location, ...rest } = state;

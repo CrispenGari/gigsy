@@ -6,11 +6,13 @@ import { zustandStorage } from "./storage";
 export type TSettings = {
   haptics: boolean;
   sound: boolean;
+  icon: "preset" | "dark" | "gray" | "danger";
 };
 
 const initialSettings: TSettings = {
   haptics: true,
   sound: true,
+  icon: "preset",
 };
 
 interface TSettingsState {

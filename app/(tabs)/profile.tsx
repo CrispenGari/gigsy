@@ -110,7 +110,12 @@ const Profile = () => {
           }
         />
         <SettingItem
-          onPress={() => {}}
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+            router.navigate("/(profile)/sound-haptics");
+          }}
           title="App Sound and Haptics"
           Icon={
             <MaterialIcons name="vibration" size={18} color={COLORS.gray} />
@@ -134,7 +139,12 @@ const Profile = () => {
         />
 
         <SettingItem
-          onPress={() => {}}
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+            router.navigate("/(profile)/app-icon");
+          }}
           title="Customize App Icon"
           Icon={
             <MaterialIcons
