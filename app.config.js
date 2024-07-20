@@ -4,11 +4,11 @@ module.exports = {
     slug: "gigsy",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/images/preset.png",
+    icon: "./assets/images/icon.png",
     scheme: "gigsy",
     userInterfaceStyle: "automatic",
     splash: {
-      image: "./assets/images/logo.png",
+      image: "./assets/images/icon.png",
       resizeMode: "contain",
       backgroundColor: "#ffffff",
     },
@@ -17,7 +17,7 @@ module.exports = {
     },
     android: {
       adaptiveIcon: {
-        foregroundImage: "./assets/images/logo.png",
+        foregroundImage: "./assets/images/adaptive-icon.png",
         backgroundColor: "#ffffff",
       },
       package: "com.crispengari.gigsy",
@@ -25,7 +25,7 @@ module.exports = {
     web: {
       bundler: "metro",
       output: "server",
-      favicon: "./assets/images/logo.png",
+      favicon: "./assets/images/icon.png",
     },
     plugins: [
       ["expo-router", { origin: "http://localhost:8081" }],
@@ -36,27 +36,6 @@ module.exports = {
         {
           locationAlwaysAndWhenInUsePermission:
             "Allow $(PRODUCT_NAME) to use your location.",
-        },
-      ],
-      [
-        "expo-dynamic-app-icon",
-        {
-          danger: {
-            image: "./assets/images/danger.png", // icon path
-            prerendered: true, // for ios UIPrerenderedIcon option
-          },
-          dark: {
-            image: "./assets/images/dark.png",
-            prerendered: true,
-          },
-          preset: {
-            image: "./assets/images/preset.png",
-            prerendered: true,
-          },
-          gray: {
-            image: "./assets/images/gray.png",
-            prerendered: true,
-          },
         },
       ],
     ],

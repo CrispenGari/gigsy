@@ -1,26 +1,3 @@
-export const appIcons = [
-  {
-    name: "preset",
-    path: require("@/assets/images/preset.png"),
-    id: "preset",
-  },
-  {
-    name: "dark",
-    path: require("@/assets/images/dark.png"),
-    id: "dark",
-  },
-  {
-    name: "gray",
-    path: require("@/assets/images/gray.png"),
-    id: "gray",
-  },
-  {
-    name: "danger",
-    path: require("@/assets/images/danger.png"),
-    id: "danger",
-  },
-];
-
 export const COLORS = {
   main: "#F6F5F2",
   primary: "#FCF8F3",
@@ -50,8 +27,8 @@ export const FONTS = {
 };
 
 export const IMAGES = {
-  logo: require("@/assets/images/logo.png"),
-  profile: require("@/assets/images/profile.png"),
+  logo: require("@/assets/images/icon.png"),
+  profile: require("@/assets/images/adaptive-icon.png"),
 };
 
 export const STORAGE_NAME = {

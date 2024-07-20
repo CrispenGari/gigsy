@@ -25,7 +25,6 @@ import { Stack, useRouter } from "expo-router";
 import { onImpact } from "@/src/utils";
 import { usePlatform } from "@/src/hooks";
 import { Ionicons } from "@expo/vector-icons";
-import { useHeaderHeight } from "@react-navigation/elements";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 const AnimatedTouchableOpacity =
@@ -34,7 +33,6 @@ const Page = () => {
   const router = useRouter();
   const { settings } = useSettingsStore();
   const { os } = usePlatform();
-  const headerHeight = useHeaderHeight();
   const [state, setState] = React.useState({
     loading: false,
     feedback: "",
@@ -103,7 +101,7 @@ const Page = () => {
       <Stack.Screen
         options={{
           headerTitle: "Send us Feedback",
-          headerLargeTitle: true,
+          headerLargeTitle: false,
           headerLargeTitleShadowVisible: true,
           headerShadowVisible: false,
           headerLeft: () => (
@@ -132,7 +130,7 @@ const Page = () => {
           style={{
             padding: 10,
             paddingBottom: 100,
-            paddingTop: os === "ios" ? headerHeight + 50 : 10,
+            paddingTop: 10,
           }}
         >
           <Text

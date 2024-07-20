@@ -17,10 +17,11 @@ export type TLocation = {
   locationAccuracy: Location.LocationAccuracy;
   metric: "km" | "mi" | "m";
 };
+export type TStorage = { wishlists: boolean };
 export type TSettings = {
   haptics: boolean;
   sound: boolean;
-  icon: "preset" | "dark" | "gray" | "danger";
+  storage: TStorage;
   notifications: TNotification;
   location: TLocation;
 };
@@ -28,7 +29,9 @@ export type TSettings = {
 const initialSettings: TSettings = {
   haptics: true,
   sound: true,
-  icon: "preset",
+  storage: {
+    wishlists: true,
+  },
   notifications: {
     jobs: true,
     messages: true,

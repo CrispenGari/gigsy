@@ -1,4 +1,10 @@
-import { Text, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  Share,
+} from "react-native";
 import React from "react";
 import { useRouter } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
@@ -17,6 +23,7 @@ import { useWishlistStore } from "@/src/store/wishlistStore";
 import Spinner from "react-native-loading-spinner-overlay";
 import { onFetchUpdateAsync, onImpact, rateApp } from "@/src/utils";
 import { useSettingsStore } from "@/src/store/settingsStore";
+
 const Profile = () => {
   const { isLoaded, isSignedIn, signOut } = useAuth();
   const headerHeight = useHeaderHeight();
@@ -153,18 +160,17 @@ const Profile = () => {
           title="Check for Updates"
           Icon={<MaterialIcons name="update" size={18} color={COLORS.gray} />}
         />
-
         <SettingItem
           onPress={async () => {
             if (settings.haptics) {
               await onImpact();
             }
-            router.navigate("/(profile)/app-icon");
+            router.navigate("/(profile)/storage");
           }}
-          title="Customize App Icon"
+          title="Storage and Network"
           Icon={
             <MaterialIcons
-              name="insert-emoticon"
+              name="compare-arrows"
               size={18}
               color={COLORS.gray}
             />
@@ -189,6 +195,24 @@ const Profile = () => {
           }}
           title="Give us Feedback"
           Icon={<MaterialIcons name="feedback" size={18} color={COLORS.gray} />}
+        />
+        <SettingItem
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+            await Share.share(
+              {
+                url: "https://github.com/CrispenGari/gigsy",
+                message:
+                  "An awesome app for job hunting: Download at https://github.com/CrispenGari/gigsy",
+                title: "Share Gigsy with a Friend",
+              },
+              { dialogTitle: "Share Gigsy", tintColor: COLORS.green }
+            );
+          }}
+          title="Tell a friend"
+          Icon={<Ionicons name="heart-outline" size={18} color={COLORS.gray} />}
         />
         <SettingItem
           onPress={async () => {
