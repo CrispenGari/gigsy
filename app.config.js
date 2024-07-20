@@ -8,7 +8,7 @@ module.exports = {
     scheme: "gigsy",
     userInterfaceStyle: "automatic",
     splash: {
-      image: "./assets/images/icon.png",
+      image: "./assets/images/splash.png",
       resizeMode: "contain",
       backgroundColor: "#ffffff",
     },

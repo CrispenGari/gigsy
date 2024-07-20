@@ -35,7 +35,7 @@ const HomeJob: React.FunctionComponent<HomeJobProps> = ({ _id }) => {
   const jobBottomSheet = React.useRef<BottomSheetModal>(null);
   const { settings } = useSettingsStore();
   const { location } = useLocationStore();
-  return <SkeletonHomeJob />;
+  if (!!!job) return <SkeletonHomeJob />;
   return (
     <>
       {!!job ? <JobDetailsBottomSheet ref={jobBottomSheet} id={_id} /> : null}

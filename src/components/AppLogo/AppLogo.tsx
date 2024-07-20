@@ -24,7 +24,7 @@ const AppLogo = () => {
   return (
     <Animated.Image
       source={IMAGES.logo}
-      style={[{ width: 100, height: 100, marginVertical: 20 }, animatedStyle]}
+      style={[{ width: 150, height: 150, marginVertical: 20 }, animatedStyle]}
     />
   );
 };
