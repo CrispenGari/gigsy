@@ -1,4 +1,10 @@
-import { Text, TouchableOpacity, View, StyleSheet } from "react-native";
+import {
+  Text,
+  TouchableOpacity,
+  View,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
 import React from "react";
 import {
   BottomSheetModal,
@@ -14,7 +20,11 @@ import Animated, { SlideInDown, SlideInLeft } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Id } from "@/convex/_generated/dataModel";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocal from "dayjs/plugin/updateLocale";
@@ -29,6 +39,8 @@ import { useWishlistStore } from "@/src/store/wishlistStore";
 import Spinner from "react-native-loading-spinner-overlay";
 import { onImpact } from "@/src/utils";
 import { useSettingsStore } from "@/src/store/settingsStore";
+import ContentLoader from "../ContentLoader/ContentLoader";
+import { calculateDistance } from "@/src/utils/distance";
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
@@ -48,6 +60,7 @@ const JobDetailsBottomSheet = React.forwardRef<
   const { os } = usePlatform();
   const { dismiss } = useBottomSheetModal();
   const { location } = useLocationStore();
+  const [loaded, setLoaded] = React.useState(true);
   const { me } = useMeStore();
   const router = useRouter();
   const { bottom } = useSafeAreaInsets();
@@ -96,6 +109,50 @@ const JobDetailsBottomSheet = React.forwardRef<
     const exists = !!wishlists.find((w) => w.jobId === id);
     setState((s) => ({ ...s, exists }));
   }, [wishlists, id]);
+
+  if (!!!job)
+    return (
+      <BottomSheetModal
+        ref={ref}
+        snapPoints={snapPoints}
+        index={0}
+        enablePanDownToClose={true}
+        enableOverDrag={false}
+        backdropComponent={(props) => (
+          <BottomSheetBackdrop
+            {...props}
+            appearsOnIndex={0}
+            disappearsOnIndex={-1}
+          />
+        )}
+        footerComponent={(p) => (
+          <BottomSheetFooter {...p}>
+            <View>
+              <BlurView intensity={80} tint="extraLight">
+                <View
+                  style={{
+                    backgroundColor: "rgba(255, 255, 255, .5)",
+                    padding: 10,
+                    paddingBottom: bottom + 20,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 10,
+                    borderTopWidth: StyleSheet.hairlineWidth,
+                    borderTopColor: COLORS.gray,
+                    height: 100,
+                  }}
+                >
+                  <ContentLoader style={[styles.btn, { height: 40 }]} />
+                  <ContentLoader style={[styles.btn, { height: 40 }]} />
+                </View>
+              </BlurView>
+            </View>
+          </BottomSheetFooter>
+        )}
+      >
+        <JobBottomSheetSkeleton />
+      </BottomSheetModal>
+    );
 
   return (
     <>
@@ -245,6 +302,29 @@ const JobDetailsBottomSheet = React.forwardRef<
                 </Text>
               </TouchableOpacity>
             </View>
+            <View
+              style={{ alignItems: "center", flexDirection: "row", gap: 5 }}
+            >
+              <MaterialCommunityIcons
+                name={"map-marker-distance"}
+                color={COLORS.gray}
+                size={14}
+              />
+              <Text style={styles.mutedText}>
+                {calculateDistance(
+                  {
+                    longitude: location.lon,
+                    latitude: location.lat,
+                  },
+                  {
+                    latitude: job?.location?.lat!,
+                    longitude: job?.location?.lon!,
+                  },
+                  settings.location.metric
+                )}{" "}
+                away
+              </Text>
+            </View>
           </BottomSheetView>
           <BottomSheetScrollView
             style={{
@@ -303,9 +383,40 @@ const JobDetailsBottomSheet = React.forwardRef<
                 }}
                 entering={SlideInLeft.delay(100).duration(200)}
               >
+                {!loaded ? (
+                  <ContentLoader
+                    style={{
+                      zIndex: 1,
+                      width: 50,
+                      height: 50,
+                      borderRadius: 50,
+                      right: 0,
+                      display: loaded ? "flex" : "none",
+                      backgroundColor: COLORS.lightGray,
+                      overflow: "hidden",
+                    }}
+                  />
+                ) : null}
                 <Animated.Image
                   source={{ uri: job?.user?.image }}
-                  style={{ width: 50, height: 50, borderRadius: 50 }}
+                  style={{
+                    width: 50,
+                    height: 50,
+                    borderRadius: 50,
+                    display: loaded ? "flex" : "none",
+                  }}
+                  onError={(_error) => {
+                    setLoaded(true);
+                  }}
+                  onLoadEnd={() => {
+                    setLoaded(true);
+                  }}
+                  onLoadStart={() => {
+                    setLoaded(false);
+                  }}
+                  onLoad={() => {
+                    setLoaded(true);
+                  }}
                 />
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontFamily: FONTS.bold, fontSize: 16 }}>
@@ -629,6 +740,289 @@ const JobDetailsBottomSheet = React.forwardRef<
 });
 
 export default JobDetailsBottomSheet;
+
+const JobBottomSheetSkeleton = () => (
+  <View style={{ flex: 1 }}>
+    <View
+      style={{
+        padding: 10,
+        marginBottom: 10,
+      }}
+    >
+      <ContentLoader style={{ width: 250, height: 20, borderRadius: 5 }} />
+      <View
+        style={{
+          gap: 5,
+          flexDirection: "row",
+          alignItems: "center",
+          flexWrap: "wrap",
+          marginTop: 5,
+        }}
+      >
+        <ContentLoader style={{ width: 80, height: 10, borderRadius: 5 }} />
+        <ContentLoader style={{ width: 80, height: 10, borderRadius: 5 }} />
+        <ContentLoader style={{ width: 120, height: 10, borderRadius: 5 }} />
+        <ContentLoader style={{ width: 80, height: 10, borderRadius: 5 }} />
+      </View>
+    </View>
+    <BottomSheetScrollView
+      style={{
+        backgroundColor: COLORS.lightGray,
+        padding: 10,
+      }}
+      contentContainerStyle={{ paddingBottom: 150 }}
+      showsHorizontalScrollIndicator={false}
+      showsVerticalScrollIndicator={false}
+    >
+      <Card
+        style={{
+          padding: 10,
+          maxWidth: 400,
+          borderRadius: 5,
+          width: "100%",
+        }}
+      >
+        <ContentLoader style={{ width: 200, height: 15, borderRadius: 5 }} />
+        <View
+          style={{
+            gap: 10,
+            flexDirection: "row",
+            alignItems: "center",
+            paddingVertical: 5,
+            paddingBottom: 10,
+          }}
+        >
+          <ContentLoader style={{ width: 50, height: 50, borderRadius: 50 }} />
+          <View style={{ flex: 1, gap: 3 }}>
+            <ContentLoader
+              style={{ width: 150, height: 15, borderRadius: 5 }}
+            />
+            <ContentLoader
+              style={{ width: 100, height: 10, borderRadius: 5 }}
+            />
+          </View>
+          <ContentLoader style={{ width: 20, height: 20, borderRadius: 5 }} />
+        </View>
+      </Card>
+
+      <ContentLoader
+        style={{ width: 200, height: 15, borderRadius: 5, marginVertical: 10 }}
+      />
+      <Card
+        style={{
+          padding: 10,
+          maxWidth: 400,
+          borderRadius: 5,
+          width: "100%",
+        }}
+      >
+        <View style={{ gap: 3 }}>
+          <ContentLoader style={{ width: 300, height: 15, borderRadius: 5 }} />
+          <ContentLoader
+            style={{ width: "100%", height: 10, borderRadius: 5 }}
+          />
+          <ContentLoader
+            style={{ width: "100%", height: 10, borderRadius: 5 }}
+          />
+          <ContentLoader
+            style={{ width: "50%", height: 10, borderRadius: 5 }}
+          />
+          <ContentLoader
+            style={{ width: 300, height: 15, borderRadius: 5, marginTop: 10 }}
+          />
+          <ContentLoader
+            style={{ width: "100%", height: 10, borderRadius: 5 }}
+          />
+          <ContentLoader
+            style={{ width: "50%", height: 10, borderRadius: 5 }}
+          />
+          <ContentLoader
+            style={{ width: 300, height: 15, borderRadius: 5, marginTop: 10 }}
+          />
+          <ContentLoader
+            style={{ width: "50%", height: 10, borderRadius: 5 }}
+          />
+          <ContentLoader
+            style={{
+              width: "100%",
+              height: 200,
+              marginTop: 10,
+              borderRadius: 5,
+            }}
+          />
+        </View>
+      </Card>
+      <ContentLoader
+        style={{ width: 200, height: 15, borderRadius: 5, marginVertical: 10 }}
+      />
+      <Card
+        style={{
+          padding: 10,
+          maxWidth: 400,
+          borderRadius: 5,
+          width: "100%",
+        }}
+      >
+        <View style={{}}>
+          <View style={styles.row}>
+            <View style={{ flex: 1, gap: 3 }}>
+              <ContentLoader
+                style={{ width: 150, height: 15, borderRadius: 5 }}
+              />
+
+              <ContentLoader
+                style={{ width: 100, height: 10, borderRadius: 5 }}
+              />
+            </View>
+            <View style={{ flex: 1, gap: 3 }}>
+              <ContentLoader
+                style={{ width: 150, height: 15, borderRadius: 5 }}
+              />
+
+              <ContentLoader
+                style={{ width: 100, height: 10, borderRadius: 5 }}
+              />
+            </View>
+          </View>
+
+          <View style={{ flex: 1, gap: 3, marginTop: 10 }}>
+            <ContentLoader
+              style={{ width: 150, height: 15, borderRadius: 5 }}
+            />
+
+            <ContentLoader
+              style={{ width: 100, height: 10, borderRadius: 5 }}
+            />
+          </View>
+        </View>
+      </Card>
+
+      <ContentLoader
+        style={{ width: 200, height: 15, borderRadius: 5, marginVertical: 10 }}
+      />
+      <Card
+        style={{
+          padding: 10,
+          maxWidth: 400,
+          borderRadius: 5,
+          width: "100%",
+        }}
+      >
+        <View style={{}}>
+          <View style={{ flex: 1, gap: 3, marginBottom: 10 }}>
+            <ContentLoader
+              style={{ width: 150, height: 15, borderRadius: 5 }}
+            />
+
+            <ContentLoader
+              style={{ width: 100, height: 10, borderRadius: 5 }}
+            />
+          </View>
+          <View style={styles.row}>
+            <View style={{ flex: 1, gap: 3 }}>
+              <ContentLoader
+                style={{ width: 150, height: 15, borderRadius: 5 }}
+              />
+
+              <ContentLoader
+                style={{ width: 100, height: 10, borderRadius: 5 }}
+              />
+            </View>
+            <View style={{ flex: 1, gap: 3 }}>
+              <ContentLoader
+                style={{ width: 150, height: 15, borderRadius: 5 }}
+              />
+
+              <ContentLoader
+                style={{ width: 100, height: 10, borderRadius: 5 }}
+              />
+            </View>
+          </View>
+        </View>
+      </Card>
+
+      <ContentLoader
+        style={{ width: 200, height: 15, borderRadius: 5, marginVertical: 10 }}
+      />
+      <Card
+        style={{
+          padding: 10,
+          maxWidth: 400,
+          borderRadius: 5,
+          width: "100%",
+        }}
+      >
+        <View>
+          <View style={styles.row}>
+            <View style={{ flex: 1, gap: 3 }}>
+              <ContentLoader
+                style={{ width: 150, height: 15, borderRadius: 5 }}
+              />
+
+              {Array(3)
+                .fill(null)
+                .map((_, index) => (
+                  <View key={index} style={{ flexDirection: "row", gap: 10 }}>
+                    <ContentLoader
+                      style={{ width: 100, height: 10, borderRadius: 5 }}
+                    />
+                  </View>
+                ))}
+            </View>
+            <View style={{ flex: 1, gap: 3 }}>
+              <ContentLoader
+                style={{ width: 150, height: 15, borderRadius: 5 }}
+              />
+
+              {Array(3)
+                .fill(null)
+                .map((_, index) => (
+                  <View key={index} style={{ flexDirection: "row", gap: 10 }}>
+                    <ContentLoader
+                      style={{ width: 100, height: 10, borderRadius: 5 }}
+                    />
+                  </View>
+                ))}
+            </View>
+          </View>
+
+          <View style={[styles.row, { marginTop: 10 }]}>
+            <View style={{ flex: 1, gap: 3 }}>
+              <ContentLoader
+                style={{ width: 150, height: 15, borderRadius: 5 }}
+              />
+
+              {Array(3)
+                .fill(null)
+                .map((_, index) => (
+                  <View key={index} style={{ flexDirection: "row", gap: 10 }}>
+                    <ContentLoader
+                      style={{ width: 100, height: 10, borderRadius: 5 }}
+                    />
+                  </View>
+                ))}
+            </View>
+            <View style={{ flex: 1, gap: 3 }}>
+              <ContentLoader
+                style={{ width: 150, height: 15, borderRadius: 5 }}
+              />
+
+              {Array(3)
+                .fill(null)
+                .map((_, index) => (
+                  <View key={index} style={{ flexDirection: "row", gap: 10 }}>
+                    <ContentLoader
+                      style={{ width: 100, height: 10, borderRadius: 5 }}
+                    />
+                  </View>
+                ))}
+            </View>
+          </View>
+        </View>
+      </Card>
+    </BottomSheetScrollView>
+  </View>
+);
 
 const styles = StyleSheet.create({
   mutedText: { fontFamily: FONTS.regular, color: COLORS.gray },

@@ -61,7 +61,7 @@ const Profile = () => {
       showsVerticalScrollIndicator={false}
     >
       <Spinner visible={!isLoaded} animation="fade" />
-      <ProfileCard />
+      <ProfileCard isLoading={!isLoaded} />
       <Text style={styles.headerText}>Settings</Text>
       <Card
         style={{

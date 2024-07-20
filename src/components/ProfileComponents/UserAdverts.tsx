@@ -25,6 +25,7 @@ import JobDetailsBottomSheet from "../BottomSheets/JobDetailsBottomSheet";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { onImpact } from "@/src/utils";
 import { useSettingsStore } from "@/src/store/settingsStore";
+import ContentLoader from "../ContentLoader/ContentLoader";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -40,6 +41,7 @@ const UserAdverts = ({ id }: UserAdvertsProps) => {
     id: id ? id : me?.id || "",
   });
 
+  if (typeof jobs === "undefined") return <UserAdvertSkeleton />;
   return (
     <Card style={{ flex: 1, marginVertical: 10 }}>
       <View style={{ flex: 1 }}>
@@ -255,3 +257,39 @@ const SwipableItem = ({ item }: { item: TJob }) => {
     </>
   );
 };
+
+const AdvertSkeleton = () => (
+  <View>
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 10,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: COLORS.gray,
+        paddingBottom: 5,
+        backgroundColor: COLORS.white,
+        marginBottom: 1,
+      }}
+    >
+      <View style={{ flex: 1, gap: 3 }}>
+        <ContentLoader style={{ width: 200, height: 15, borderRadius: 5 }} />
+        <ContentLoader style={{ width: 200, height: 8, borderRadius: 5 }} />
+      </View>
+      <ContentLoader style={{ width: 40, height: 40, borderRadius: 5 }} />
+    </View>
+  </View>
+);
+
+const UserAdvertSkeleton = () => (
+  <Card style={{ flex: 1, marginVertical: 10 }}>
+    <View style={{ flex: 1 }}>
+      <ContentLoader style={{ width: 150, height: 20, borderRadius: 5 }} />
+      <FlatList
+        data={Array(3).fill(null)}
+        keyExtractor={(item, _id) => _id.toString()}
+        renderItem={({ item }) => <AdvertSkeleton />}
+      />
+    </View>
+  </Card>
+);

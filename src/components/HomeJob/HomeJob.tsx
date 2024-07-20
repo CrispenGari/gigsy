@@ -35,6 +35,7 @@ const HomeJob: React.FunctionComponent<HomeJobProps> = ({ _id }) => {
   const jobBottomSheet = React.useRef<BottomSheetModal>(null);
   const { settings } = useSettingsStore();
   const { location } = useLocationStore();
+  const [loaded, setLoaded] = React.useState(true);
   if (!!!job) return <SkeletonHomeJob />;
   return (
     <>
@@ -75,8 +76,40 @@ const HomeJob: React.FunctionComponent<HomeJobProps> = ({ _id }) => {
               alignItems: "flex-start",
             }}
           >
+            {!loaded ? (
+              <ContentLoader
+                style={{
+                  zIndex: 1,
+                  width: 50,
+                  height: 50,
+                  borderRadius: 50,
+                  right: 0,
+                  display: loaded ? "flex" : "none",
+                  backgroundColor: COLORS.lightGray,
+                  overflow: "hidden",
+                }}
+              />
+            ) : null}
+
             <Animated.Image
-              style={{ width: 50, height: 50, borderRadius: 50 }}
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 50,
+                display: loaded ? "flex" : "none",
+              }}
+              onError={(_error) => {
+                setLoaded(true);
+              }}
+              onLoadEnd={() => {
+                setLoaded(true);
+              }}
+              onLoadStart={() => {
+                setLoaded(false);
+              }}
+              onLoad={() => {
+                setLoaded(true);
+              }}
               source={{
                 uri: job?.user?.image,
               }}

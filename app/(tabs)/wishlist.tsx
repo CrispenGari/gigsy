@@ -22,6 +22,7 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import JobDetailsBottomSheet from "@/src/components/BottomSheets/JobDetailsBottomSheet";
 import { useSettingsStore } from "@/src/store/settingsStore";
 import { onImpact } from "@/src/utils";
+import ContentLoader from "@/src/components/ContentLoader/ContentLoader";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
@@ -164,13 +165,11 @@ const Wishlist = ({ id }: { id: Id<"jobs"> }) => {
       })
       .finally(() => setState((s) => ({ ...s, loading: false })));
   };
+  if (!!!job) return <WishlistSkeleton />;
   return (
     <>
       <Spinner visible={state.loading} animation="fade" />
-
-      {job && (
-        <JobDetailsBottomSheet ref={jobDetailsBottomSheet} id={job._id} />
-      )}
+      <JobDetailsBottomSheet ref={jobDetailsBottomSheet} id={job._id} />
       <Swipeable
         overshootLeft={false}
         friction={3}
@@ -254,3 +253,29 @@ const Wishlist = ({ id }: { id: Id<"jobs"> }) => {
     </>
   );
 };
+
+const WishlistSkeleton = () => (
+  <View
+    style={{
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: COLORS.gray,
+      paddingBottom: 5,
+      backgroundColor: COLORS.white,
+      marginBottom: 1,
+      maxWidth: 450,
+      paddingHorizontal: 10,
+      width: "100%",
+      alignSelf: "center",
+      paddingTop: 5,
+    }}
+  >
+    <View style={{ flex: 1, gap: 3 }}>
+      <ContentLoader style={{ width: 200, height: 15, borderRadius: 5 }} />
+      <ContentLoader style={{ width: 200, height: 8, borderRadius: 5 }} />
+    </View>
+    <ContentLoader style={{ width: 40, height: 40, borderRadius: 5 }} />
+  </View>
+);

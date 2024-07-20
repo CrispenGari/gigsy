@@ -15,6 +15,7 @@ import Animated from "react-native-reanimated";
 import { sharedElementTransition } from "@/src/utils/SharedTransition";
 import { useSettingsStore } from "@/src/store/settingsStore";
 import { onImpact } from "@/src/utils";
+import ContentLoader from "../ContentLoader/ContentLoader";
 
 interface Props {
   uri?: string;
@@ -27,7 +28,7 @@ const ProfileAvatar = ({ uri, setBase64, sharedTransitionTag }: Props) => {
     uri?: string;
     base64?: string | null;
   }>({ uri: uri, base64: null });
-
+  const [loaded, setLoaded] = React.useState(false);
   const { dismiss } = useBottomSheetModal();
   const bottomSheetModalRef = React.useRef<BottomSheetModal>(null);
   const snapPoints = React.useMemo(() => ["32%"], []);
@@ -117,6 +118,18 @@ const ProfileAvatar = ({ uri, setBase64, sharedTransitionTag }: Props) => {
         activeOpacity={0.7}
         style={{ position: "relative" }}
       >
+        {!loaded ? (
+          <ContentLoader
+            style={{
+              width: 250,
+              height: 250,
+              borderRadius: 250,
+              display: loaded ? "flex" : "none",
+              backgroundColor: COLORS.lightGray,
+              overflow: "hidden",
+            }}
+          />
+        ) : null}
         <Animated.Image
           source={{
             uri: image.uri
@@ -127,9 +140,22 @@ const ProfileAvatar = ({ uri, setBase64, sharedTransitionTag }: Props) => {
             width: 250,
             height: 250,
             borderRadius: 250,
+            display: loaded ? "flex" : "none",
           }}
           sharedTransitionStyle={sharedElementTransition}
           sharedTransitionTag={sharedTransitionTag}
+          onError={(_error) => {
+            setLoaded(true);
+          }}
+          onLoadEnd={() => {
+            setLoaded(true);
+          }}
+          onLoadStart={() => {
+            setLoaded(false);
+          }}
+          onLoad={() => {
+            setLoaded(true);
+          }}
         />
         <View
           style={{

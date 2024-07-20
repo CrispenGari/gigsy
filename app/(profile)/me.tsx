@@ -20,6 +20,7 @@ import { api } from "@/convex/_generated/api";
 import UserAdverts from "@/src/components/ProfileComponents/UserAdverts";
 import { onImpact } from "@/src/utils";
 import { useSettingsStore } from "@/src/store/settingsStore";
+import ContentLoader from "@/src/components/ContentLoader/ContentLoader";
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
@@ -104,66 +105,110 @@ const Page = () => {
         }}
       />
       <Spinner visible={state.loading} animation="fade" />
-      <View style={{ padding: 10, flex: 1 }}>
-        <Card
-          style={{
-            padding: 20,
-            justifyContent: "center",
-            alignItems: "center",
-            maxWidth: 400,
-            borderRadius: 20,
-            alignSelf: "center",
-            width: "100%",
-          }}
-        >
-          <View style={{ alignItems: "center" }}>
-            <ProfileAvatar
-              setBase64={setImage}
-              uri={me?.imageUrl}
-              sharedTransitionTag="me-profile-avatar"
-            />
-            <Text
-              style={{ fontSize: 18, fontFamily: FONTS.bold, marginTop: 20 }}
-            >
-              {me?.firstName} {me?.lastName}
-            </Text>
-            <Text style={{ fontFamily: FONTS.regular, color: COLORS.gray }}>
-              {me?.email}
-            </Text>
-          </View>
-          <AnimatedTouchableOpacity
-            onPress={updateAvatar}
-            style={[
-              animatedButtonStyles,
-              {
-                backgroundColor: COLORS.green,
-                maxWidth: 200,
-                borderRadius: 5,
-                justifyContent: "center",
-                alignItems: "center",
-                flexGrow: 0,
-                flex: 0,
-              },
-            ]}
+      {!isLoaded ? (
+        <ProfileSkeleton />
+      ) : (
+        <View style={{ padding: 10, flex: 1 }}>
+          <Card
+            style={{
+              padding: 20,
+              justifyContent: "center",
+              alignItems: "center",
+              maxWidth: 400,
+              borderRadius: 20,
+              alignSelf: "center",
+              width: "100%",
+            }}
           >
-            <Animated.Text
+            <View style={{ alignItems: "center" }}>
+              <ProfileAvatar
+                setBase64={setImage}
+                uri={me?.imageUrl}
+                sharedTransitionTag="me-profile-avatar"
+              />
+              <Text
+                style={{ fontSize: 18, fontFamily: FONTS.bold, marginTop: 20 }}
+              >
+                {me?.firstName} {me?.lastName}
+              </Text>
+              <Text style={{ fontFamily: FONTS.regular, color: COLORS.gray }}>
+                {me?.email}
+              </Text>
+            </View>
+            <AnimatedTouchableOpacity
+              onPress={updateAvatar}
               style={[
-                animatedTextStyle,
+                animatedButtonStyles,
                 {
-                  color: COLORS.white,
-                  fontFamily: FONTS.regular,
-                  fontSize: 18,
+                  backgroundColor: COLORS.green,
+                  maxWidth: 200,
+                  borderRadius: 5,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexGrow: 0,
+                  flex: 0,
                 },
               ]}
             >
-              Update
-            </Animated.Text>
-          </AnimatedTouchableOpacity>
-        </Card>
-        <UserAdverts />
-      </View>
+              <Animated.Text
+                style={[
+                  animatedTextStyle,
+                  {
+                    color: COLORS.white,
+                    fontFamily: FONTS.regular,
+                    fontSize: 18,
+                  },
+                ]}
+              >
+                Update
+              </Animated.Text>
+            </AnimatedTouchableOpacity>
+          </Card>
+          <UserAdverts />
+        </View>
+      )}
     </>
   );
 };
 
 export default Page;
+
+const ProfileSkeleton = () => (
+  <Card
+    style={{
+      padding: 20,
+      justifyContent: "center",
+      alignItems: "center",
+      maxWidth: 400,
+      borderRadius: 20,
+      alignSelf: "center",
+      width: "100%",
+    }}
+  >
+    <View style={{ alignItems: "center" }}>
+      <ContentLoader
+        style={{
+          width: 250,
+          height: 250,
+          borderRadius: 250,
+          marginBottom: 20,
+        }}
+      />
+      <ContentLoader
+        style={{
+          width: 150,
+          height: 15,
+          borderRadius: 5,
+          marginBottom: 5,
+        }}
+      />
+      <ContentLoader
+        style={{
+          width: 200,
+          height: 8,
+          borderRadius: 5,
+        }}
+      />
+    </View>
+  </Card>
+);
