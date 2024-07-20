@@ -27,8 +27,8 @@ export const FONTS = {
 };
 
 export const IMAGES = {
-  logo: require("@/assets/images/icon.png"),
-  profile: require("@/assets/images/adaptive-icon.png"),
+  logo: require("@/assets/images/adaptive-icon.png"),
+  profile: require("@/assets/images/profile.png"),
 };
 
 export const STORAGE_NAME = {

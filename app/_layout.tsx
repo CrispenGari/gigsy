@@ -1,6 +1,5 @@
 import "react-native-reanimated";
 import { COLORS, FONTS, Fonts } from "@/src/constants";
-
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -40,11 +39,7 @@ const Layout = () => {
 
   return (
     <View style={{ flex: 1 }}>
-      <StatusBar
-        backgroundColor={COLORS.white}
-        translucent
-        barStyle={"dark-content"}
-      />
+      <StatusBar barStyle={"dark-content"} />
       <GestureHandlerRootView>
         <BottomSheetModalProvider>
           <ConvexProvider client={convex}>
@@ -138,7 +133,6 @@ const RootLayout = () => {
             </TouchableOpacity>
           ),
           headerStyle: { backgroundColor: COLORS.white },
-          statusBarAnimation: "slide",
           headerTitleAlign: "center",
           navigationBarHidden: true,
           headerShadowVisible: false,
@@ -172,7 +166,6 @@ const RootLayout = () => {
             </TouchableOpacity>
           ),
           headerStyle: { backgroundColor: COLORS.white },
-          statusBarAnimation: "slide",
           headerTitleAlign: "center",
           navigationBarHidden: true,
           headerShadowVisible: false,
@@ -218,7 +211,6 @@ const RootLayout = () => {
             </TouchableOpacity>
           ),
           headerStyle: { backgroundColor: COLORS.white },
-          statusBarAnimation: "slide",
           headerTitleAlign: "center",
           navigationBarHidden: true,
           headerShadowVisible: false,
@@ -237,7 +229,6 @@ const RootLayout = () => {
             fontSize: 24,
             color: COLORS.black,
           },
-          statusBarAnimation: "slide",
           headerTitleAlign: "center",
           navigationBarHidden: true,
           headerShadowVisible: false,
@@ -254,7 +245,6 @@ const RootLayout = () => {
             fontSize: 24,
             color: COLORS.black,
           },
-          statusBarAnimation: "slide",
           headerTitleAlign: "center",
           navigationBarHidden: true,
           headerShadowVisible: false,
@@ -299,7 +289,6 @@ const RootLayout = () => {
             fontSize: 24,
             color: COLORS.black,
           },
-          statusBarAnimation: "slide",
           headerTitleAlign: "center",
           navigationBarHidden: true,
           headerShadowVisible: false,

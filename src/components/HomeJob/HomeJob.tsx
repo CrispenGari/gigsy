@@ -4,7 +4,7 @@ import Animated from "react-native-reanimated";
 import { Id } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { COLORS, FONTS, relativeTimeObject } from "@/src/constants";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -15,6 +15,9 @@ import JobDetailsBottomSheet from "../BottomSheets/JobDetailsBottomSheet";
 import { Link } from "expo-router";
 import { onImpact } from "@/src/utils";
 import { useSettingsStore } from "@/src/store/settingsStore";
+import { calculateDistance } from "@/src/utils/distance";
+import { useLocationStore } from "@/src/store/locationStore";
+import ContentLoader from "../ContentLoader/ContentLoader";
 
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
@@ -31,6 +34,8 @@ const HomeJob: React.FunctionComponent<HomeJobProps> = ({ _id }) => {
   const { me } = useMeStore();
   const jobBottomSheet = React.useRef<BottomSheetModal>(null);
   const { settings } = useSettingsStore();
+  const { location } = useLocationStore();
+  return <SkeletonHomeJob />;
   return (
     <>
       {!!job ? <JobDetailsBottomSheet ref={jobBottomSheet} id={_id} /> : null}
@@ -87,7 +92,11 @@ const HomeJob: React.FunctionComponent<HomeJobProps> = ({ _id }) => {
           </TouchableOpacity>
         </Link>
         <Text
-          style={{ fontSize: 18, fontFamily: FONTS.regular, marginBottom: 10 }}
+          style={{
+            fontSize: 18,
+            fontFamily: FONTS.regular,
+            marginBottom: 10,
+          }}
         >
           {job?.description}
         </Text>
@@ -99,49 +108,60 @@ const HomeJob: React.FunctionComponent<HomeJobProps> = ({ _id }) => {
             flexWrap: "wrap",
           }}
         >
-          <TouchableOpacity
-            style={{ alignItems: "center", flexDirection: "row", gap: 5 }}
-          >
+          <View style={{ alignItems: "center", flexDirection: "row", gap: 5 }}>
             <Ionicons name="location-outline" color={COLORS.gray} size={14} />
             <Text style={styles.mutedText}>{job?.location?.address.city}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ alignItems: "center", flexDirection: "row", gap: 5 }}
-          >
+          </View>
+          <View style={{ alignItems: "center", flexDirection: "row", gap: 5 }}>
             <Ionicons name="time-outline" color={COLORS.gray} size={14} />
             <Text style={styles.mutedText}>
               Listed {dayjs(new Date(job?._creationTime!)).fromNow()} ago.
             </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ alignItems: "center", flexDirection: "row", gap: 5 }}
-          >
+          </View>
+          <View style={{ alignItems: "center", flexDirection: "row", gap: 5 }}>
             <Ionicons name="timer-outline" color={COLORS.gray} size={14} />
             <Text style={styles.mutedText}>
               {job?.type === "part-time" ? "Part Time" : "Full Time"}
             </Text>
-          </TouchableOpacity>
+          </View>
 
-          <TouchableOpacity
-            style={{ alignItems: "center", flexDirection: "row", gap: 5 }}
-          >
+          <View style={{ alignItems: "center", flexDirection: "row", gap: 5 }}>
             <Ionicons
               name="accessibility-outline"
               color={COLORS.gray}
               size={14}
             />
             <Text style={styles.mutedText}>{job?.company}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ alignItems: "center", flexDirection: "row", gap: 5 }}
-          >
+          </View>
+          <View style={{ alignItems: "center", flexDirection: "row", gap: 5 }}>
             <Ionicons name="cash-outline" color={COLORS.gray} size={14} />
             <Text style={styles.mutedText}>
               R{" "}
               {Number(job?.salaryRange?.min).toFixed(2) || Number(0).toFixed(2)}{" "}
               - R {Number(job?.salaryRange?.max).toFixed(2)}
             </Text>
-          </TouchableOpacity>
+          </View>
+          <View style={{ alignItems: "center", flexDirection: "row", gap: 5 }}>
+            <MaterialCommunityIcons
+              name={"map-marker-distance"}
+              color={COLORS.gray}
+              size={14}
+            />
+            <Text style={styles.mutedText}>
+              {calculateDistance(
+                {
+                  longitude: location.lon,
+                  latitude: location.lat,
+                },
+                {
+                  latitude: job?.location?.lat!,
+                  longitude: job?.location?.lon!,
+                },
+                settings.location.metric
+              )}{" "}
+              away
+            </Text>
+          </View>
         </View>
       </TouchableOpacity>
     </>
@@ -152,3 +172,69 @@ export default HomeJob;
 const styles = StyleSheet.create({
   mutedText: { fontFamily: FONTS.regular, color: COLORS.gray },
 });
+
+const SkeletonHomeJob = () => {
+  return (
+    <View
+      style={{
+        padding: 10,
+        backgroundColor: COLORS.white,
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderColor: COLORS.gray,
+        maxWidth: 500,
+        width: "100%",
+        paddingBottom: 20,
+      }}
+    >
+      <View
+        style={{
+          flexDirection: "row",
+          gap: 10,
+          marginBottom: 5,
+          alignItems: "flex-start",
+        }}
+      >
+        <ContentLoader
+          style={{
+            width: 50,
+            height: 50,
+            borderRadius: 50,
+          }}
+        />
+        <View style={{ flex: 1, gap: 2 }}>
+          <ContentLoader style={{ width: 200, height: 25, borderRadius: 5 }} />
+          <ContentLoader
+            style={{ width: 150, height: 15, borderRadius: 999 }}
+          />
+        </View>
+      </View>
+
+      <View style={{ gap: 2 }}>
+        <ContentLoader
+          style={{ width: "100%", height: 10, borderRadius: 999 }}
+        />
+        <ContentLoader
+          style={{ width: "100%", height: 10, borderRadius: 999 }}
+        />
+        <ContentLoader style={{ width: 200, height: 10, borderRadius: 999 }} />
+      </View>
+
+      <View
+        style={{
+          gap: 5,
+          flexDirection: "row",
+          alignItems: "center",
+          flexWrap: "wrap",
+          marginTop: 10,
+        }}
+      >
+        <ContentLoader style={{ width: 100, height: 15, borderRadius: 5 }} />
+        <ContentLoader style={{ width: 100, height: 15, borderRadius: 5 }} />
+        <ContentLoader style={{ width: 80, height: 15, borderRadius: 5 }} />
+        <ContentLoader style={{ width: 70, height: 15, borderRadius: 5 }} />
+        <ContentLoader style={{ width: 120, height: 15, borderRadius: 5 }} />
+        <ContentLoader style={{ width: 130, height: 15, borderRadius: 5 }} />
+      </View>
+    </View>
+  );
+};

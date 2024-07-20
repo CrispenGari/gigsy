@@ -437,12 +437,3 @@ const Page = () => {
 };
 
 export default Page;
-
-// export type TLocation = {
-//   showJobsGlobally: boolean;
-//   defaultJobListingLocation: "city" | "region" | "country";
-//   showDistanceToAdvertiser: boolean;
-//   distanceRadius: number;
-//   locationAccuracy: Location.LocationAccuracy;
-//   metric: "km" | "mi" | "m";
-// };

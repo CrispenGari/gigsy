@@ -9,7 +9,7 @@ import {
 import React from "react";
 import { BottomTabHeaderProps } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { COLORS, FONTS } from "@/src/constants";
+import { COLORS, FONTS, IMAGES } from "@/src/constants";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
@@ -20,14 +20,58 @@ import Animated, {
 } from "react-native-reanimated";
 import { usePlatform } from "@/src/hooks";
 import { jobCategories } from "@/src/constants/categories";
+import { onImpact } from "@/src/utils";
+import { useRouter } from "expo-router";
+import { useCreateFormStore } from "@/src/store/createFormStore";
+import { useLocationStore } from "@/src/store/locationStore";
+import { useMeStore } from "@/src/store/meStore";
+import { useSettingsStore } from "@/src/store/settingsStore";
+import { useWishlistStore } from "@/src/store/wishlistStore";
+import { useAuth } from "@clerk/clerk-expo";
 
 const HomeHeader = ({}: BottomTabHeaderProps) => {
+  const { isLoaded, isSignedIn, signOut } = useAuth();
+  const router = useRouter();
+  const { settings, restore } = useSettingsStore();
+  const { destroy } = useMeStore();
+  const { reset } = useLocationStore();
+  const { clearForm } = useCreateFormStore();
+  const { clear } = useWishlistStore();
+
   const { top } = useSafeAreaInsets();
   const { os } = usePlatform();
   const [state, setState] = React.useState({
     query: "",
     focused: false,
   });
+
+  const scale = useSharedValue(0);
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+
+  const logout = async () => {
+    if (settings.haptics) {
+      await onImpact();
+    }
+    signOut().then(() => {
+      destroy();
+      reset();
+      clearForm();
+      clear();
+      restore();
+      router.replace("/");
+    });
+  };
+  const startZoomIn = React.useCallback(() => {
+    scale.value = withTiming(1, { duration: 1000 });
+  }, []);
+
+  React.useEffect(() => {
+    startZoomIn();
+  }, []);
   const textInputRef = React.useRef<TextInput>(null);
   const focused = useSharedValue(0);
 
@@ -63,16 +107,62 @@ const HomeHeader = ({}: BottomTabHeaderProps) => {
           borderBottomColor: COLORS.lightGray,
         }}
       >
-        <Text
+        <View
           style={{
-            fontFamily: FONTS.bold,
-            fontSize: 20,
-            marginVertical: 14,
-            textAlign: "center",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingHorizontal: 20,
           }}
         >
-          gigsy
-        </Text>
+          <Animated.Image
+            source={IMAGES.logo}
+            style={[{ width: 50, height: 50 }, animatedStyle]}
+          />
+          <Text
+            style={{
+              fontFamily: FONTS.bold,
+              fontSize: 20,
+              textAlign: "center",
+            }}
+          >
+            gigsy
+          </Text>
+          {isLoaded && !isSignedIn ? (
+            <TouchableOpacity
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 40,
+                backgroundColor: COLORS.lightGray,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                router.replace("/(modals)/login");
+              }}
+            >
+              <Ionicons name="log-in-outline" size={24} color={COLORS.green} />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={logout}
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 40,
+                backgroundColor: COLORS.lightGray,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Ionicons name="log-out-outline" size={24} color={COLORS.red} />
+            </TouchableOpacity>
+          )}
+        </View>
         <View
           style={{
             paddingHorizontal: 20,
@@ -120,7 +210,6 @@ const HomeHeader = ({}: BottomTabHeaderProps) => {
             </TouchableOpacity>
           </Animated.View>
         </View>
-
         <FlatList
           contentContainerStyle={{
             paddingHorizontal: 20,

@@ -5,10 +5,8 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { useSettingsStore } from "@/src/store/settingsStore";
 
 const AppLogo = () => {
-  const { settings } = useSettingsStore();
   const scale = useSharedValue(0);
   const animatedStyle = useAnimatedStyle(() => {
     return {
