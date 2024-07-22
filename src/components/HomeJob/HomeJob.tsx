@@ -83,8 +83,7 @@ const HomeJob: React.FunctionComponent<HomeJobProps> = ({ _id }) => {
                   width: 50,
                   height: 50,
                   borderRadius: 50,
-                  right: 0,
-                  display: loaded ? "flex" : "none",
+                  display: loaded ? "none" : "flex",
                   backgroundColor: COLORS.lightGray,
                   overflow: "hidden",
                 }}
@@ -206,7 +205,7 @@ const styles = StyleSheet.create({
   mutedText: { fontFamily: FONTS.regular, color: COLORS.gray },
 });
 
-const SkeletonHomeJob = () => {
+export const SkeletonHomeJob = () => {
   return (
     <View
       style={{

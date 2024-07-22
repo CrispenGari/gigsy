@@ -124,7 +124,7 @@ const ProfileAvatar = ({ uri, setBase64, sharedTransitionTag }: Props) => {
               width: 250,
               height: 250,
               borderRadius: 250,
-              display: loaded ? "flex" : "none",
+              display: loaded ? "none" : "flex",
               backgroundColor: COLORS.lightGray,
               overflow: "hidden",
             }}

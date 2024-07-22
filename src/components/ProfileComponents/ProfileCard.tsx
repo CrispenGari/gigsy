@@ -54,7 +54,7 @@ const ProfileCard = ({ cardStyle, title, isLoading }: ProfileCardProps) => {
                 width: 50,
                 height: 50,
                 borderRadius: 50,
-                display: loaded ? "flex" : "none",
+                display: loaded ? "none" : "flex",
                 backgroundColor: COLORS.lightGray,
                 overflow: "hidden",
               }}

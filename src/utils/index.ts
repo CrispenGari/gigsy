@@ -11,6 +11,25 @@ import * as Updates from "expo-updates";
 import * as Constants from "expo-constants";
 let publishedSound: Audio.Sound | undefined;
 
+export const sendPushNotification = async (token: string) => {
+  const message = {
+    to: token,
+    sound: "default",
+    title: "Original Title",
+    body: "And here is the body!",
+    data: { someData: "goes here" },
+  };
+  await fetch("https://exp.host/--/api/v2/push/send", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Accept-encoding": "gzip, deflate",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(message),
+  });
+};
+
 export const rateApp = async () => {
   const available = await StoreReview.isAvailableAsync();
   if (available) {

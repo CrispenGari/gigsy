@@ -67,7 +67,7 @@ const Page = () => {
                     width: 150,
                     height: 150,
                     borderRadius: 150,
-                    display: loaded ? "flex" : "none",
+                    display: loaded ? "none" : "flex",
                     backgroundColor: COLORS.lightGray,
                     overflow: "hidden",
                   }}

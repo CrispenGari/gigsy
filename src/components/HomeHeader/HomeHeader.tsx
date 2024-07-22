@@ -22,22 +22,16 @@ import { usePlatform } from "@/src/hooks";
 import { jobCategories } from "@/src/constants/categories";
 import { onImpact } from "@/src/utils";
 import { useRouter } from "expo-router";
-import { useCreateFormStore } from "@/src/store/createFormStore";
-import { useLocationStore } from "@/src/store/locationStore";
-import { useMeStore } from "@/src/store/meStore";
-import { useSettingsStore } from "@/src/store/settingsStore";
-import { useWishlistStore } from "@/src/store/wishlistStore";
 import { useAuth } from "@clerk/clerk-expo";
+import { useSettingsStore } from "@/src/store/settingsStore";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import FilterBottomSheet from "../BottomSheets/FiltersBottomSheet";
 
 const HomeHeader = ({}: BottomTabHeaderProps) => {
-  const { isLoaded, isSignedIn, signOut } = useAuth();
+  const { isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
-  const { settings, restore } = useSettingsStore();
-  const { destroy } = useMeStore();
-  const { reset } = useLocationStore();
-  const { clearForm } = useCreateFormStore();
-  const { clear } = useWishlistStore();
-
+  const { settings } = useSettingsStore();
+  const filterBottomSheetRef = React.useRef<BottomSheetModal>(null);
   const { top } = useSafeAreaInsets();
   const { os } = usePlatform();
   const [state, setState] = React.useState({
@@ -52,19 +46,6 @@ const HomeHeader = ({}: BottomTabHeaderProps) => {
     };
   });
 
-  const logout = async () => {
-    if (settings.haptics) {
-      await onImpact();
-    }
-    signOut().then(() => {
-      destroy();
-      reset();
-      clearForm();
-      clear();
-      restore();
-      router.replace("/");
-    });
-  };
   const startZoomIn = React.useCallback(() => {
     scale.value = withTiming(1, { duration: 1000 });
   }, []);
@@ -99,6 +80,10 @@ const HomeHeader = ({}: BottomTabHeaderProps) => {
         backgroundColor: COLORS.white,
       }}
     >
+      <FilterBottomSheet
+        ref={filterBottomSheetRef}
+        onChangeValue={(value) => console.log({ value })}
+      />
       <View
         style={{
           paddingTop: os === "ios" ? 0 : top,
@@ -149,7 +134,12 @@ const HomeHeader = ({}: BottomTabHeaderProps) => {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
-              onPress={logout}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                router.push("/(notifications)/notifications");
+              }}
               style={{
                 width: 40,
                 height: 40,
@@ -157,15 +147,37 @@ const HomeHeader = ({}: BottomTabHeaderProps) => {
                 backgroundColor: COLORS.lightGray,
                 justifyContent: "center",
                 alignItems: "center",
+                position: "relative",
               }}
             >
-              <Ionicons name="log-out-outline" size={24} color={COLORS.red} />
+              <View
+                style={{
+                  position: "absolute",
+                  right: 0,
+                  top: 0,
+                  backgroundColor: COLORS.red,
+                  width: 20,
+                  height: 20,
+                  borderRadius: 20,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  zIndex: 1,
+                }}
+              >
+                <Text style={{ fontFamily: FONTS.bold, color: COLORS.white }}>
+                  9+
+                </Text>
+              </View>
+              <Ionicons name="notifications-outline" size={24} color="black" />
             </TouchableOpacity>
           )}
         </View>
         <View
           style={{
             paddingHorizontal: 20,
+            gap: 10,
+            flexDirection: "row",
+            alignItems: "center",
           }}
         >
           <Animated.View
@@ -186,6 +198,7 @@ const HomeHeader = ({}: BottomTabHeaderProps) => {
                 shadowOffset: { width: 2, height: 2 },
                 shadowRadius: 5,
                 shadowOpacity: 1,
+                flex: 1,
               },
             ]}
           >
@@ -209,6 +222,25 @@ const HomeHeader = ({}: BottomTabHeaderProps) => {
               <Ionicons name="search-outline" size={20} color={COLORS.black} />
             </TouchableOpacity>
           </Animated.View>
+
+          <TouchableOpacity
+            style={{
+              width: 35,
+              height: 35,
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: COLORS.semiGray,
+              borderRadius: 35,
+            }}
+            onPress={async () => {
+              if (settings.haptics) {
+                await onImpact();
+              }
+              filterBottomSheetRef.current?.present();
+            }}
+          >
+            <Ionicons name="filter-outline" size={18} color="black" />
+          </TouchableOpacity>
         </View>
         <FlatList
           contentContainerStyle={{

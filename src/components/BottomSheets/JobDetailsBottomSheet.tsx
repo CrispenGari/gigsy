@@ -391,7 +391,7 @@ const JobDetailsBottomSheet = React.forwardRef<
                       height: 50,
                       borderRadius: 50,
                       right: 0,
-                      display: loaded ? "flex" : "none",
+                      display: loaded ? "none" : "flex",
                       backgroundColor: COLORS.lightGray,
                       overflow: "hidden",
                     }}

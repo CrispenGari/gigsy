@@ -17,15 +17,22 @@ import { useMeStore } from "@/src/store/meStore";
 import { useSettingsStore } from "@/src/store/settingsStore";
 import { onImpact } from "@/src/utils";
 import { api } from "@/convex/_generated/api";
-
-const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
-  unsavedChangesWarning: false,
-});
+import * as Notifications from "expo-notifications";
 
 LogBox.ignoreLogs;
 LogBox.ignoreAllLogs();
 SplashScreen.preventAutoHideAsync();
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
+const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
+  unsavedChangesWarning: false,
+});
 const Layout = () => {
   const [loaded] = useFonts(Fonts);
   React.useEffect(() => {

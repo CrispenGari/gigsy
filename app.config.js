@@ -2,7 +2,7 @@ module.exports = {
   expo: {
     name: "gigsy",
     slug: "gigsy",
-    version: "1.0.0",
+    version: "1.0.1",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "gigsy",
@@ -29,6 +29,15 @@ module.exports = {
     },
     plugins: [
       ["expo-router", { origin: "http://localhost:8081" }],
+      [
+        "expo-notifications",
+        {
+          icon: "./assets/images/notification.png",
+          color: "#ffffff",
+          defaultChannel: "default",
+          sounds: ["./assets/sounds/notification.wav"],
+        },
+      ],
       "expo-font",
       "expo-secure-store",
       [

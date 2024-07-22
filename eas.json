@@ -14,6 +14,10 @@
       },
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_aW5zcGlyZWQtbXVzdGFuZy04NC5jbGVyay5hY2NvdW50cy5kZXYk",
+        "EXPO_PUBLIC_CONVEX_URL": "https://courteous-gerbil-852.convex.cloud"
       }
     },
     "production": {}
