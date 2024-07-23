@@ -2,6 +2,16 @@ import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
 import { jobArguments } from "../tables/job";
 
+import { getDistance, convertDistance } from "geolib";
+export type TCoord = {
+  latitude: number;
+  longitude: number;
+};
+
+const calculateDistance = (me: TCoord, other: TCoord) => {
+  const distance = getDistance(me, other);
+  return distance;
+};
 export const publish = mutation({
   args: jobArguments,
   handler: async ({ db }, args) => {
@@ -19,11 +29,68 @@ export const publish = mutation({
 });
 
 export const get = query({
-  args: { limit: v.number() },
-  handler: async ({ db }, { limit }) => {
+  args: {
+    limit: v.number(),
+    order: v.union(v.literal("desc"), v.literal("asc")),
+    filters: v.object({
+      defaultJobListingLocation: v.union(
+        v.literal("city"),
+        v.literal("country"),
+        v.literal("region")
+      ),
+      showJobsGlobally: v.boolean(),
+    }),
+    filterValues: v.object({
+      distanceRadius: v.number(),
+      coords: v.object({ lat: v.number(), lon: v.number() }),
+      defaultJobListingLocation: v.string(),
+    }),
+  },
+  handler: async ({ db }, { limit, order, filterValues, filters }) => {
     try {
-      const jobs = await db.query("jobs").order("desc").take(limit);
-      return jobs.map(({ _id }) => _id);
+      const jobs = await db.query("jobs").order(order).take(limit);
+      if (filters.showJobsGlobally) {
+        return jobs.map(({ _id }) => _id);
+      }
+      if (filters.defaultJobListingLocation === "city") {
+        return jobs
+          .filter(
+            (j) =>
+              j.location.address.city?.toLowerCase() ===
+              filterValues.defaultJobListingLocation.toLowerCase()
+          )
+          .map(({ _id }) => _id);
+      } else if (filters.defaultJobListingLocation === "region") {
+        return jobs
+          .filter(
+            (j) =>
+              j.location.address.region?.toLowerCase() ===
+              filterValues.defaultJobListingLocation.toLowerCase()
+          )
+          .filter((j) => {
+            const distance = calculateDistance(
+              {
+                latitude: filterValues.coords.lat,
+                longitude: filterValues.coords.lon,
+              },
+              {
+                latitude: j.location.lat,
+                longitude: j.location.lon,
+              }
+            );
+            if (distance <= filterValues.distanceRadius) return j;
+          })
+          .map(({ _id }) => _id);
+      } else {
+        // ignore distance
+        return jobs
+          .filter(
+            (j) =>
+              j.location.address.isoCountryCode?.toLowerCase() ===
+              filterValues.defaultJobListingLocation.toLowerCase()
+          )
+          .map(({ _id }) => _id);
+      }
     } catch (error) {
       return [];
     }

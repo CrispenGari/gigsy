@@ -3,6 +3,7 @@ export type TCoord = {
   latitude: number;
   longitude: number;
 };
+
 export const calculateDistance = (
   me: TCoord,
   other: TCoord,

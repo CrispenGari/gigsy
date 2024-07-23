@@ -16,6 +16,9 @@ import HowLocationIsUsedBottomSheet from "@/src/components/BottomSheets/HowLocat
 import LocationOptionsBottomSheet from "@/src/components/BottomSheets/LocationOptionsBottomSheet";
 import { Slider } from "react-native-elements";
 import { convertSelectedDistance } from "@/src/utils/distance";
+import CityFilter from "@/src/components/CityFilter/CityFilter";
+import LocationMetric from "@/src/components/LocationMetric/LocationMetric";
+import LocationAccuracy from "@/src/components/LocationAccuracy/LocationAccuracy";
 
 const Page = () => {
   const { settings, update } = useSettingsStore();
@@ -26,6 +29,13 @@ const Page = () => {
   const distanceBottomSheetRef = React.useRef<BottomSheetModal>(null);
   const locationAccuracyBottomSheetRef = React.useRef<BottomSheetModal>(null);
   const preferredMetricBottomSheetRef = React.useRef<BottomSheetModal>(null);
+
+  const [distance, setDistance] = React.useState(
+    settings.location.distanceRadius
+  );
+  React.useEffect(() => {
+    setDistance(settings.location.distanceRadius || 0);
+  }, [settings]);
 
   return (
     <>
@@ -74,57 +84,38 @@ const Page = () => {
 
       <HowLocationIsUsedBottomSheet ref={infoBottomSheetRef} />
       <LocationOptionsBottomSheet
-        onChangeValue={(value) => {
-          update({
-            ...settings,
-            location: {
-              ...settings.location,
-              defaultJobListingLocation: value as any,
-            },
-          });
-        }}
-        value={settings.location.defaultJobListingLocation}
-        values={["city", "region", "country"]}
+        onChangeValue={() => {}}
+        value={null}
+        values={[]}
         title={"Default Job Listing"}
         ref={defaultJobListingLocationBottomSheetRef}
-      />
+      >
+        <View style={{ alignSelf: "center", marginTop: 10 }}>
+          <CityFilter />
+        </View>
+      </LocationOptionsBottomSheet>
       <LocationOptionsBottomSheet
-        onChangeValue={(value) => {
-          update({
-            ...settings,
-            location: {
-              ...settings.location,
-              metric: value as any,
-            },
-          });
-        }}
-        value={settings.location.metric}
-        values={["km", "mi", "m"]}
+        onChangeValue={() => {}}
+        value={null}
+        values={[]}
         title={"Preferred Distance Metric"}
         ref={preferredMetricBottomSheetRef}
-      />
+      >
+        <View style={{ alignSelf: "center", marginTop: 10 }}>
+          <LocationMetric />
+        </View>
+      </LocationOptionsBottomSheet>
       <LocationOptionsBottomSheet
-        onChangeValue={(value) => {
-          const locationAccuracy = locationAccuracies.find(
-            (loc) => loc.title === value
-          )!.value;
-          update({
-            ...settings,
-            location: {
-              ...settings.location,
-              locationAccuracy,
-            },
-          });
-        }}
-        value={
-          locationAccuracies.find(
-            (loc) => loc.value === settings.location.locationAccuracy
-          )!.title
-        }
+        onChangeValue={() => {}}
+        value={null}
         values={locationAccuracies.map((loc) => loc.title)}
         title={"Preferred Location Accuracy"}
         ref={locationAccuracyBottomSheetRef}
-      />
+      >
+        <View style={{ alignSelf: "center", marginTop: 10 }}>
+          <LocationAccuracy />
+        </View>
+      </LocationOptionsBottomSheet>
       <LocationOptionsBottomSheet
         onChangeValue={() => {}}
         value={""}
@@ -139,10 +130,7 @@ const Page = () => {
             alignSelf: "center",
           }}
         >
-          {convertSelectedDistance(
-            settings.location.distanceRadius,
-            settings.location.metric
-          )}
+          {convertSelectedDistance(distance, settings.location.metric)}
         </Text>
         <View
           style={{
@@ -173,8 +161,11 @@ const Page = () => {
             animationType="spring"
             allowTouchTrack
             thumbTintColor={COLORS.green}
-            value={settings.location.distanceRadius}
+            value={distance}
             onValueChange={(value) => {
+              setDistance(value);
+            }}
+            onSlidingComplete={(value) => {
               update({
                 ...settings,
                 location: {

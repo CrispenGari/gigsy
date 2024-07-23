@@ -100,10 +100,15 @@ const NoJobs = () => {
           <View style={{ alignItems: "center", flexDirection: "row", gap: 5 }}>
             <Ionicons name={"globe-outline"} size={14} color={COLORS.gray} />
             <Text style={{ fontFamily: FONTS.regular }}>
-              {convertSelectedDistance(
-                settings.location.distanceRadius,
-                settings.location.metric
-              )}
+              {settings.location.showJobsGlobally ? "Globally" : "Locally"}
+            </Text>
+          </View>
+          <View style={{ alignItems: "center", flexDirection: "row", gap: 5 }}>
+            <Ionicons name={"map-outline"} size={14} color={COLORS.gray} />
+            <Text
+              style={{ fontFamily: FONTS.regular, textTransform: "capitalize" }}
+            >
+              {settings.location.defaultJobListingLocation}
             </Text>
           </View>
         </View>
