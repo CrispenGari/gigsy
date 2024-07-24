@@ -14,6 +14,7 @@ import { api } from "@/convex/_generated/api";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import updateLocal from "dayjs/plugin/updateLocale";
+import { MaterialIcons } from "@expo/vector-icons";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 
@@ -70,7 +71,14 @@ const ImageInfoBottomSheet = React.forwardRef<
               />
               <View style={{ flex: 1 }}>
                 <Text style={{ fontFamily: FONTS.bold, fontSize: 16 }}>
-                  {user?.firstName} {user?.lastName}
+                  {user?.firstName} {user?.lastName}{" "}
+                  {user?.verified && (
+                    <MaterialIcons
+                      name="verified"
+                      size={14}
+                      color={COLORS.green}
+                    />
+                  )}
                 </Text>
                 <Text style={{ fontFamily: FONTS.regular, color: COLORS.gray }}>
                   {user?.email}

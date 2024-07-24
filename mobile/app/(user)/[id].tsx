@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { COLORS, FONTS } from "@/src/constants";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import Card from "@/src/components/Card/Card";
 import Animated from "react-native-reanimated";
 import UserAdverts from "@/src/components/ProfileComponents/UserAdverts";
@@ -114,7 +114,14 @@ const Page = () => {
               <Text
                 style={{ fontSize: 18, fontFamily: FONTS.bold, marginTop: 20 }}
               >
-                {user?.firstName} {user?.lastName}
+                {user?.firstName} {user?.lastName}{" "}
+                {user?.verified && (
+                  <MaterialIcons
+                    name="verified"
+                    size={14}
+                    color={COLORS.green}
+                  />
+                )}
               </Text>
               <Text style={{ fontFamily: FONTS.regular, color: COLORS.gray }}>
                 {user?.email}

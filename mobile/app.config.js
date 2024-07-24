@@ -47,6 +47,15 @@ module.exports = {
             "Allow $(PRODUCT_NAME) to use your location.",
         },
       ],
+      [
+        "expo-camera",
+        {
+          cameraPermission: "Allow $(PRODUCT_NAME) to access your camera",
+          microphonePermission:
+            "Allow $(PRODUCT_NAME) to access your microphone",
+          recordAudioAndroid: false,
+        },
+      ],
     ],
 
     experiments: {

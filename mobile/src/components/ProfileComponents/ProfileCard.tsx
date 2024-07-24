@@ -7,13 +7,17 @@ import {
 } from "react-native";
 import React from "react";
 import { FONTS, COLORS } from "@/src/constants";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import Card from "../Card/Card";
 import Animated, { SlideInLeft, ZoomInUp } from "react-native-reanimated";
 import { useMeStore } from "@/src/store/meStore";
 import { Link } from "expo-router";
 import { sharedElementTransition } from "@/src/utils/SharedTransition";
 import ContentLoader from "../ContentLoader/ContentLoader";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useSettingsStore } from "@/src/store/settingsStore";
+import { onImpact } from "@/src/utils";
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
@@ -26,6 +30,9 @@ interface ProfileCardProps {
 const ProfileCard = ({ cardStyle, title, isLoading }: ProfileCardProps) => {
   const { me } = useMeStore();
   const [loaded, setLoaded] = React.useState(true);
+  const user = useQuery(api.api.user.get, { id: me?.id || "" });
+
+  const { settings } = useSettingsStore();
 
   return (
     <Card
@@ -70,6 +77,11 @@ const ProfileCard = ({ cardStyle, title, isLoading }: ProfileCardProps) => {
                 paddingBottom: 10,
               }}
               entering={SlideInLeft.delay(100).duration(200)}
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+              }}
             >
               <Animated.Image
                 source={{ uri: me?.imageUrl }}
@@ -95,9 +107,25 @@ const ProfileCard = ({ cardStyle, title, isLoading }: ProfileCardProps) => {
                 }}
               />
               <View style={{ flex: 1 }}>
-                <Text style={{ fontFamily: FONTS.bold, fontSize: 16 }}>
-                  {me?.firstName} {me?.lastName}
-                </Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 5,
+                  }}
+                >
+                  <Text style={{ fontFamily: FONTS.bold, fontSize: 16 }}>
+                    {me?.firstName} {me?.lastName}{" "}
+                  </Text>
+                  {user?.verified && (
+                    <MaterialIcons
+                      name="verified"
+                      size={14}
+                      color={COLORS.green}
+                    />
+                  )}
+                </View>
+
                 <Text style={{ fontFamily: FONTS.regular, color: COLORS.gray }}>
                   {me?.email}
                 </Text>
@@ -111,6 +139,37 @@ const ProfileCard = ({ cardStyle, title, isLoading }: ProfileCardProps) => {
           </Link>
         </>
       )}
+
+      {!!user && !!!user.verified ? (
+        <Link
+          asChild
+          href={{
+            pathname: "/(profile)/verify",
+          }}
+        >
+          <TouchableOpacity
+            onPress={async () => {
+              if (settings.haptics) {
+                await onImpact();
+              }
+            }}
+            style={{
+              backgroundColor: COLORS.green,
+              paddingHorizontal: 20,
+              paddingVertical: 10,
+              borderRadius: 5,
+              width: 150,
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 10,
+            }}
+          >
+            <Text style={{ fontFamily: FONTS.bold, color: COLORS.white }}>
+              Get Verified
+            </Text>
+          </TouchableOpacity>
+        </Link>
+      ) : null}
     </Card>
   );
 };

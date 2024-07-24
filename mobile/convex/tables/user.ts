@@ -7,6 +7,6 @@ export const userArguments = {
   id: v.string(),
   email: v.string(),
   image: v.string(),
-  verified: v.boolean(),
+  verified: v.optional(v.boolean()),
 };
 export const user = defineTable(userArguments);

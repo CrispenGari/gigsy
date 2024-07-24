@@ -4533,6 +4533,13 @@ expo-blur@~13.0.2:
   resolved "https://registry.yarnpkg.com/expo-blur/-/expo-blur-13.0.2.tgz#c2d179b19b13830db1d8b90c51373235f462e958"
   integrity sha512-t2p7BChO3Reykued++QJRMZ/og6J3aXtSQ+bU31YcBeXhZLkHwjWEhiPKPnJka7J2/yTs4+jOCNDY0kCZmcE3w==
 
+expo-camera@~15.0.14:
+  version "15.0.14"
+  resolved "https://registry.yarnpkg.com/expo-camera/-/expo-camera-15.0.14.tgz#1fec9c0e650cfa5b85d34ce8267ae8a9854eee4a"
+  integrity sha512-O4uvVywGsQ3a89d0BX4lq6mDuGYGukx1PYY4QrC9zw1yzD2W9BVTl8lanFRPC5h4PRniekfeWUVH1a0jJmkLIw==
+  dependencies:
+    invariant "^2.2.4"
+
 expo-constants@~16.0.0:
   version "16.0.1"
   resolved "https://registry.yarnpkg.com/expo-constants/-/expo-constants-16.0.1.tgz#1285e29c85513c6e88e118289e2baab72596d3f7"
@@ -4566,6 +4573,11 @@ expo-eas-client@~0.12.0:
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/expo-eas-client/-/expo-eas-client-0.12.0.tgz#e8b6f7d33873e6f630f37f7bfc41646ae7b0b2a9"
   integrity sha512-Jkww9Cwpv0z7DdLYiRX0r4fqBEcI9cKqTn7cHx63S09JaZ2rcwEE4zYHgrXwjahO+tU2VW8zqH+AJl6RhhW4zA==
+
+expo-face-detector@~12.7.1:
+  version "12.7.1"
+  resolved "https://registry.yarnpkg.com/expo-face-detector/-/expo-face-detector-12.7.1.tgz#a5a62fd06454c50c3bbe0057fb7a22eec6a373a9"
+  integrity sha512-j8OunUSJ7krucxmI7lW7JNrZBeGWZ8bm91ukoSRTRjRmUq2db/14WnTK/Urv9spdNAZ8+yFFojgQ/kyRJlMrvQ==
 
 expo-file-system@~17.0.1:
   version "17.0.1"

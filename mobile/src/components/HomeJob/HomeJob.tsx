@@ -4,7 +4,11 @@ import Animated from "react-native-reanimated";
 import { Id } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import { COLORS, FONTS, relativeTimeObject } from "@/src/constants";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -116,6 +120,13 @@ const HomeJob: React.FunctionComponent<HomeJobProps> = ({ _id }) => {
             <View style={{ flex: 1, gap: 2 }}>
               <Text style={{ fontFamily: FONTS.bold, fontSize: 18 }}>
                 {job?.user?.firstName} {job?.user?.lastName}
+                {job?.user?.verified && (
+                  <MaterialIcons
+                    name="verified"
+                    size={14}
+                    color={COLORS.green}
+                  />
+                )}
               </Text>
               <Text style={styles.mutedText}>
                 {job?.user?.email} {job?.user?.id === me?.id && "● you"}

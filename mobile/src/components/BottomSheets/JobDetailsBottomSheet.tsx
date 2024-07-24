@@ -421,6 +421,13 @@ const JobDetailsBottomSheet = React.forwardRef<
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontFamily: FONTS.bold, fontSize: 16 }}>
                     {job?.user?.firstName} {job?.user?.lastName}
+                    {job?.user?.verified && (
+                      <MaterialIcons
+                        name="verified"
+                        size={14}
+                        color={COLORS.green}
+                      />
+                    )}
                   </Text>
                   <Text
                     style={{ fontFamily: FONTS.regular, color: COLORS.gray }}

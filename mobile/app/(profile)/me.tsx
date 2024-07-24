@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
 import { Stack, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import Card from "@/src/components/Card/Card";
 import Animated, {
   interpolate,
@@ -15,7 +15,7 @@ import { COLORS, FONTS } from "@/src/constants";
 import { ProfileAvatar } from "@/src/components";
 import { useUser } from "@clerk/clerk-expo";
 import Spinner from "react-native-loading-spinner-overlay";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import UserAdverts from "@/src/components/ProfileComponents/UserAdverts";
 import { onImpact } from "@/src/utils";
@@ -37,7 +37,7 @@ const Page = () => {
   const updateProfilePictureMutation = useMutation(
     api.api.user.updateProfilePicture
   );
-
+  const userMe = useQuery(api.api.user.get, { id: me?.id || "" });
   const updateAvatar = async () => {
     if (settings.haptics) {
       await onImpact();
@@ -129,7 +129,14 @@ const Page = () => {
               <Text
                 style={{ fontSize: 18, fontFamily: FONTS.bold, marginTop: 20 }}
               >
-                {me?.firstName} {me?.lastName}
+                {me?.firstName} {me?.lastName}{" "}
+                {userMe?.verified && (
+                  <MaterialIcons
+                    name="verified"
+                    size={14}
+                    color={COLORS.green}
+                  />
+                )}
               </Text>
               <Text style={{ fontFamily: FONTS.regular, color: COLORS.gray }}>
                 {me?.email}
