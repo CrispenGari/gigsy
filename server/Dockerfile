@@ -8,7 +8,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
  
 COPY requirements.txt .
 
-RUN apt-get update && apt-get install -y libgl1-mesa-glx
+RUN sudo apt install libglu1-mesa-dev
 RUN pip install --upgrade pip
 RUN pip install opencv-python==4.3.0.38
 RUN pip install -r requirements.txt
@@ -19,7 +19,7 @@ FROM python:3-alpine AS runner
 WORKDIR /app
  
 COPY --from=builder /app/venv venv
-COPY . /app
+COPY . .
 
 ENV VIRTUAL_ENV=/app/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
