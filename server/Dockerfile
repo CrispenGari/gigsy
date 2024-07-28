@@ -8,13 +8,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
  
 COPY requirements.txt .
 
-RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
-RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/7fa2af80.pub
-RUN apt-get update -y
-RUN apt install libgl1-mesa-glx -y
-RUN apt-get install 'ffmpeg'\
-    'libsm6'\
-    'libxext6'  -y
+RUN apt-get update && apt-get install -y libgl1-mesa-glx
 RUN pip install --upgrade pip
 RUN pip install opencv-python==4.3.0.38
 RUN pip install -r requirements.txt
