@@ -1,20 +1,22 @@
-FROM python:3-alpine AS builder
+FROM python:3.12-slim AS builder
  
 WORKDIR /app
  
+COPY requirements.txt .
+
 RUN python3 -m venv venv
 ENV VIRTUAL_ENV=/app/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
  
-COPY requirements.txt .
-
-RUN sudo apt install libglu1-mesa-dev
+RUN apt-get update 
+RUN apt-get install -y libgl1 libglib2.0-0
+RUN pip install -r requirements.txt
 RUN pip install --upgrade pip
 RUN pip install opencv-python==4.3.0.38
 RUN pip install -r requirements.txt
 
 # Stage 2
-FROM python:3-alpine AS runner
+FROM python:3.12-slim AS runner
  
 WORKDIR /app
  

@@ -1,9 +1,9 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import React from "react";
 import { COLORS, FONTS, IMAGES } from "@/src/constants";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { onImpact } from "@/src/utils";
-import { Link, Stack, useRouter } from "expo-router";
+import { generateRNFile, onImpact } from "@/src/utils";
+import { Stack, useRouter } from "expo-router";
 import { useSettingsStore } from "@/src/store/settingsStore";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import Card from "@/src/components/Card/Card";
@@ -22,27 +22,46 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation as useConvexMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useMeStore } from "@/src/store/meStore";
+import Spinner from "react-native-loading-spinner-overlay";
+import { verifyProfilePicture } from "@/src/utils/react-query";
+import WhyVerificationFailedBottomSheet from "@/src/components/BottomSheets/WhyVerificationFailedBottomSheet";
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
 const Page = () => {
   const { settings } = useSettingsStore();
   const whyVerificationBottomSheetRef = React.useRef<BottomSheetModal>(null);
+  const whyVerificationFailedBottomSheetRef =
+    React.useRef<BottomSheetModal>(null);
   const router = useRouter();
   const [granted, requestPermission] = useCameraPermissions();
   const hasImage = useSharedValue(0);
+  const { me } = useMeStore();
+  const user = useQuery(api.api.user.get, { id: me?.id || "" });
   const cameraRef = React.useRef<CameraView>(null);
   const [state, setState] = React.useState<{
     facing: CameraType;
     flashMode: FlashMode;
     ready: boolean;
     image: string | null;
+    loading: boolean;
   }>({
     facing: "front",
     flashMode: "auto",
     ready: true,
     image: null,
+    loading: false,
   });
+
+  const { isPending, mutateAsync } = useMutation({
+    mutationKey: ["verify"],
+    mutationFn: verifyProfilePicture,
+  });
+  const verifyProfileMutation = useConvexMutation(api.api.user.verifyProfile);
 
   const animatedReTakeImageBtnStyle = useAnimatedStyle(() => {
     const width = withTiming(interpolate(hasImage.value, [0, 1], [0, 150]));
@@ -55,9 +74,9 @@ const Page = () => {
     };
   });
   const animatedVerifyImageBtnStyle = useAnimatedStyle(() => {
-    const width = withTiming(interpolate(hasImage.value, [0, 1], [150, 0]));
-    const padding = withTiming(interpolate(hasImage.value, [0, 1], [10, 0]));
-    const height = withTiming(interpolate(hasImage.value, [0, 1], [35, 0]));
+    const width = withTiming(interpolate(hasImage.value, [0, 1], [0, 150]));
+    const padding = withTiming(interpolate(hasImage.value, [0, 1], [0, 10]));
+    const height = withTiming(interpolate(hasImage.value, [0, 1], [0, 35]));
     return {
       width,
       height,
@@ -69,19 +88,42 @@ const Page = () => {
     if (settings.haptics) {
       await onImpact();
     }
-    cameraRef.current
-      ?.takePictureAsync()
-      .then((value) => {
-        if (value) setState((s) => ({ ...s, image: value.uri }));
-      })
-      .catch((err) => console.log(err));
+    if (cameraRef.current) {
+      const photo = await cameraRef.current.takePictureAsync();
+      if (photo) setState((s) => ({ ...s, image: photo.uri }));
+    }
   };
 
   const verifyProfile = async () => {
     if (settings.haptics) {
       await onImpact();
     }
+    if (state.image && !!user) {
+      const pose = generateRNFile({ name: "picture", uri: state.image });
+      const { verified } = await mutateAsync({ avatar: user.image, pose });
+
+      if (verified) {
+        // do the verification magic on the
+        setState((s) => ({ ...s, loading: true }));
+        await verifyProfileMutation({ id: user._id });
+        setState((s) => ({ ...s, loading: false }));
+        Alert.alert("", "Your profile was verified successful.", [
+          {
+            text: "OK",
+            onPress: async () => {
+              if (settings.haptics) {
+                await onImpact();
+              }
+              router.replace("/profile");
+            },
+          },
+        ]);
+      } else {
+        whyVerificationFailedBottomSheetRef.current?.present();
+      }
+    }
   };
+
   const flipCamera = async () => {
     if (settings.haptics) {
       await onImpact();
@@ -152,7 +194,15 @@ const Page = () => {
           headerTitleStyle: { fontFamily: FONTS.bold },
         }}
       />
+
+      <Spinner visible={isPending || state.loading} animation="fade" />
       <WhyVerificationBottomSheet ref={whyVerificationBottomSheetRef} />
+      <WhyVerificationFailedBottomSheet
+        ref={whyVerificationFailedBottomSheetRef}
+        onRetakeImage={() => {
+          setState((s) => ({ ...s, image: null }));
+        }}
+      />
       <View
         style={{
           flex: 1,
@@ -309,7 +359,9 @@ const Page = () => {
               </View>
             </>
           )}
-          <View style={{ flexDirection: "row" }}>
+          <View
+            style={{ flexDirection: "row-reverse", gap: 10, marginTop: 20 }}
+          >
             <AnimatedTouchableOpacity
               onPress={verifyProfile}
               style={[

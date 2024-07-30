@@ -7,13 +7,11 @@ import requests
 
 
 blueprint = Blueprint("blueprint", __name__)
-
-
 class DeepFaceContainer:
     def validate_face(image):
         faces = DeepFace.extract_faces(
             image,
-            detector_backend="skip",
+            detector_backend="opencv",
             enforce_detection=True,
         )
         return len(faces) == 1
@@ -35,14 +33,18 @@ class DeepFaceContainer:
 @blueprint.route("v1/find-face", methods=["POST"])
 def validate_face():
     if request.method == "POST":
-        if request.files.get("image"):
+        if request.files.get("face"):
             # read the image in PIL format
-            image = request.files.get("image").read()
+            image = request.files.get("face").read()
             image = Image.open(io.BytesIO(image))
             image = np.asarray(image)
-            return make_response(
+            try:
+                return make_response(
                 jsonify({"valid": DeepFaceContainer.validate_face(image)})
             ), 200
+            except Exception as e:
+                print(e)
+                return make_response(jsonify({"valid": False})), 200
     return make_response(jsonify({"valid": False})), 200
 
 
@@ -52,20 +54,22 @@ def verify_face():
         if request.files.get("pose"):
             url = request.form.get("avatar")
             pose = request.files.get("pose").read()
-            pose = Image.open(io.BytesIO(pose))
             pose = np.asarray(pose)
             response = requests.get(url)
             avatar = Image.open(io.BytesIO(response.content))
             avatar = np.asanyarray(avatar)
+            try:
+                if not DeepFaceContainer.validate_face(avatar):
+                    return make_response(jsonify({"verified": False})), 200
 
-            if not DeepFaceContainer.validate_face(avatar):
+                if not DeepFaceContainer.validate_face(pose):
+                    return make_response(jsonify({"verified": False})), 200
+
+                return make_response(
+                    jsonify({"verified": DeepFaceContainer.verify_face(avatar, pose)})
+                ), 200
+            except Exception as e:
+                print(e)
                 return make_response(jsonify({"verified": False})), 200
-
-            if not DeepFaceContainer.validate_face(pose):
-                return make_response(jsonify({"verified": False})), 200
-
-            return make_response(
-                jsonify({"verified": DeepFaceContainer.verify_face(avatar, pose)})
-            ), 200
 
     return make_response(jsonify({"verified": False})), 200

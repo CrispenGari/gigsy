@@ -28,7 +28,7 @@ const ProfileAvatar = ({ uri, setBase64, sharedTransitionTag }: Props) => {
     uri?: string;
     base64?: string | null;
   }>({ uri: uri, base64: null });
-  const [loaded, setLoaded] = React.useState(false);
+  const [loaded, setLoaded] = React.useState(true);
   const { dismiss } = useBottomSheetModal();
   const bottomSheetModalRef = React.useRef<BottomSheetModal>(null);
   const snapPoints = React.useMemo(() => ["32%"], []);

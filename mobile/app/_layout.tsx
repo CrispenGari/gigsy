@@ -18,6 +18,7 @@ import { useSettingsStore } from "@/src/store/settingsStore";
 import { onImpact } from "@/src/utils";
 import { api } from "@/convex/_generated/api";
 import * as Notifications from "expo-notifications";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 LogBox.ignoreLogs;
 LogBox.ignoreAllLogs();
@@ -33,6 +34,7 @@ Notifications.setNotificationHandler({
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
   unsavedChangesWarning: false,
 });
+const client = new QueryClient();
 const Layout = () => {
   const [loaded] = useFonts(Fonts);
   React.useEffect(() => {
@@ -51,7 +53,9 @@ const Layout = () => {
         <BottomSheetModalProvider>
           <ConvexProvider client={convex}>
             <ClerkProvider>
-              <RootLayout />
+              <QueryClientProvider client={client}>
+                <RootLayout />
+              </QueryClientProvider>
             </ClerkProvider>
           </ConvexProvider>
         </BottomSheetModalProvider>

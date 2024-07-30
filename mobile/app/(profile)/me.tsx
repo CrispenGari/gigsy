@@ -15,12 +15,16 @@ import { COLORS, FONTS } from "@/src/constants";
 import { ProfileAvatar } from "@/src/components";
 import { useUser } from "@clerk/clerk-expo";
 import Spinner from "react-native-loading-spinner-overlay";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation as useConvexMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import UserAdverts from "@/src/components/ProfileComponents/UserAdverts";
-import { onImpact } from "@/src/utils";
+import { generateRNFile, onImpact } from "@/src/utils";
 import { useSettingsStore } from "@/src/store/settingsStore";
 import ContentLoader from "@/src/components/ContentLoader/ContentLoader";
+import { useMutation } from "@tanstack/react-query";
+import { validateFace } from "@/src/utils/react-query";
+import InvalidProfileImageBottomSheet from "@/src/components/BottomSheets/InvalidProfileImageBottomSheet";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
@@ -33,10 +37,17 @@ const Page = () => {
   const router = useRouter();
   const [image, setImage] = React.useState<string | undefined | null>(null);
   const { me, save } = useMeStore();
+  const invalidProfileImageBottomSheetRef =
+    React.useRef<BottomSheetModal>(null);
   const hasNewImage = useSharedValue(0);
-  const updateProfilePictureMutation = useMutation(
+  const updateProfilePictureMutation = useConvexMutation(
     api.api.user.updateProfilePicture
   );
+  const { isPending, mutateAsync } = useMutation({
+    mutationKey: ["verify"],
+    mutationFn: validateFace,
+  });
+
   const userMe = useQuery(api.api.user.get, { id: me?.id || "" });
   const updateAvatar = async () => {
     if (settings.haptics) {
@@ -44,7 +55,15 @@ const Page = () => {
     }
     if (!!!user || !isLoaded || !isSignedIn || !!!me) return;
     setState((s) => ({ ...s, loading: true }));
+
     if (!!image) {
+      const face = generateRNFile({ name: "picture", uri: image });
+      const { valid } = await mutateAsync({ face });
+
+      if (!valid) {
+        invalidProfileImageBottomSheetRef.current?.present();
+        return setState((s) => ({ ...s, loading: false }));
+      }
       const { publicUrl } = await user.setProfileImage({ file: image });
       if (!!publicUrl) {
         await updateProfilePictureMutation({ id: me.id, url: publicUrl });
@@ -69,7 +88,6 @@ const Page = () => {
     const marginTop = withTiming(
       interpolate(hasNewImage.value, [0, 1], [0, 10])
     );
-
     return {
       width,
       height,
@@ -104,7 +122,8 @@ const Page = () => {
           ),
         }}
       />
-      <Spinner visible={state.loading} animation="fade" />
+      <InvalidProfileImageBottomSheet ref={invalidProfileImageBottomSheetRef} />
+      <Spinner visible={state.loading || isPending} animation="fade" />
       {!isLoaded ? (
         <ProfileSkeleton />
       ) : (

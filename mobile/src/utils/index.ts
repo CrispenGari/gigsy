@@ -9,6 +9,24 @@ import { Audio } from "expo-av";
 import * as StoreReview from "expo-store-review";
 import * as Updates from "expo-updates";
 import * as Constants from "expo-constants";
+import { ReactNativeFile } from "apollo-upload-client";
+import * as rnMimeTypes from "react-native-mime-types";
+
+export const generateRNFile = ({
+  uri,
+  name,
+}: {
+  uri: string;
+  name: string;
+}) => {
+  return uri
+    ? new ReactNativeFile({
+        uri,
+        type: rnMimeTypes.lookup(uri) || "image",
+        name,
+      })
+    : null;
+};
 let publishedSound: Audio.Sound | undefined;
 
 export const sendPushNotification = async (token: string) => {

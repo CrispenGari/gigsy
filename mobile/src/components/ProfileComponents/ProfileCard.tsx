@@ -55,18 +55,6 @@ const ProfileCard = ({ cardStyle, title, isLoading }: ProfileCardProps) => {
         <SkeletonProfileCard />
       ) : (
         <>
-          {!loaded ? (
-            <ContentLoader
-              style={{
-                width: 50,
-                height: 50,
-                borderRadius: 50,
-                display: loaded ? "none" : "flex",
-                backgroundColor: COLORS.lightGray,
-                overflow: "hidden",
-              }}
-            />
-          ) : null}
           <Link href={"/(profile)/me"} asChild>
             <AnimatedTouchableOpacity
               style={{
@@ -83,6 +71,18 @@ const ProfileCard = ({ cardStyle, title, isLoading }: ProfileCardProps) => {
                 }
               }}
             >
+              {!loaded ? (
+                <ContentLoader
+                  style={{
+                    width: 50,
+                    height: 50,
+                    borderRadius: 50,
+                    display: loaded ? "none" : "flex",
+                    backgroundColor: COLORS.lightGray,
+                    overflow: "hidden",
+                  }}
+                />
+              ) : null}
               <Animated.Image
                 source={{ uri: me?.imageUrl }}
                 style={{

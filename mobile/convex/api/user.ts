@@ -46,6 +46,18 @@ export const get = query({
   },
 });
 
+export const verifyProfile = mutation({
+  args: { id: v.id("users") },
+  handler: async ({ db }, { id }) => {
+    try {
+      await db.patch(id, { verified: true });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  },
+});
+
 const userUpdatableValues = {
   firstName: v.string(),
   lastName: v.string(),
