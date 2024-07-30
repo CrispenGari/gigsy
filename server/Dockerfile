@@ -10,9 +10,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
  
 RUN apt-get update 
 RUN apt-get install -y libgl1 libglib2.0-0
-RUN pip install -r requirements.txt
 RUN pip install --upgrade pip
-RUN pip install opencv-python==4.3.0.38
 RUN pip install -r requirements.txt
 
 # Stage 2
