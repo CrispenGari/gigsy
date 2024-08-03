@@ -1,23 +1,25 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Button, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { COLORS, FONTS } from "@/src/constants";
 import { AppLogo, Typography } from "@/src/components";
 import { Ionicons } from "@expo/vector-icons";
 import CustomTextInput from "@/src/components/CustomTextInput/CustomTextInput";
 import Animated, { SlideInLeft } from "react-native-reanimated";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useSignUp } from "@clerk/clerk-expo";
 import { onImpact } from "@/src/utils";
 import { useSettingsStore } from "@/src/store/settingsStore";
 import { StyleSheet } from "react-native";
 import Spinner from "react-native-loading-spinner-overlay";
 import KeyboardAvoidingViewWrapper from "@/src/components/KeyboardAvoidingViewWrapper/KeyboardAvoidingViewWrapper";
+import { StackActions } from "@react-navigation/native";
 
 const Verify = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
 
   const { settings } = useSettingsStore();
   const router = useRouter();
+  const navigation = useNavigation();
   const params = useLocalSearchParams();
   const [state, setState] = React.useState({
     code: "",
@@ -38,7 +40,12 @@ const Verify = () => {
       if (completeSignUp.status === "complete") {
         await setActive({ session: completeSignUp.createdSessionId });
         setState((s) => ({ ...s, loading: false, error_msg: "", code: "" }));
-        router.replace("/profile");
+        navigation.dispatch(StackActions.popToTop());
+        navigation.dispatch(StackActions.replace("profile"));
+
+        // router.navigate({
+        //   pathname: "/profile",
+        // });
       } else {
         setState((s) => ({
           ...s,
@@ -79,6 +86,14 @@ const Verify = () => {
             padding: 10,
           }}
         >
+          <Button
+            title="Hi"
+            onPress={() =>
+              router.navigate({
+                pathname: "/profile",
+              })
+            }
+          />
           <AppLogo />
           <Animated.View
             style={{

@@ -158,7 +158,7 @@ const ForgotPassword = () => {
               </TouchableOpacity>
             </Animated.View>
             <Animated.View style={{ width: "100%", alignItems: "center" }}>
-              <Link href={"(modals)/register"} style={{ marginVertical: 30 }}>
+              <Link href={"/(modals)/register"} style={{ marginVertical: 30 }}>
                 <Text
                   style={{
                     textDecorationStyle: "solid",

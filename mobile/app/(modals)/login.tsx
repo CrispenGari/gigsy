@@ -7,10 +7,10 @@ import { Ionicons } from "@expo/vector-icons";
 import CustomTextInput from "@/src/components/CustomTextInput/CustomTextInput";
 import Animated, { SlideInLeft, SlideInDown } from "react-native-reanimated";
 import { Link, useRouter } from "expo-router";
-import { useOAuth, useSignIn } from "@clerk/clerk-expo";
+import { useOAuth, useSignIn, useUser } from "@clerk/clerk-expo";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
-import { usePlatform, useWarmUpBrowser } from "@/src/hooks";
+import { useWarmUpBrowser } from "@/src/hooks";
 import { onImpact } from "@/src/utils";
 import { useSettingsStore } from "@/src/store/settingsStore";
 import Spinner from "react-native-loading-spinner-overlay";
@@ -26,6 +26,7 @@ const Login = () => {
   const { startOAuthFlow: startOAuthFlowGitHub } = useOAuth({
     strategy: "oauth_github",
   });
+  const { isLoaded: isLoadedUser, user } = useUser();
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
   const [state, setState] = React.useState({
@@ -201,9 +202,18 @@ const Login = () => {
     }
   }, []);
 
+  React.useEffect(() => {
+    if (!!user) {
+      router.replace("/");
+    }
+  }, [user]);
+
   return (
     <>
-      <Spinner visible={state.loading} animation="fade" />
+      <Spinner
+        visible={state.loading || !isLoaded || !isLoadedUser}
+        animation="fade"
+      />
       <KeyboardAvoidingViewWrapper>
         <View
           style={{
@@ -319,7 +329,7 @@ const Login = () => {
               </Text>
             </TouchableOpacity>
             <Link
-              href={"(modals)/register"}
+              href={"/(modals)/register"}
               style={{
                 marginVertical: 10,
                 bottom: 0,

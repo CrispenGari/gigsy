@@ -72,7 +72,7 @@ const RootLayout = () => {
   const { os } = usePlatform();
   const { save } = useMeStore();
   const { settings } = useSettingsStore();
-  const { me } = useMeStore();
+
   const createUserOrFailMutation = useMutation(
     api.api.user.findUserOrCreateOne
   );
@@ -98,14 +98,6 @@ const RootLayout = () => {
         email: user.emailAddresses[0].emailAddress,
       };
       save(me);
-    } else {
-      save(null);
-    }
-  }, [user, isSignedIn]);
-
-  // Try to save a user to convex if not exists
-  React.useEffect(() => {
-    if (!!me) {
       createUserOrFailMutation({
         email: me.email,
         firstName: me.firstName || "",
@@ -113,8 +105,10 @@ const RootLayout = () => {
         image: me.imageUrl,
         lastName: me.lastName || "",
       });
+    } else {
+      save(null);
     }
-  }, [me]);
+  }, [user, isSignedIn]);
 
   return (
     <Stack>
