@@ -153,7 +153,7 @@ const RootLayout = () => {
 
       <Stack.Screen
         options={{
-          presentation: "modal",
+          presentation: os === "ios" ? "modal" : "fullScreenModal",
           headerTitle: "Forgot Password",
           headerTitleStyle: {
             fontFamily: FONTS.bold,
@@ -186,7 +186,7 @@ const RootLayout = () => {
 
       <Stack.Screen
         options={{
-          presentation: "modal",
+          presentation: os === "ios" ? "modal" : "fullScreenModal",
           headerTitle: "Sign Up",
           headerTitleStyle: {
             fontFamily: FONTS.bold,
@@ -256,6 +256,7 @@ const RootLayout = () => {
             fontSize: 24,
             color: COLORS.black,
           },
+
           headerTitleAlign: "center",
           navigationBarHidden: true,
           headerShadowVisible: false,

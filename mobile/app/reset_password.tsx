@@ -2,16 +2,16 @@ import { Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { COLORS, FONTS } from "@/src/constants";
 import { AppLogo, Typography } from "@/src/components";
-import { styles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import CustomTextInput from "@/src/components/CustomTextInput/CustomTextInput";
-import Animated, { SlideInRight, SlideInLeft } from "react-native-reanimated";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import Animated, { SlideInLeft } from "react-native-reanimated";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSignIn } from "@clerk/clerk-expo";
-import Ripple from "@/src/components/Ripple/Ripple";
 import { onImpact } from "@/src/utils";
 import { useSettingsStore } from "@/src/store/settingsStore";
+import { StyleSheet } from "react-native";
+import Spinner from "react-native-loading-spinner-overlay";
+import KeyboardAvoidingViewWrapper from "@/src/components/KeyboardAvoidingViewWrapper/KeyboardAvoidingViewWrapper";
 
 const ResetPassword = () => {
   const { isLoaded, setActive, signIn } = useSignIn();
@@ -92,46 +92,33 @@ const ResetPassword = () => {
   };
 
   return (
-    <KeyboardAwareScrollView
-      showsVerticalScrollIndicator={false}
-      showsHorizontalScrollIndicator={false}
-      bounces={false}
-      style={{ backgroundColor: COLORS.white }}
-      contentContainerStyle={{ flex: 1 }}
-    >
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: COLORS.white,
-          padding: 10,
-        }}
-      >
+    <>
+      <Spinner visible={state.loading} animation="fade" />
+      <KeyboardAvoidingViewWrapper>
         <View
-          style={{ justifyContent: "center", alignItems: "center", flex: 0.4 }}
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: COLORS.white,
+            padding: 10,
+          }}
         >
           <AppLogo />
-        </View>
-        <View
-          style={[
-            {
-              flex: 0.6,
+          <Animated.View
+            style={{
+              flex: 1,
               width: "100%",
               maxWidth: 400,
-            },
-          ]}
-        >
-          <Animated.View
-            entering={SlideInRight}
-            exiting={SlideInLeft}
-            style={{ flex: 1, justifyContent: "center" }}
+              alignSelf: "center",
+            }}
+            entering={SlideInLeft.duration(200).delay(200)}
           >
             <Typography
               style={{
                 color: COLORS.black,
                 fontSize: 16,
-                marginVertical: 20,
+                marginBottom: 10,
               }}
               variant="p"
             >
@@ -159,7 +146,15 @@ const ResetPassword = () => {
               leftIcon={
                 <Ionicons name="keypad" size={24} color={COLORS.green} />
               }
-              inputStyle={{ fontSize: 20, textAlign: "center" }}
+              inputStyle={{
+                fontSize: 20,
+                textAlign: "center",
+              }}
+              containerStyles={{
+                borderBottomLeftRadius: 0,
+                borderBottomRightRadius: 0,
+                paddingBottom: 0,
+              }}
             />
 
             <CustomTextInput
@@ -170,6 +165,7 @@ const ResetPassword = () => {
               inputStyle={{ fontSize: 20 }}
               containerStyles={{
                 borderRadius: 0,
+                paddingBottom: 0,
               }}
               text={state.password}
               onChangeText={(text) =>
@@ -208,24 +204,15 @@ const ResetPassword = () => {
                   },
                 });
               }}
-              style={{
-                color: COLORS.green,
-                fontSize: 18,
-                marginVertical: 20,
-                textAlign: "right",
-                fontFamily: FONTS.regular,
-                textDecorationLine: "underline",
-              }}
+              style={styles.linkText}
             >
               Did not recieve a code?
             </Text>
-
             {!!state.error_msg ? (
               <Typography
                 style={{
                   color: COLORS.red,
                   fontSize: 20,
-                  marginVertical: 20,
                   textAlign: "center",
                 }}
                 variant="p"
@@ -236,44 +223,47 @@ const ResetPassword = () => {
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={resetPassword}
-              style={[
-                {
-                  width: "100%",
-                  marginTop: 30,
-                  marginBottom: 10,
-                  justifyContent: "center",
-                  flexDirection: "row",
-                  backgroundColor: state.loading
-                    ? COLORS.tertiary
-                    : COLORS.green,
-                  maxWidth: 250,
-                  padding: 10,
-                  alignSelf: "flex-end",
-                  borderRadius: 5,
-                  alignItems: "center",
-                },
-              ]}
-              disabled={state.loading}
+              style={styles.btn}
             >
               <Text
-                style={[
-                  styles.p,
-                  {
-                    fontSize: 20,
-                    color: COLORS.white,
-                    marginRight: state.loading ? 10 : 0,
-                  },
-                ]}
+                style={{
+                  fontSize: 20,
+                  color: COLORS.white,
+                  fontFamily: FONTS.bold,
+                }}
               >
                 UPDATE PASSWORD
               </Text>
-              {state.loading ? <Ripple size={5} color={COLORS.white} /> : null}
             </TouchableOpacity>
           </Animated.View>
         </View>
-      </View>
-    </KeyboardAwareScrollView>
+      </KeyboardAvoidingViewWrapper>
+    </>
   );
 };
 
 export default ResetPassword;
+
+const styles = StyleSheet.create({
+  btn: {
+    width: "100%",
+    marginVertical: 10,
+    justifyContent: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.green,
+    maxWidth: 200,
+    padding: 10,
+    alignSelf: "flex-end",
+    borderRadius: 5,
+  },
+  linkText: {
+    color: COLORS.green,
+    fontSize: 18,
+    marginVertical: 20,
+    alignSelf: "flex-end",
+    fontFamily: FONTS.bold,
+    textDecorationLine: "underline",
+    maxWidth: 200,
+  },
+});

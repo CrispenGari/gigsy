@@ -1,28 +1,20 @@
-import {
-  Dimensions,
-  Keyboard,
-  KeyboardAvoidingView,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { COLORS, FONTS } from "@/src/constants";
 import Divider from "@/src/components/Divider/Divider";
 import { AppLogo, Typography } from "@/src/components";
-import { styles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import CustomTextInput from "@/src/components/CustomTextInput/CustomTextInput";
 import Animated, { SlideInLeft, SlideInDown } from "react-native-reanimated";
 import { Link, useRouter } from "expo-router";
-import Ripple from "@/src/components/Ripple/Ripple";
 import { useOAuth, useSignIn } from "@clerk/clerk-expo";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
 import { usePlatform, useWarmUpBrowser } from "@/src/hooks";
 import { onImpact } from "@/src/utils";
 import { useSettingsStore } from "@/src/store/settingsStore";
+import Spinner from "react-native-loading-spinner-overlay";
+import KeyboardAvoidingViewWrapper from "@/src/components/KeyboardAvoidingViewWrapper/KeyboardAvoidingViewWrapper";
 
 WebBrowser.maybeCompleteAuthSession();
 const Login = () => {
@@ -43,7 +35,6 @@ const Login = () => {
     loading: false,
     error_msg: "",
   });
-  const { os } = usePlatform();
   const login = React.useCallback(async () => {
     if (settings.haptics) {
       await onImpact();
@@ -211,15 +202,9 @@ const Login = () => {
   }, []);
 
   return (
-    <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView
-        style={{
-          minHeight: Dimensions.get("window").height,
-        }}
-        behavior={os === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={100}
-        enabled
-      >
+    <>
+      <Spinner visible={state.loading} animation="fade" />
+      <KeyboardAvoidingViewWrapper>
         <View
           style={{
             flex: 1,
@@ -231,13 +216,11 @@ const Login = () => {
         >
           <AppLogo />
           <Animated.View
-            style={[
-              {
-                flex: 1,
-                width: "100%",
-                maxWidth: 400,
-              },
-            ]}
+            style={{
+              flex: 1,
+              width: "100%",
+              maxWidth: 400,
+            }}
             entering={SlideInLeft.duration(200).delay(200)}
           >
             <CustomTextInput
@@ -255,6 +238,7 @@ const Login = () => {
                 borderRadius: 0,
                 borderTopLeftRadius: 5,
                 borderTopRightRadius: 5,
+                paddingBottom: 0,
               }}
             />
             <CustomTextInput
@@ -295,6 +279,7 @@ const Login = () => {
               secureTextEntry={!state.showPassword}
               onSubmitEditing={login}
             />
+
             <Link
               href={{
                 pathname: "/forgot_password",
@@ -302,15 +287,7 @@ const Login = () => {
                   email_address: state.email,
                 },
               }}
-              style={{
-                color: COLORS.green,
-                fontSize: 18,
-                marginVertical: 20,
-                alignSelf: "flex-end",
-                fontFamily: FONTS.regular,
-                textDecorationLine: "underline",
-                maxWidth: 150,
-              }}
+              style={styles.linkText}
             >
               Forgot Password?
             </Link>
@@ -319,7 +296,6 @@ const Login = () => {
                 style={{
                   color: COLORS.red,
                   fontSize: 20,
-                  marginVertical: 20,
                   textAlign: "center",
                 }}
                 variant="p"
@@ -330,125 +306,122 @@ const Login = () => {
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={login}
-              style={[
-                {
-                  width: "100%",
-                  marginTop: 30,
-                  marginBottom: 10,
-                  justifyContent: "center",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  backgroundColor: state.loading
-                    ? COLORS.tertiary
-                    : COLORS.green,
-                  maxWidth: 200,
-                  padding: 10,
-                  alignSelf: "flex-end",
-                  borderRadius: 5,
-                },
-              ]}
+              style={styles.btn}
             >
               <Text
-                style={[
-                  styles.p,
-                  {
-                    fontSize: 20,
-                    color: COLORS.white,
-                    marginRight: state.loading ? 10 : 0,
-                  },
-                ]}
+                style={{
+                  fontSize: 20,
+                  color: COLORS.white,
+                  fontFamily: FONTS.bold,
+                }}
               >
                 LOGIN
               </Text>
-              {state.loading ? <Ripple size={5} color={COLORS.white} /> : null}
             </TouchableOpacity>
-            <Animated.View
+            <Link
+              href={"(modals)/register"}
               style={{
-                width: "100%",
-                alignItems: "center",
-                marginTop: 30,
+                marginVertical: 10,
+                bottom: 0,
+                alignSelf: "center",
               }}
-              entering={SlideInDown.duration(400).delay(200).mass(1)}
             >
-              <Divider
-                title="or"
-                position="center"
-                titleStyles={{
-                  color: COLORS.black,
-                }}
-              />
-              <TouchableOpacity
-                disabled={state.loading}
-                activeOpacity={0.7}
+              <Text
                 style={{
-                  borderRadius: 999,
-                  maxWidth: 300,
-                  width: "100%",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexDirection: "row",
-                  paddingHorizontal: 10,
-                  backgroundColor: COLORS.green,
-                  padding: 10,
-                  gap: 10,
-                  marginTop: 20,
+                  textDecorationStyle: "solid",
+                  textDecorationLine: "underline",
+                  color: COLORS.green,
+                  fontSize: 20,
+                  fontFamily: FONTS.bold,
                 }}
-                onPress={google}
               >
-                <Ionicons name="logo-google" size={30} color={COLORS.white} />
-                <Text style={[styles.p, { color: COLORS.white, fontSize: 18 }]}>
-                  Continue with Google
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={github}
-                style={{
-                  borderRadius: 999,
-                  maxWidth: 300,
-                  width: "100%",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexDirection: "row",
-                  paddingHorizontal: 10,
+                I don't have an account.
+              </Text>
+            </Link>
+          </Animated.View>
+          <View style={{ width: "100%", maxWidth: 400, alignSelf: "center" }}>
+            <Divider
+              title="Or continue with"
+              position="center"
+              titleStyles={{
+                color: COLORS.black,
+              }}
+            />
+          </View>
+          <Animated.View
+            style={{
+              width: "100%",
+              alignItems: "flex-start",
+              flexDirection: "row",
+              height: 150,
+              justifyContent: "center",
+              gap: 20,
+              padding: 0,
+            }}
+            entering={SlideInDown.duration(400).delay(200).mass(1)}
+          >
+            <TouchableOpacity
+              disabled={state.loading}
+              activeOpacity={0.7}
+              style={[styles.roundBtn, {}]}
+              onPress={google}
+            >
+              <Ionicons name="logo-google" size={20} color={COLORS.white} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={github}
+              style={[
+                styles.roundBtn,
+                {
                   backgroundColor: COLORS.white,
-                  padding: 10,
-                  gap: 10,
-                  marginTop: 20,
-                  borderWidth: 1,
+                  borderWidth: StyleSheet.hairlineWidth,
                   borderColor: COLORS.green,
-                }}
-                disabled={state.loading}
-              >
-                <Ionicons name="logo-github" size={30} />
-                <Text style={[styles.p, { color: COLORS.black, fontSize: 18 }]}>
-                  Continue with Github
-                </Text>
-              </TouchableOpacity>
-
-              <Link href={"(modals)/register"} style={{ marginVertical: 30 }}>
-                <Text
-                  style={[
-                    styles.p,
-                    {
-                      textDecorationStyle: "solid",
-                      textDecorationLine: "underline",
-                      color: COLORS.green,
-                      fontSize: 16,
-                      position: "absolute",
-                      bottom: 0,
-                    },
-                  ]}
-                >
-                  Create a new Account.
-                </Text>
-              </Link>
-            </Animated.View>
+                },
+              ]}
+              disabled={state.loading}
+            >
+              <Ionicons name="logo-github" size={20} />
+            </TouchableOpacity>
           </Animated.View>
         </View>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+      </KeyboardAvoidingViewWrapper>
+    </>
   );
 };
 
 export default Login;
+
+const styles = StyleSheet.create({
+  roundBtn: {
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    paddingHorizontal: 10,
+    backgroundColor: COLORS.green,
+    padding: 10,
+    gap: 10,
+  },
+  btn: {
+    width: "100%",
+    marginVertical: 10,
+    justifyContent: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.green,
+    maxWidth: 200,
+    padding: 10,
+    alignSelf: "flex-end",
+    borderRadius: 5,
+  },
+  linkText: {
+    color: COLORS.green,
+    fontSize: 18,
+    marginVertical: 20,
+    alignSelf: "flex-end",
+    fontFamily: FONTS.bold,
+    textDecorationLine: "underline",
+    maxWidth: 150,
+  },
+});

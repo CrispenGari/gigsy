@@ -1,29 +1,41 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
-import { COLORS } from "@/src/constants";
+import { COLORS, FONTS } from "@/src/constants";
 import { ProfileAvatar, Typography } from "@/src/components";
-import { styles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import CustomTextInput from "@/src/components/CustomTextInput/CustomTextInput";
-import Animated, { SlideInRight, SlideInLeft } from "react-native-reanimated";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import Animated, { SlideInLeft } from "react-native-reanimated";
 import { useUser } from "@clerk/clerk-expo";
-import { useRouter } from "expo-router";
-import Ripple from "@/src/components/Ripple/Ripple";
+import { useNavigation, useRouter } from "expo-router";
 import { useSettingsStore } from "@/src/store/settingsStore";
-import { onImpact } from "@/src/utils";
+import { generateRNFile, onImpact } from "@/src/utils";
+import { useMutation } from "@tanstack/react-query";
+import { validateFace } from "@/src/utils/react-query";
+import KeyboardAvoidingViewWrapper from "@/src/components/KeyboardAvoidingViewWrapper/KeyboardAvoidingViewWrapper";
+import Spinner from "react-native-loading-spinner-overlay";
+import { StackActions } from "@react-navigation/native";
 
 const Profile = () => {
   const { isLoaded, isSignedIn, user } = useUser();
-  const router = useRouter();
+  const navigation = useNavigation();
   const [state, setState] = React.useState({
     firstName: "",
     lastName: "",
     error_msg: "",
     loading: false,
   });
+  const { isPending, mutateAsync } = useMutation({
+    mutationKey: ["verify"],
+    mutationFn: validateFace,
+  });
   const { settings } = useSettingsStore();
-  const [image, setImage] = React.useState<string | undefined | null>(null);
+  const [base64Image, setBase64Image] = React.useState<
+    string | undefined | null
+  >(null);
+  const [uriImage, setURIImage] = React.useState<string | undefined | null>(
+    null
+  );
+
   const save = async () => {
     if (settings.haptics) {
       await onImpact();
@@ -42,20 +54,36 @@ const Profile = () => {
       return;
     }
     try {
+      if (!!!base64Image || !!!uriImage) {
+        return setState((s) => ({
+          ...s,
+          error_msg: "You are required to have a profile avatar with.",
+          loading: false,
+        }));
+      }
+      const face = generateRNFile({ name: "picture", uri: uriImage });
+      const { valid } = await mutateAsync({ face });
+      if (!valid)
+        return setState((s) => ({
+          ...s,
+          error_msg:
+            "You are required to have a profile avatar with a visible face of you.",
+          loading: false,
+        }));
+
       await user.update({
         firstName: state.firstName,
         lastName: state.lastName,
       });
-      if (!!image) {
-        await user.setProfileImage({ file: image });
-      }
+      await user.setProfileImage({ file: base64Image });
       setState((s) => ({
         ...s,
         error_msg: "",
         loading: false,
       }));
-      router.replace("/");
+      navigation.dispatch(StackActions.pop());
     } catch (error: any) {
+      console.log(error);
       setState((s) => ({
         ...s,
         error_msg: "Failed to save personal information.",
@@ -65,44 +93,54 @@ const Profile = () => {
   };
 
   return (
-    <KeyboardAwareScrollView
-      showsVerticalScrollIndicator={false}
-      showsHorizontalScrollIndicator={false}
-      bounces={false}
-      style={{ backgroundColor: COLORS.white }}
-      contentContainerStyle={{ flex: 1 }}
-    >
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: COLORS.white,
-          padding: 10,
-        }}
-      >
+    <>
+      <Spinner visible={state.loading || isPending} animation="fade" />
+      <KeyboardAvoidingViewWrapper>
         <View
-          style={{ justifyContent: "center", alignItems: "center", flex: 1 }}
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: COLORS.white,
+            padding: 10,
+          }}
         >
-          <Text style={[styles.h1, { color: COLORS.white, marginBottom: 20 }]}>
-            Set your Profile.
-          </Text>
-
-          <ProfileAvatar setBase64={setImage} />
-        </View>
-        <View
-          style={[
-            {
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              flex: 0.4,
+            }}
+          >
+            <Text
+              style={{
+                color: COLORS.black,
+                marginBottom: 20,
+                fontFamily: FONTS.bold,
+                fontSize: 20,
+              }}
+            >
+              Set your Profile.
+            </Text>
+            <ProfileAvatar
+              setBase64={setBase64Image}
+              setURI={setURIImage}
+              dimensions={{
+                borderRadius: 100,
+                height: 100,
+                width: 100,
+              }}
+              iconSize={20}
+            />
+          </View>
+          <Animated.View
+            style={{
               flex: 1,
               width: "100%",
               maxWidth: 400,
-            },
-          ]}
-        >
-          <Animated.View
-            entering={SlideInRight}
-            exiting={SlideInLeft}
-            style={{ flex: 1 }}
+              alignSelf: "center",
+            }}
+            entering={SlideInLeft.duration(200).delay(200)}
           >
             <CustomTextInput
               placeholder="First Name"
@@ -119,6 +157,7 @@ const Profile = () => {
                 borderRadius: 0,
                 borderTopLeftRadius: 5,
                 borderTopRightRadius: 5,
+                paddingBottom: 0,
               }}
             />
             <CustomTextInput
@@ -155,43 +194,38 @@ const Profile = () => {
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={save}
-              style={[
-                {
-                  width: "100%",
-                  marginTop: 30,
-                  marginBottom: 10,
-                  justifyContent: "center",
-                  flexDirection: "row",
-                  backgroundColor: state.loading
-                    ? COLORS.tertiary
-                    : COLORS.green,
-                  maxWidth: 200,
-                  padding: 10,
-                  alignSelf: "flex-end",
-                  borderRadius: 5,
-                  alignItems: "center",
-                },
-              ]}
+              style={styles.btn}
             >
               <Text
-                style={[
-                  styles.p,
-                  {
-                    fontSize: 20,
-                    color: COLORS.white,
-                    marginRight: state.loading ? 10 : 0,
-                  },
-                ]}
+                style={{
+                  fontSize: 20,
+                  color: COLORS.white,
+                  fontFamily: FONTS.bold,
+                }}
               >
                 SAVE
               </Text>
-              {state.loading ? <Ripple size={5} color={COLORS.white} /> : null}
             </TouchableOpacity>
           </Animated.View>
         </View>
-      </View>
-    </KeyboardAwareScrollView>
+      </KeyboardAvoidingViewWrapper>
+    </>
   );
 };
 
 export default Profile;
+
+const styles = StyleSheet.create({
+  btn: {
+    width: "100%",
+    marginVertical: 10,
+    justifyContent: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.green,
+    maxWidth: 200,
+    padding: 10,
+    alignSelf: "flex-end",
+    borderRadius: 5,
+  },
+});

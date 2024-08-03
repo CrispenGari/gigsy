@@ -1,40 +1,38 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
-import { COLORS } from "@/src/constants";
+import { COLORS, FONTS } from "@/src/constants";
 import Divider from "@/src/components/Divider/Divider";
 import { AppLogo, Typography } from "@/src/components";
-import { styles } from "@/src/styles";
 import { Ionicons } from "@expo/vector-icons";
 import CustomTextInput from "@/src/components/CustomTextInput/CustomTextInput";
-import Animated, {
-  SlideInRight,
-  SlideInLeft,
-  SlideInUp,
-  SlideInDown,
-} from "react-native-reanimated";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import Animated, { SlideInLeft, SlideInDown } from "react-native-reanimated";
 import { useOAuth, useSignUp } from "@clerk/clerk-expo";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import Ripple from "@/src/components/Ripple/Ripple";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
 import { useWarmUpBrowser } from "@/src/hooks";
 import { useSettingsStore } from "@/src/store/settingsStore";
 import { onImpact } from "@/src/utils";
+import Spinner from "react-native-loading-spinner-overlay";
+import KeyboardAvoidingViewWrapper from "@/src/components/KeyboardAvoidingViewWrapper/KeyboardAvoidingViewWrapper";
+import { StackActions } from "@react-navigation/native";
 
 WebBrowser.maybeCompleteAuthSession();
 const Register = () => {
   useWarmUpBrowser();
   const { settings } = useSettingsStore();
+
   const { startOAuthFlow: startOAuthFlowGoogle } = useOAuth({
     strategy: "oauth_google",
   });
+
   const { startOAuthFlow: startOAuthFlowGitHub } = useOAuth({
     strategy: "oauth_github",
   });
   const { isLoaded, signUp } = useSignUp();
   const params = useLocalSearchParams();
   const router = useRouter();
+  const navigation = useNavigation();
   const [state, setState] = React.useState({
     email: params?.email_address ? (params.email_address as string) : "",
     password: "",
@@ -75,13 +73,15 @@ const Register = () => {
         password: "",
         conf: "",
       }));
-      router.navigate({
+      navigation.dispatch(StackActions.pop());
+      router.push({
         pathname: "/verify",
         params: {
           email_address: state.email,
         },
       });
     } catch (err: any) {
+      console.log(err);
       if (err.errors) {
         const [error] = err.errors;
         setState((s) => ({
@@ -212,36 +212,26 @@ const Register = () => {
   }, []);
 
   return (
-    <KeyboardAwareScrollView
-      showsVerticalScrollIndicator={false}
-      showsHorizontalScrollIndicator={false}
-      bounces={false}
-      style={{ backgroundColor: COLORS.white }}
-      contentContainerStyle={{ flex: 1 }}
-    >
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: COLORS.white,
-          padding: 10,
-        }}
-      >
-        <AppLogo />
+    <>
+      <Spinner visible={state.loading} animation="fade" />
+      <KeyboardAvoidingViewWrapper>
         <View
-          style={[
-            {
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: COLORS.white,
+            padding: 10,
+          }}
+        >
+          <AppLogo />
+          <Animated.View
+            style={{
               flex: 1,
               width: "100%",
               maxWidth: 400,
-            },
-          ]}
-        >
-          <Animated.View
-            entering={SlideInRight}
-            exiting={SlideInLeft}
-            style={{ flex: 1, justifyContent: "center" }}
+            }}
+            entering={SlideInLeft.duration(200).delay(200)}
           >
             <CustomTextInput
               placeholder="Email Address"
@@ -262,6 +252,7 @@ const Register = () => {
                 borderRadius: 0,
                 borderTopLeftRadius: 5,
                 borderTopRightRadius: 5,
+                paddingBottom: 0,
               }}
             />
             <CustomTextInput
@@ -276,6 +267,7 @@ const Register = () => {
               inputStyle={{ fontSize: 20 }}
               containerStyles={{
                 borderRadius: 0,
+                paddingBottom: 0,
               }}
               text={state.password}
               onChangeText={(text) =>
@@ -306,13 +298,13 @@ const Register = () => {
               onSubmitEditing={register}
             />
 
-            {state.error_msg ? (
+            {!!state.error_msg ? (
               <Typography
                 style={{
                   color: COLORS.red,
                   fontSize: 20,
-                  marginVertical: 20,
                   textAlign: "center",
+                  marginTop: 10,
                 }}
                 variant="p"
               >
@@ -322,106 +314,99 @@ const Register = () => {
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={register}
-              style={[
-                {
-                  width: "100%",
-                  marginTop: 30,
-                  marginBottom: 10,
-                  justifyContent: "center",
-                  flexDirection: "row",
-                  backgroundColor: state.loading
-                    ? COLORS.tertiary
-                    : COLORS.green,
-                  maxWidth: 200,
-                  padding: 10,
-                  alignSelf: "flex-end",
-                  borderRadius: 5,
-                  alignItems: "center",
-                },
-              ]}
-              disabled={state.loading}
+              style={styles.btn}
             >
               <Text
-                style={[
-                  styles.p,
-                  {
-                    fontSize: 20,
-                    color: COLORS.white,
-                    marginRight: state.loading ? 10 : 0,
-                  },
-                ]}
+                style={{
+                  fontSize: 20,
+                  color: COLORS.white,
+                  fontFamily: FONTS.bold,
+                }}
               >
                 REGISTER
               </Text>
-              {state.loading ? <Ripple size={5} color={COLORS.white} /> : null}
             </TouchableOpacity>
           </Animated.View>
-          <Animated.View
-            entering={SlideInUp}
-            exiting={SlideInDown}
-            style={{ width: "100%", alignItems: "center" }}
+          <View
+            style={{
+              width: "100%",
+              maxWidth: 400,
+              alignSelf: "center",
+            }}
           >
             <Divider
-              title="or"
+              title="Or register with"
               position="center"
               titleStyles={{
                 color: COLORS.black,
               }}
             />
+          </View>
+          <Animated.View
+            style={{
+              width: "100%",
+              alignItems: "flex-start",
+              flexDirection: "row",
+              height: 200,
+              justifyContent: "center",
+              gap: 20,
+              padding: 0,
+            }}
+            entering={SlideInDown.duration(400).delay(200).mass(1)}
+          >
             <TouchableOpacity
-              activeOpacity={0.7}
               disabled={state.loading}
-              style={{
-                borderRadius: 999,
-                maxWidth: 400,
-                width: "100%",
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "row",
-                paddingHorizontal: 10,
-                backgroundColor: COLORS.green,
-                padding: 15,
-                gap: 10,
-                marginTop: 20,
-              }}
+              activeOpacity={0.7}
+              style={[styles.roundBtn, {}]}
               onPress={google}
             >
-              <Ionicons name="logo-google" size={30} color={COLORS.white} />
-              <Text style={[styles.p, { color: COLORS.white, fontSize: 20 }]}>
-                Register with Google
-              </Text>
+              <Ionicons name="logo-google" size={20} color={COLORS.white} />
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.7}
-              style={{
-                borderRadius: 999,
-                maxWidth: 400,
-                width: "100%",
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "row",
-                paddingHorizontal: 10,
-                backgroundColor: COLORS.white,
-                padding: 15,
-                gap: 10,
-                marginTop: 20,
-                borderWidth: 1,
-                borderColor: COLORS.green,
-                marginBottom: 20,
-              }}
-              disabled={state.loading}
               onPress={github}
+              style={[
+                styles.roundBtn,
+                {
+                  backgroundColor: COLORS.white,
+                  borderWidth: StyleSheet.hairlineWidth,
+                  borderColor: COLORS.green,
+                },
+              ]}
+              disabled={state.loading}
             >
-              <Ionicons name="logo-github" size={30} />
-              <Text style={[styles.p, { color: COLORS.black, fontSize: 20 }]}>
-                Register with Github
-              </Text>
+              <Ionicons name="logo-github" size={20} />
             </TouchableOpacity>
           </Animated.View>
         </View>
-      </View>
-    </KeyboardAwareScrollView>
+      </KeyboardAvoidingViewWrapper>
+    </>
   );
 };
 
 export default Register;
+
+const styles = StyleSheet.create({
+  roundBtn: {
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    paddingHorizontal: 10,
+    backgroundColor: COLORS.green,
+    padding: 10,
+    gap: 10,
+  },
+  btn: {
+    width: "100%",
+    marginVertical: 20,
+    justifyContent: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.green,
+    maxWidth: 200,
+    padding: 10,
+    alignSelf: "flex-end",
+    borderRadius: 5,
+  },
+});

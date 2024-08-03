@@ -10,7 +10,7 @@ import {
   Alert,
 } from "react-native";
 import React from "react";
-import { Stack, useRouter } from "expo-router";
+import { Stack, useNavigation, useRouter } from "expo-router";
 import { COLORS, FONTS } from "@/src/constants";
 import { Ionicons } from "@expo/vector-icons";
 import Spinner from "react-native-loading-spinner-overlay";
@@ -47,7 +47,7 @@ const Page = () => {
       reason: "",
     },
   });
-  const { settings } = useSettingsStore();
+  const { settings, restore } = useSettingsStore();
   const router = useRouter();
   const { isLoaded, user } = useUser();
   const { me } = useMeStore();
@@ -101,7 +101,9 @@ const Page = () => {
           reset();
           clearForm();
           clear();
-          router.replace("/login");
+          restore();
+          router.dismissAll();
+          router.replace("/(modals)/login");
         })
         .catch(() => {
           setState((s) => ({ ...s, loading: false }));
@@ -224,7 +226,15 @@ const Page = () => {
                         }}
                       />
                     </View>
-                    <Text style={{ fontFamily: FONTS.bold, fontSize: 16 }}>
+                    <Text
+                      style={{
+                        fontFamily: FONTS.bold,
+                        fontSize: 16,
+                        width: "100%",
+                        flexWrap: "wrap",
+                        flexShrink: 1,
+                      }}
+                    >
                       {reason.reason}
                     </Text>
                   </TouchableOpacity>

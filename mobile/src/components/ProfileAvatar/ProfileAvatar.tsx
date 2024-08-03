@@ -20,9 +20,23 @@ import ContentLoader from "../ContentLoader/ContentLoader";
 interface Props {
   uri?: string;
   setBase64: React.Dispatch<React.SetStateAction<string | null | undefined>>;
+  setURI: React.Dispatch<React.SetStateAction<string | null | undefined>>;
   sharedTransitionTag?: string;
+  dimensions?: {
+    width: number;
+    height: number;
+    borderRadius: number;
+  };
+  iconSize?: number;
 }
-const ProfileAvatar = ({ uri, setBase64, sharedTransitionTag }: Props) => {
+const ProfileAvatar = ({
+  uri,
+  setBase64,
+  sharedTransitionTag,
+  dimensions,
+  iconSize,
+  setURI,
+}: Props) => {
   const { camera, gallery } = useMediaPermission();
   const [image, setImage] = React.useState<{
     uri?: string;
@@ -64,6 +78,7 @@ const ProfileAvatar = ({ uri, setBase64, sharedTransitionTag }: Props) => {
         const mimeType = assets[0].mimeType;
         const img = `data:${mimeType};base64,${base64}`;
         setBase64(img);
+        setURI(assets[0].uri);
       }
     }
     dismiss();
@@ -93,6 +108,7 @@ const ProfileAvatar = ({ uri, setBase64, sharedTransitionTag }: Props) => {
         const mimeType = assets[0].mimeType;
         const img = `data:${mimeType};base64,${base64}`;
         setBase64(img);
+        setURI(assets[0].uri);
       }
     }
 
@@ -111,6 +127,12 @@ const ProfileAvatar = ({ uri, setBase64, sharedTransitionTag }: Props) => {
     dismiss();
   };
 
+  React.useEffect(() => {
+    if (!!image) {
+      setLoaded(true);
+    }
+  }, [image]);
+
   return (
     <>
       <TouchableOpacity
@@ -120,28 +142,34 @@ const ProfileAvatar = ({ uri, setBase64, sharedTransitionTag }: Props) => {
       >
         {!loaded ? (
           <ContentLoader
-            style={{
-              width: 250,
-              height: 250,
-              borderRadius: 250,
-              display: loaded ? "none" : "flex",
-              backgroundColor: COLORS.lightGray,
-              overflow: "hidden",
-            }}
+            style={[
+              {
+                width: 250,
+                height: 250,
+                borderRadius: 250,
+                display: loaded ? "none" : "flex",
+                backgroundColor: COLORS.lightGray,
+                overflow: "hidden",
+              },
+              dimensions ? dimensions : {},
+            ]}
           />
         ) : null}
         <Animated.Image
           source={{
             uri: image.uri
               ? image.uri
-              : Image.resolveAssetSource(IMAGES.profile).uri,
+              : uri || Image.resolveAssetSource(IMAGES.profile).uri,
           }}
-          style={{
-            width: 250,
-            height: 250,
-            borderRadius: 250,
-            display: loaded ? "flex" : "none",
-          }}
+          style={[
+            {
+              width: 250,
+              height: 250,
+              borderRadius: 250,
+              display: loaded ? "flex" : "none",
+            },
+            dimensions ? dimensions : {},
+          ]}
           sharedTransitionStyle={sharedElementTransition}
           sharedTransitionTag={sharedTransitionTag}
           onError={(_error) => {
@@ -176,13 +204,17 @@ const ProfileAvatar = ({ uri, setBase64, sharedTransitionTag }: Props) => {
               backgroundColor: COLORS.gray,
               justifyContent: "center",
               alignItems: "center",
-              width: 60,
-              height: 60,
-              borderRadius: 60,
+              width: iconSize ? iconSize * 2 : 60,
+              height: iconSize ? iconSize * 2 : 60,
+              borderRadius: iconSize ? iconSize * 2 : 60,
               marginBottom: 10,
             }}
           >
-            <Ionicons name="camera-outline" size={35} color={COLORS.white} />
+            <Ionicons
+              name="camera-outline"
+              size={iconSize ? iconSize : 30}
+              color={COLORS.white}
+            />
           </TouchableOpacity>
         </View>
       </TouchableOpacity>

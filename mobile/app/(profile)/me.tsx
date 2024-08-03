@@ -35,7 +35,13 @@ const Page = () => {
     loading: false,
   });
   const router = useRouter();
-  const [image, setImage] = React.useState<string | undefined | null>(null);
+  const [base64Image, setBase64Image] = React.useState<
+    string | undefined | null
+  >(null);
+  const [uriImage, setURIImage] = React.useState<string | undefined | null>(
+    null
+  );
+
   const { me, save } = useMeStore();
   const invalidProfileImageBottomSheetRef =
     React.useRef<BottomSheetModal>(null);
@@ -56,21 +62,22 @@ const Page = () => {
     if (!!!user || !isLoaded || !isSignedIn || !!!me) return;
     setState((s) => ({ ...s, loading: true }));
 
-    if (!!image) {
-      const face = generateRNFile({ name: "picture", uri: image });
+    if (!!base64Image && !!uriImage) {
+      const face = generateRNFile({ name: "picture", uri: uriImage });
       const { valid } = await mutateAsync({ face });
 
       if (!valid) {
         invalidProfileImageBottomSheetRef.current?.present();
         return setState((s) => ({ ...s, loading: false }));
       }
-      const { publicUrl } = await user.setProfileImage({ file: image });
+      const { publicUrl } = await user.setProfileImage({ file: base64Image });
       if (!!publicUrl) {
         await updateProfilePictureMutation({ id: me.id, url: publicUrl });
         save({ ...me, imageUrl: publicUrl });
       }
       setState((s) => ({ ...s, loading: false }));
-      setImage(null);
+      setBase64Image(null);
+      setURIImage(null);
     }
   };
   const animatedTextStyle = useAnimatedStyle(() => {
@@ -97,8 +104,8 @@ const Page = () => {
   });
 
   React.useEffect(() => {
-    hasNewImage.value = withSpring(!!image ? 1 : 0);
-  }, [image]);
+    hasNewImage.value = withSpring(!!base64Image ? 1 : 0);
+  }, [base64Image]);
 
   return (
     <>
@@ -141,7 +148,8 @@ const Page = () => {
           >
             <View style={{ alignItems: "center" }}>
               <ProfileAvatar
-                setBase64={setImage}
+                setBase64={setBase64Image}
+                setURI={setURIImage}
                 uri={me?.imageUrl}
                 sharedTransitionTag="me-profile-avatar"
               />

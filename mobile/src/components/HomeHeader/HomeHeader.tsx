@@ -80,10 +80,7 @@ const HomeHeader = ({}: BottomTabHeaderProps) => {
         backgroundColor: COLORS.white,
       }}
     >
-      <FilterBottomSheet
-        ref={filterBottomSheetRef}
-        onChangeValue={(value) => console.log({ value })}
-      />
+      <FilterBottomSheet ref={filterBottomSheetRef} />
       <View
         style={{
           paddingTop: os === "ios" ? 0 : top,
