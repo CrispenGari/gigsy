@@ -5,6 +5,8 @@ import { wishlists } from "./tables/whishlist";
 import { reasons } from "./tables/reason";
 import { feedbacks } from "./tables/feedback";
 import { notifications } from "./tables/notification";
+import { chats } from "./tables/chat";
+import { messages } from "./tables/message";
 
 export default defineSchema(
   {
@@ -15,6 +17,8 @@ export default defineSchema(
     reasons,
     feedbacks,
     notifications,
+    chats,
+    messages,
   },
   { schemaValidation: true, strictTableNameTypes: true }
 );

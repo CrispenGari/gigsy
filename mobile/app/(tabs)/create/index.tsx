@@ -143,7 +143,7 @@ const Page = () => {
       companyDescription: "",
     }));
     router.navigate({
-      pathname: "/(tabs)/create/contact",
+      pathname: "/(tabs)/create/contact" as any,
       params: {
         from: "Basic",
       },

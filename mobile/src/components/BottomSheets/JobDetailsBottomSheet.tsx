@@ -1,10 +1,4 @@
-import {
-  Text,
-  TouchableOpacity,
-  View,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import { Text, TouchableOpacity, View, StyleSheet, Alert } from "react-native";
 import React from "react";
 import {
   BottomSheetModal,
@@ -72,6 +66,8 @@ const JobDetailsBottomSheet = React.forwardRef<
   const { wishlists, add, remove } = useWishlistStore();
   const addMutation = useMutation(api.api.wishlist.add);
   const removeMutation = useMutation(api.api.wishlist.remove);
+  const createOrOpenChatMutation = useMutation(api.api.chat.createOrOpen);
+  const user = useQuery(api.api.user.get, { id: me?.id || "" });
   const { settings } = useSettingsStore();
   const addOrRemove = async () => {
     if (settings.haptics) {
@@ -102,6 +98,27 @@ const JobDetailsBottomSheet = React.forwardRef<
   const startChat = async () => {
     if (settings.haptics) {
       await onImpact();
+    }
+    if (!!!job || !!!user) return;
+    setState((s) => ({ ...s, loading: true }));
+    const id = await createOrOpenChatMutation({
+      advertiserId: job.userId!,
+      jobId: job._id!,
+      jobTitle: job.title!,
+      userId: user._id,
+    });
+    if (!!id) {
+      setState((s) => ({ ...s, loading: false }));
+      dismiss();
+      router.navigate({
+        pathname: "/(chat)/[chatId]",
+        params: {
+          chatId: id,
+        },
+      });
+    } else {
+      setState((s) => ({ ...s, loading: false }));
+      Alert.alert("Failed Operation", "Failed to start a chat.");
     }
   };
 
@@ -137,6 +154,8 @@ const JobDetailsBottomSheet = React.forwardRef<
                     flexDirection: "row",
                     alignItems: "center",
                     gap: 10,
+                    maxWidth: 500,
+                    alignSelf: "center",
                     borderTopWidth: StyleSheet.hairlineWidth,
                     borderTopColor: COLORS.gray,
                     height: 100,
@@ -183,6 +202,8 @@ const JobDetailsBottomSheet = React.forwardRef<
                     alignItems: "center",
                     gap: 10,
                     borderTopWidth: StyleSheet.hairlineWidth,
+                    maxWidth: 500,
+                    alignSelf: "center",
                     borderTopColor: COLORS.gray,
                     height: 100,
                   }}
@@ -329,16 +350,20 @@ const JobDetailsBottomSheet = React.forwardRef<
           <BottomSheetScrollView
             style={{
               backgroundColor: COLORS.lightGray,
+              alignSelf: "center",
+              width: "100%",
+              maxWidth: 500,
               padding: 10,
             }}
-            contentContainerStyle={{ paddingBottom: 150 }}
+            contentContainerStyle={{
+              paddingBottom: 150,
+            }}
             showsHorizontalScrollIndicator={false}
             showsVerticalScrollIndicator={false}
           >
             <Card
               style={{
                 padding: 10,
-                maxWidth: 400,
                 borderRadius: 5,
                 width: "100%",
               }}
@@ -370,7 +395,7 @@ const JobDetailsBottomSheet = React.forwardRef<
                         }
                       : {
                           pathname: "/(user)/[id]",
-                          params: { id: job?.user?._id },
+                          params: { id: job?.user?._id! },
                         }
                   );
                 }}
@@ -447,7 +472,6 @@ const JobDetailsBottomSheet = React.forwardRef<
             <Card
               style={{
                 padding: 10,
-                maxWidth: 400,
                 borderRadius: 5,
                 width: "100%",
               }}
@@ -529,7 +553,7 @@ const JobDetailsBottomSheet = React.forwardRef<
             <Card
               style={{
                 padding: 10,
-                maxWidth: 400,
+
                 borderRadius: 5,
                 width: "100%",
               }}
@@ -585,7 +609,7 @@ const JobDetailsBottomSheet = React.forwardRef<
             <Card
               style={{
                 padding: 10,
-                maxWidth: 400,
+
                 borderRadius: 5,
                 width: "100%",
               }}
@@ -641,7 +665,7 @@ const JobDetailsBottomSheet = React.forwardRef<
             <Card
               style={{
                 padding: 10,
-                maxWidth: 400,
+
                 borderRadius: 5,
                 width: "100%",
               }}
@@ -775,16 +799,21 @@ const JobBottomSheetSkeleton = () => (
     <BottomSheetScrollView
       style={{
         backgroundColor: COLORS.lightGray,
+        alignSelf: "center",
+        width: "100%",
+        maxWidth: 500,
         padding: 10,
       }}
-      contentContainerStyle={{ paddingBottom: 150 }}
+      contentContainerStyle={{
+        paddingBottom: 150,
+      }}
       showsHorizontalScrollIndicator={false}
       showsVerticalScrollIndicator={false}
     >
       <Card
         style={{
           padding: 10,
-          maxWidth: 400,
+
           borderRadius: 5,
           width: "100%",
         }}
@@ -818,7 +847,7 @@ const JobBottomSheetSkeleton = () => (
       <Card
         style={{
           padding: 10,
-          maxWidth: 400,
+
           borderRadius: 5,
           width: "100%",
         }}
@@ -865,7 +894,7 @@ const JobBottomSheetSkeleton = () => (
       <Card
         style={{
           padding: 10,
-          maxWidth: 400,
+
           borderRadius: 5,
           width: "100%",
         }}
@@ -910,7 +939,7 @@ const JobBottomSheetSkeleton = () => (
       <Card
         style={{
           padding: 10,
-          maxWidth: 400,
+
           borderRadius: 5,
           width: "100%",
         }}
@@ -954,7 +983,7 @@ const JobBottomSheetSkeleton = () => (
       <Card
         style={{
           padding: 10,
-          maxWidth: 400,
+
           borderRadius: 5,
           width: "100%",
         }}
@@ -1038,7 +1067,7 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: "center",
     borderRadius: 5,
-    maxWidth: 400,
+
     flexDirection: "row",
     gap: 10,
     justifyContent: "center",

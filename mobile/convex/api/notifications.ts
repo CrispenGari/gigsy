@@ -100,7 +100,7 @@ export const getById = query({
 
 export const count = query({
   args: {
-    _id: v.id("users"),
+    _id: v.optional(v.id("users")),
   },
   handler: async ({ db }, { _id }) => {
     const res = await db

@@ -16,6 +16,7 @@ import Notification, {
 import { Stack } from "expo-router";
 import { COLORS, FONTS } from "@/src/constants";
 import HeaderBackButton from "@/src/components/HeaderBackButton/HeaderBackButton";
+import { Ionicons } from "@expo/vector-icons";
 const PAGE_SIZE = 10;
 
 const Page = () => {
@@ -109,8 +110,14 @@ const NoNotifications = () => (
         justifyContent: "center",
       }}
     >
-      <Text style={{ fontFamily: FONTS.bold, color: COLORS.gray }}>
-        No Notifications.
+      <Text
+        style={{
+          fontFamily: FONTS.bold,
+          color: COLORS.gray,
+          alignItems: "center",
+        }}
+      >
+        No Notifications. <Ionicons name="notifications-outline" size={20} />
       </Text>
     </View>
   </View>

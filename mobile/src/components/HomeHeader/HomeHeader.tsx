@@ -36,7 +36,9 @@ const HomeHeader = ({}: BottomTabHeaderProps) => {
   const { settings } = useSettingsStore();
   const { me } = useMeStore();
   const user = useQuery(api.api.user.get, { id: me?.id || "" });
-  const unread = useQuery(api.api.notifications.count, { _id: user?._id! });
+  const unread = useQuery(api.api.notifications.count, {
+    _id: user?._id,
+  });
 
   const filterBottomSheetRef = React.useRef<BottomSheetModal>(null);
   const { top } = useSafeAreaInsets();
