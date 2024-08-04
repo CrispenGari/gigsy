@@ -1,7 +1,6 @@
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import { COLORS, FONTS } from "@/src/constants";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import { useSettingsStore } from "@/src/store/settingsStore";
 import { onImpact } from "@/src/utils";
 import Animated, {
@@ -35,7 +34,7 @@ const GlobalFilter = () => {
         position: "relative",
         overflow: "hidden",
         borderColor: COLORS.gray,
-        alignSelf: "center",
+        alignItems: "center",
       }}
     >
       <Animated.View style={[styles.tabIndicator, animatedBtnStyle]} />
@@ -99,7 +98,6 @@ const styles = StyleSheet.create({
   tabBtn: {
     padding: 10,
     paddingVertical: 8,
-
     flex: 1,
     justifyContent: "center",
     alignItems: "center",

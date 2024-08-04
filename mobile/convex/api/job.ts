@@ -2,7 +2,8 @@ import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
 import { jobArguments } from "../tables/job";
 
-import { getDistance, convertDistance } from "geolib";
+import { getDistance } from "geolib";
+import { paginationOptsValidator } from "convex/server";
 export type TCoord = {
   latitude: number;
   longitude: number;
@@ -30,73 +31,70 @@ export const publish = mutation({
 
 export const get = query({
   args: {
-    limit: v.number(),
+    paginationOpts: paginationOptsValidator,
     order: v.union(v.literal("desc"), v.literal("asc")),
-    filters: v.object({
-      defaultJobListingLocation: v.union(
+    showGlobally: v.boolean(),
+    withinCity: v.object({
+      filter: v.union(
         v.literal("city"),
         v.literal("country"),
         v.literal("region")
       ),
-      showJobsGlobally: v.boolean(),
+      value: v.string(),
     }),
-    filterValues: v.object({
-      distanceRadius: v.number(),
-      coords: v.object({ lat: v.number(), lon: v.number() }),
-      defaultJobListingLocation: v.string(),
+    distance: v.object({
+      radius: v.number(),
+      coords: v.object({
+        lat: v.number(),
+        lon: v.number(),
+      }),
     }),
   },
-  handler: async ({ db }, { limit, order, filterValues, filters }) => {
-    try {
-      const jobs = await db.query("jobs").order(order).take(limit);
-      if (filters.showJobsGlobally) {
-        return jobs.map(({ _id }) => _id);
+  handler: async (
+    ctx,
+    { order, paginationOpts, showGlobally, distance, withinCity }
+  ) => {
+    if (showGlobally) {
+      const result = await ctx.db
+        .query("jobs")
+        .order(order)
+        .paginate(paginationOpts);
+      return {
+        ...result,
+        page: result.page.map((res) => res._id),
+      };
+    } else {
+      const { filter, value } = withinCity;
+
+      if (filter === "country") {
+        const result = await ctx.db
+          .query("jobs")
+          .order(order)
+          .filter((q) =>
+            q.eq(q.field(`location.address.isoCountryCode`), value)
+          )
+          // .filter(q=> q.lte(q.field(
+          //   'location.lat'
+          // ), distance.radius))
+          .paginate(paginationOpts);
+        return {
+          ...result,
+          page: result.page.map((res) => res._id),
+        };
       }
-      if (filters.defaultJobListingLocation === "city") {
-        return jobs
-          .filter(
-            (j) =>
-              j.location.address.city?.toLowerCase() ===
-              filterValues.defaultJobListingLocation.toLowerCase()
-          )
-          .map(({ _id }) => _id);
-      } else if (filters.defaultJobListingLocation === "region") {
-        return jobs
-          .filter(
-            (j) =>
-              j.location.address.region?.toLowerCase() ===
-              filterValues.defaultJobListingLocation.toLowerCase()
-          )
-          .filter((j) => {
-            const distance = calculateDistance(
-              {
-                latitude: filterValues.coords.lat,
-                longitude: filterValues.coords.lon,
-              },
-              {
-                latitude: j.location.lat,
-                longitude: j.location.lon,
-              }
-            );
-            if (distance <= filterValues.distanceRadius) return j;
-          })
-          .map(({ _id }) => _id);
-      } else {
-        // ignore distance
-        return jobs
-          .filter(
-            (j) =>
-              j.location.address.isoCountryCode?.toLowerCase() ===
-              filterValues.defaultJobListingLocation.toLowerCase()
-          )
-          .map(({ _id }) => _id);
-      }
-    } catch (error) {
-      return [];
+      const result = await ctx.db
+        .query("jobs")
+        .order(order)
+        .filter((q) => q.eq(q.field(`location.address.${filter}`), value))
+        .paginate(paginationOpts);
+
+      return {
+        ...result,
+        page: result.page.map((res) => res._id),
+      };
     }
   },
 });
-
 export const getById = query({
   args: { id: v.id("jobs") },
   handler: async ({ db }, { id }) => {
