@@ -7,7 +7,7 @@ export const verifyProfilePicture = async (variables: {
   formData.append("pose", variables.pose);
   formData.append("avatar", variables.avatar);
   const res = await fetch(
-    `https://71c3-213-172-134-176.ngrok-free.app/api/v1/verify-face`,
+    `https://5a7f-213-172-134-71.ngrok-free.app/api/v1/verify-face`,
     {
       method: "POST",
       body: formData,
@@ -22,7 +22,7 @@ export const validateFace = async ({ face }: { face: ReactNativeFile }) => {
   const formData = new FormData();
   formData.append("face", face);
   const res = await fetch(
-    `https://71c3-213-172-134-176.ngrok-free.app/api/v1/find-face`,
+    `https://5a7f-213-172-134-71.ngrok-free.app/api/v1/find-face`,
     {
       method: "POST",
       body: formData,

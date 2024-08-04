@@ -39,13 +39,18 @@ const Verify = () => {
       });
       if (completeSignUp.status === "complete") {
         await setActive({ session: completeSignUp.createdSessionId });
-        setState((s) => ({ ...s, loading: false, error_msg: "", code: "" }));
+        setState((s) => ({
+          ...s,
+          loading: false,
+          error_msg: "",
+          code: "",
+        }));
         navigation.dispatch(StackActions.popToTop());
-        navigation.dispatch(StackActions.replace("profile"));
-
-        // router.navigate({
-        //   pathname: "/profile",
-        // });
+        setTimeout(() => {
+          router.replace({
+            pathname: "/profile",
+          });
+        }, 0);
       } else {
         setState((s) => ({
           ...s,
@@ -86,14 +91,6 @@ const Verify = () => {
             padding: 10,
           }}
         >
-          <Button
-            title="Hi"
-            onPress={() =>
-              router.navigate({
-                pathname: "/profile",
-              })
-            }
-          />
           <AppLogo />
           <Animated.View
             style={{

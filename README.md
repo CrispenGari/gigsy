@@ -23,31 +23,44 @@
 
 `Gigsy` provides seamless authentication options for both Android and iOS users.
 
-### Android Auth Screens
+### `Android` Auth Screens
 
 <p align="center">
 <img src="/images/auth/android/login.jpeg" alt="alt" width="200"/>
 <img src="/images/auth/android/register.jpeg" alt="alt" width="200"/>
-<img src="/images/auth/android/fgt_pwd.jpeg" alt="alt" width="200"/>
+<img src="/images/auth/android/verify.jpeg" alt="alt" width="200"/>
 </p>
 
-- **Login Screen:** Allows users to login using their email or social media accounts.
-- **Registration Screen:** Enables new users to create an account using their email.
-- **Forgot Password Screen:** Assists users in resetting their password if they have forgotten it.
-
-### iOS Auth Screens
+### `iOS` Auth Screens
 
 <p align="center">
 <img src="/images/auth/ios/login.jpeg" alt="alt" width="200"/>
 <img src="/images/auth/ios/register.jpeg" alt="alt" width="200"/>
-<img src="/images/auth/ios/fgt_pwd.jpeg" alt="alt" width="200"/>
+<img src="/images/auth/ios/verify.jpeg" alt="alt" width="200"/>
 </p>
 
 - **Login Screen:** Similar to Android, this screen lets iOS users login using their email or social media accounts.
 - **Registration Screen:** Allows new users to sign up using their email.
 - **Forgot Password Screen:** Provides a way for users to reset their password if forgotten.
+- **Verify Email Screen:** Provides a way for users to verify their email before they are fully authenticated.
 
 > Each screen is designed to be user-friendly and intuitive, ensuring a smooth authentication process for all users.
+
+To sign in or sign-up to `gisgy` you use a provider such as `google` and `github` socials. However when you want to do email authentication the procedure is somehow different. When signing in you provide email and password that you used to create your account. In the event that you forgot the password you can go to the forgot password screen, on that screen you will enter your email address so that a reset password code will be sent to that email address. Here are the forgot password screen uis for both `ios` and `android`.
+
+<p align="center">
+<img src="/images/auth/android/fgt_pwd.jpeg" alt="alt" width="200"/>
+<img src="/images/auth/ios/fgt_pwd.jpeg" alt="alt" width="200"/>
+</p>
+
+After that you will be redirected to the `reset-password` screen with the following UI.
+
+<p align="center">
+<img src="/images/auth/android/reset.jpeg" alt="alt" width="200"/>
+<img src="/images/auth/ios/reset.jpeg" alt="alt" width="200"/>
+</p>
+
+However, when signing up you go through screens: > `SignUp` --> `Verify Email` ---> `Profile`. Creating a new account requires us to capture your email address with it's password, then profile avatar of a visible face with your first name and last name that will appear in the app.
 
 ### User Profile
 
@@ -62,3 +75,25 @@ During account registration, when a user registers using email and password, the
 </p>
 
 This ensures that all profiles on `Gigsy` are authentic and easily recognizable.
+
+### Job Creation UI
+
+To create a job in the app is simple, you just need to navigate the `publish` job tab and click that. This will take you through the following UI on `ios`
+
+ <p align="center">
+<img src="/images/app/ios/create/0.jpeg" alt="alt" width="200"/>
+<img src="/images/app/ios/create/1.jpeg" alt="alt" width="200"/>
+<img src="/images/app/ios/create/2.jpeg" alt="alt" width="200"/>
+<img src="/images/app/ios/create/3.jpeg" alt="alt" width="200"/>
+</p>
+
+And the following `ui` on `android`
+
+<p align="center">
+<img src="/images/app/android/create/0.jpeg" alt="alt" width="200"/>
+<img src="/images/app/android/create/1.jpeg" alt="alt" width="200"/>
+<img src="/images/app/android/create/2.jpeg" alt="alt" width="200"/>
+<img src="/images/app/android/create/3.jpeg" alt="alt" width="200"/>
+</p>
+
+There are required fields that when advertising a new job. The UI is friendly you can adjust your location if you want which make it easier for you to advertise jobs in different locations. On top of that you can also specify the `skills`, `qualifications`, `job benefits`, etc on the job.

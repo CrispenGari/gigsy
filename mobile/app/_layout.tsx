@@ -72,7 +72,6 @@ const RootLayout = () => {
   const { os } = usePlatform();
   const { save } = useMeStore();
   const { settings } = useSettingsStore();
-
   const createUserOrFailMutation = useMutation(
     api.api.user.findUserOrCreateOne
   );
@@ -238,6 +237,7 @@ const RootLayout = () => {
           navigationBarHidden: true,
           headerShadowVisible: false,
           headerBackVisible: false,
+          animation: "none",
         }}
       />
       <Stack.Screen

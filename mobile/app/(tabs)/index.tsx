@@ -40,7 +40,7 @@ const Home = () => {
   });
 
   return (
-    <View collapsable={false} style={{ flex: 1 }}>
+    <View collapsable={false} style={{ flex: 1, alignItems: "center" }}>
       {typeof jobs === "undefined" ? (
         <FlatList
           data={Array(10).fill(null)}

@@ -17,7 +17,12 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import {
+  Stack,
+  useLocalSearchParams,
+  useNavigation,
+  useRouter,
+} from "expo-router";
 import HeaderBackButton from "@/src/components/HeaderBackButton/HeaderBackButton";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { useCreateFormStore } from "@/src/store/createFormStore";
@@ -27,6 +32,7 @@ import { api } from "@/convex/_generated/api";
 import { useMeStore } from "@/src/store/meStore";
 import { onImpact, playPublishSound } from "@/src/utils";
 import { useSettingsStore } from "@/src/store/settingsStore";
+import { StackActions } from "@react-navigation/native";
 
 type StateType = {
   error: string;
@@ -39,6 +45,7 @@ type StateType = {
 };
 const Page = () => {
   const router = useRouter();
+  const navigation = useNavigation();
   const publishMutation = useMutation(api.api.job.publish);
   const findUserMutation = useMutation(api.api.user.findUserOrCreateOne);
   const { me } = useMeStore();
@@ -149,9 +156,13 @@ const Page = () => {
       if (settings.sound) {
         await playPublishSound();
       }
-      router.replace({
-        pathname: "/",
-      });
+
+      navigation.dispatch(StackActions.popToTop());
+      setTimeout(() => {
+        router.replace({
+          pathname: "/",
+        });
+      }, 0);
     } else {
       setState((s) => ({
         ...s,

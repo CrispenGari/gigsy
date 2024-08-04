@@ -6,7 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import CustomTextInput from "@/src/components/CustomTextInput/CustomTextInput";
 import Animated, { SlideInLeft } from "react-native-reanimated";
 import { useUser } from "@clerk/clerk-expo";
-import { useNavigation } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { useSettingsStore } from "@/src/store/settingsStore";
 import { generateRNFile, onImpact } from "@/src/utils";
 import { useMutation } from "@tanstack/react-query";
@@ -17,6 +17,7 @@ import { StackActions } from "@react-navigation/native";
 
 const Profile = () => {
   const { isLoaded, isSignedIn, user } = useUser();
+  const router = useRouter();
   const navigation = useNavigation();
   const [state, setState] = React.useState({
     firstName: "",
@@ -82,10 +83,15 @@ const Profile = () => {
         loading: false,
       }));
       navigation.dispatch(StackActions.popToTop());
+      setTimeout(() => {
+        router.replace({
+          pathname: "/",
+        });
+      }, 0);
     } catch (error: any) {
       setState((s) => ({
         ...s,
-        error_msg: "Failed to save personal Profilermation.",
+        error_msg: "Failed to save personal Profile information.",
         loading: false,
       }));
     }

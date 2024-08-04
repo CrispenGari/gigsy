@@ -6,7 +6,7 @@ import {
   Share,
 } from "react-native";
 import React from "react";
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
 import Card from "@/src/components/Card/Card";
 import * as Linking from "expo-linking";
@@ -23,6 +23,7 @@ import { useWishlistStore } from "@/src/store/wishlistStore";
 import Spinner from "react-native-loading-spinner-overlay";
 import { onFetchUpdateAsync, onImpact, rateApp } from "@/src/utils";
 import { useSettingsStore } from "@/src/store/settingsStore";
+import { StackActions } from "@react-navigation/native";
 
 const Profile = () => {
   const { isLoaded, isSignedIn, signOut } = useAuth();
@@ -33,6 +34,7 @@ const Profile = () => {
   const { reset } = useLocationStore();
   const { clearForm } = useCreateFormStore();
   const { clear } = useWishlistStore();
+  const navigation = useNavigation();
   React.useEffect(() => {
     if (isLoaded && !isSignedIn) {
       router.replace("/login");
@@ -43,13 +45,18 @@ const Profile = () => {
     if (settings.haptics) {
       await onImpact();
     }
-    signOut().then(() => {
+    await signOut().finally(() => {
       destroy();
       reset();
       clearForm();
       clear();
       restore();
-      router.replace("/");
+      navigation.dispatch(StackActions.popToTop());
+      setTimeout(() => {
+        router.replace({
+          pathname: "/",
+        });
+      }, 0);
     });
   };
 
