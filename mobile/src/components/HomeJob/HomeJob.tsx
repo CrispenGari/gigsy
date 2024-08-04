@@ -67,7 +67,7 @@ const HomeJob: React.FunctionComponent<HomeJobProps> = ({ _id }) => {
               ? {
                   pathname: "/(profile)/me",
                 }
-              : { pathname: "/(user)/[id]", params: { id: job?.user?._id } }
+              : { pathname: "/(user)/[id]", params: { id: job?.user?._id! } }
           }
           asChild
         >

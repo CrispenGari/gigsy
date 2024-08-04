@@ -28,6 +28,7 @@ export const FONTS = {
 
 export const IMAGES = {
   logo: require("@/assets/images/adaptive-icon.png"),
+  ios: require("@/assets/images/icon.png"),
   profile: require("@/assets/images/profile.png"),
   verify: require("@/assets/images/verify.gif"),
   pose: require("@/assets/images/pose.jpg"),

@@ -26,11 +26,18 @@ import { useAuth } from "@clerk/clerk-expo";
 import { useSettingsStore } from "@/src/store/settingsStore";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import FilterBottomSheet from "../BottomSheets/FiltersBottomSheet";
+import { useMeStore } from "@/src/store/meStore";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 const HomeHeader = ({}: BottomTabHeaderProps) => {
   const { isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
   const { settings } = useSettingsStore();
+  const { me } = useMeStore();
+  const user = useQuery(api.api.user.get, { id: me?.id || "" });
+  const unread = useQuery(api.api.notifications.count, { _id: user?._id! });
+
   const filterBottomSheetRef = React.useRef<BottomSheetModal>(null);
   const { top } = useSafeAreaInsets();
   const { os } = usePlatform();
@@ -38,7 +45,6 @@ const HomeHeader = ({}: BottomTabHeaderProps) => {
     query: "",
     focused: false,
   });
-
   const scale = useSharedValue(0);
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -147,24 +153,26 @@ const HomeHeader = ({}: BottomTabHeaderProps) => {
                 position: "relative",
               }}
             >
-              <View
-                style={{
-                  position: "absolute",
-                  right: 0,
-                  top: 0,
-                  backgroundColor: COLORS.red,
-                  width: 20,
-                  height: 20,
-                  borderRadius: 20,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  zIndex: 1,
-                }}
-              >
-                <Text style={{ fontFamily: FONTS.bold, color: COLORS.white }}>
-                  9+
-                </Text>
-              </View>
+              {unread ? (
+                <View
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: 0,
+                    backgroundColor: COLORS.red,
+                    width: 20,
+                    height: 20,
+                    borderRadius: 20,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    zIndex: 1,
+                  }}
+                >
+                  <Text style={{ fontFamily: FONTS.bold, color: COLORS.white }}>
+                    {unread === 0 ? "" : unread <= 9 ? unread : "9+"}
+                  </Text>
+                </View>
+              ) : null}
               <Ionicons name="notifications-outline" size={24} color="black" />
             </TouchableOpacity>
           )}

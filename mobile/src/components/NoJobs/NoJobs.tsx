@@ -12,15 +12,11 @@ import { onImpact } from "@/src/utils";
 const NoJobs = () => {
   const { location } = useLocationStore();
   const { settings } = useSettingsStore();
-
   const filterBottomSheetRef = React.useRef<BottomSheetModal>(null);
 
   return (
     <>
-      <FilterBottomSheet
-        ref={filterBottomSheetRef}
-        onChangeValue={(value) => console.log({ value })}
-      />
+      <FilterBottomSheet ref={filterBottomSheetRef} />
 
       <View
         style={{

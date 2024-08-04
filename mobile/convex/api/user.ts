@@ -4,7 +4,7 @@ import { userArguments } from "../tables/user";
 import { Id } from "../_generated/dataModel";
 
 const asyncFunction = async <
-  T extends Id<"jobs" | "wishlists">,
+  T extends Id<"jobs" | "wishlists" | "notifications">,
   D extends { delete: (id: T) => void },
 >(
   id: T,
@@ -92,9 +92,14 @@ export const deleteUser = mutation({
 
       if (!!!user) return true;
       // delete related models
-      // 1. jobs, wishlist
+      // 1. jobs, wishlist, notifications
       const wishlist = await db
         .query("wishlists")
+        .filter((q) => q.eq(q.field("userId"), user._id))
+        .collect();
+
+      const notification = await db
+        .query("notifications")
         .filter((q) => q.eq(q.field("userId"), user._id))
         .collect();
 
@@ -102,9 +107,11 @@ export const deleteUser = mutation({
         .query("jobs")
         .filter((q) => q.eq(q.field("userId"), user._id))
         .collect();
-      const promises = [...wishlist, ...jobs].map(async ({ _id }: any) => {
-        return await asyncFunction(_id, db);
-      });
+      const promises = [...wishlist, ...jobs, ...notification].map(
+        async ({ _id }: any) => {
+          return await asyncFunction(_id, db);
+        }
+      );
       await Promise.all(promises);
 
       await db.insert("reasons", { reason });

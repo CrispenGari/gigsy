@@ -4,6 +4,7 @@ import { jobs } from "./tables/job";
 import { wishlists } from "./tables/whishlist";
 import { reasons } from "./tables/reason";
 import { feedbacks } from "./tables/feedback";
+import { notifications } from "./tables/notification";
 
 export default defineSchema(
   {
@@ -13,6 +14,7 @@ export default defineSchema(
     wishlists,
     reasons,
     feedbacks,
+    notifications,
   },
   { schemaValidation: true, strictTableNameTypes: true }
 );

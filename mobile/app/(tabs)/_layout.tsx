@@ -1,7 +1,7 @@
 import { api } from "@/convex/_generated/api";
 import HomeHeader from "@/src/components/HomeHeader/HomeHeader";
 import { COLORS, FONTS } from "@/src/constants";
-import { usePlatform } from "@/src/hooks";
+import { useMediaQuery } from "@/src/hooks";
 import { useCurrentLocation } from "@/src/hooks/useCurrentLocation";
 import { useCreateFormStore } from "@/src/store/createFormStore";
 import { useLocationStore } from "@/src/store/locationStore";
@@ -12,9 +12,11 @@ import { useQuery } from "convex/react";
 import { BlurView } from "expo-blur";
 import { Tabs } from "expo-router";
 import React from "react";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 const Layout = () => {
-  const { os } = usePlatform();
+  const {
+    dimension: { width },
+  } = useMediaQuery();
   const location = useCurrentLocation();
   const { update } = useLocationStore();
   const { setLocation } = useCreateFormStore();
@@ -23,7 +25,6 @@ const Layout = () => {
   const wishlists = useQuery(api.api.wishlist.getMyWishLists, {
     id: me?.id || "",
   });
-
   React.useEffect(() => {
     if (!!wishlists) {
       addAll(wishlists);
@@ -41,7 +42,8 @@ const Layout = () => {
       initialRouteName="create"
       screenOptions={{
         tabBarStyle: {
-          height: os === "ios" ? 100 : 80,
+          height:
+            width >= 600 ? 70 : Platform.select({ ios: 100, android: 80 }), //os === "ios" ? 100 : 80,
           backgroundColor: COLORS.transparent,
           position: "absolute",
           elevation: 0,
@@ -53,7 +55,7 @@ const Layout = () => {
         tabBarLabelStyle: {
           fontFamily: FONTS.bold,
           fontSize: 12,
-          marginTop: -10,
+          marginTop: width >= 600 ? 10 : -10,
           marginBottom: 10,
         },
         tabBarBackground: () => (
