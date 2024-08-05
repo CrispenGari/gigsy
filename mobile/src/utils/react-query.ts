@@ -1,3 +1,4 @@
+import { Id } from "@/convex/_generated/dataModel";
 import { ReactNativeFile } from "apollo-upload-client";
 export const verifyProfilePicture = async (variables: {
   pose: ReactNativeFile;
@@ -32,4 +33,27 @@ export const validateFace = async ({ face }: { face: ReactNativeFile }) => {
   return data as {
     valid: boolean;
   };
+};
+
+export const runSendMessageWithUpload = async ({
+  senderId,
+  chatId,
+  type,
+  text,
+  attachment,
+}: {
+  senderId: Id<"users">;
+  chatId: Id<"chats">;
+  text?: string;
+  type: "document" | "audio" | "image";
+  attachment: Blob;
+}) => {
+  const url = `${process.env.EXPO_PUBLIC_CONVEX_SITE}/attach-file?type=${encodeURIComponent(type)}&text=${encodeURIComponent(text || "")}&chatId=${encodeURIComponent(chatId)}&senderId=${encodeURIComponent(senderId)}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": attachment!.type },
+    body: attachment,
+  });
+  const _id = await res.json();
+  return _id as Id<"messages"> | null;
 };

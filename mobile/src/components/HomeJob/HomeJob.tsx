@@ -52,7 +52,6 @@ const HomeJob: React.FunctionComponent<HomeJobProps> = ({ _id }) => {
           borderColor: COLORS.gray,
           width: "100%",
           paddingBottom: 20,
-          maxWidth: 500,
         }}
         onPress={async () => {
           if (settings.haptics) {
@@ -226,7 +225,6 @@ export const SkeletonHomeJob = () => {
         borderColor: COLORS.gray,
         width: "100%",
         paddingBottom: 20,
-        maxWidth: 500,
       }}
     >
       <View

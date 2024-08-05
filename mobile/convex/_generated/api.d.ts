@@ -17,9 +17,11 @@ import type {
 import type * as api_chat from "../api/chat.js";
 import type * as api_feedback from "../api/feedback.js";
 import type * as api_job from "../api/job.js";
+import type * as api_message from "../api/message.js";
 import type * as api_notifications from "../api/notifications.js";
 import type * as api_user from "../api/user.js";
 import type * as api_wishlist from "../api/wishlist.js";
+import type * as http from "../http.js";
 import type * as tables_chat from "../tables/chat.js";
 import type * as tables_feedback from "../tables/feedback.js";
 import type * as tables_job from "../tables/job.js";
@@ -41,9 +43,11 @@ declare const fullApi: ApiFromModules<{
   "api/chat": typeof api_chat;
   "api/feedback": typeof api_feedback;
   "api/job": typeof api_job;
+  "api/message": typeof api_message;
   "api/notifications": typeof api_notifications;
   "api/user": typeof api_user;
   "api/wishlist": typeof api_wishlist;
+  http: typeof http;
   "tables/chat": typeof tables_chat;
   "tables/feedback": typeof tables_feedback;
   "tables/job": typeof tables_job;

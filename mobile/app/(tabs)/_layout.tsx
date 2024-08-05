@@ -22,6 +22,8 @@ const Layout = () => {
   const { setLocation } = useCreateFormStore();
   const { addAll } = useWishlistStore();
   const { me } = useMeStore();
+
+  const count = useQuery(api.api.message.count, { id: me?.id || "" });
   const wishlists = useQuery(api.api.wishlist.getMyWishLists, {
     id: me?.id || "",
   });
@@ -97,12 +99,19 @@ const Layout = () => {
         }}
       />
       <Tabs.Screen
-        name="messages"
+        name="chats"
         options={{
-          title: "Messages",
+          title: "Chats",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="chatbox-outline" color={color} size={size} />
           ),
+
+          tabBarBadge: !!!count ? undefined : count <= 9 ? count : "9+",
+          tabBarBadgeStyle: {
+            backgroundColor: COLORS.green,
+            fontFamily: FONTS.regular,
+            color: COLORS.white,
+          },
         }}
       />
       <Tabs.Screen

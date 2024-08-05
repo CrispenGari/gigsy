@@ -1,12 +1,13 @@
 import { defineTable } from "convex/server";
 import { v } from "convex/values";
 
-const messageArguments = {
+export const messageArguments = {
   senderId: v.id("users"),
   chatId: v.id("chats"),
   text: v.optional(v.string()),
-  image: v.optional(v.string()),
-  audio: v.optional(v.string()),
+  image: v.optional(v.id("_storage")),
+  audio: v.optional(v.id("_storage")),
+  document: v.optional(v.id("_storage")),
   seen: v.boolean(),
 };
 
@@ -14,4 +15,4 @@ export const messages = defineTable(messageArguments)
   .index("senderId", ["senderId"])
   .index("chatId", ["chatId"]);
 
-export type TChat = typeof messages;
+export type TMessage = typeof messages;

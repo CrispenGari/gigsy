@@ -34,6 +34,13 @@ export const IMAGES = {
   pose: require("@/assets/images/pose.jpg"),
 };
 
+export const WALLPAPERS = {
+  default: require("@/assets/images/wallpapers/default.png"),
+  primary: require("@/assets/images/wallpapers/primary.png"),
+  secondary: require("@/assets/images/wallpapers/secondary.png"),
+  tertiary: require("@/assets/images/wallpapers/tertiary.png"),
+};
+
 export const STORAGE_NAME = {
   CREATE_FORM: "create-form",
   ME: "user-me",
