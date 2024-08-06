@@ -9,6 +9,8 @@ export const messageArguments = {
   audio: v.optional(v.id("_storage")),
   document: v.optional(v.id("_storage")),
   seen: v.boolean(),
+  liked: v.optional(v.boolean()),
+  deletedFor: v.optional(v.array(v.id("users"))),
 };
 
 export const messages = defineTable(messageArguments)

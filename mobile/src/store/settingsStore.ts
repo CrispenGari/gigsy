@@ -1,5 +1,5 @@
 import { createJSONStorage, persist } from "zustand/middleware";
-import { STORAGE_NAME } from "../constants";
+import { STORAGE_NAME, WALLPAPERS } from "../constants";
 import { create } from "zustand";
 import * as Location from "expo-location";
 import { zustandStorage } from "./storage";
@@ -24,9 +24,11 @@ export type TSettings = {
   storage: TStorage;
   notifications: TNotification;
   location: TLocation;
+  wallpaper: keyof typeof WALLPAPERS;
 };
 
 const initialSettings: TSettings = {
+  wallpaper: "default",
   haptics: true,
   sound: true,
   storage: {

@@ -22,6 +22,14 @@ import JobDetailsBottomSheet from "../BottomSheets/JobDetailsBottomSheet";
 import ContentLoader from "../ContentLoader/ContentLoader";
 import HeaderBackButton from "../HeaderBackButton/HeaderBackButton";
 import { TJob } from "@/convex/tables/job";
+import {
+  Menu,
+  MenuTrigger,
+  MenuOptions,
+  MenuOption,
+  MenuTriggerProps,
+} from "react-native-popup-menu";
+import ChatOptionsBottomSheet from "../BottomSheets/ChatOptionsBottomSheet";
 
 type TUser = {
   _id: Id<"users">;
@@ -62,6 +70,7 @@ const ChatHeader = ({ chat }: { chat: TChat }) => {
   const { me } = useMeStore();
   const { settings } = useSettingsStore();
   const jobBottomSheet = React.useRef<BottomSheetModal>(null);
+  const chatOptionsBottomSheet = React.useRef<BottomSheetModal>(null);
   const router = useRouter();
 
   return (
@@ -83,8 +92,11 @@ const ChatHeader = ({ chat }: { chat: TChat }) => {
           alignItems: "center",
         }}
       >
-        {!!chat.jobId ? (
+        {!!chat?.jobId ? (
           <JobDetailsBottomSheet ref={jobBottomSheet} id={chat.jobId} />
+        ) : null}
+        {!!chat?._id ? (
+          <ChatOptionsBottomSheet _id={chat._id} ref={chatOptionsBottomSheet} />
         ) : null}
         <View
           style={{
@@ -172,13 +184,18 @@ const ChatHeader = ({ chat }: { chat: TChat }) => {
           >
             {chat?.advertiser?.id === me?.id
               ? "You Advertise this job."
-              : `${chat.advertiser?.firstName} ${chat.advertiser?.lastName} Advertise this job.`}
+              : `${chat?.advertiser?.firstName} ${chat?.advertiser?.lastName} Advertise this job.`}
             {" ● "}
             {dayjs(new Date(chat?.job?._creationTime)).fromNow()} ago
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={async () => {}}
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+            chatOptionsBottomSheet.current?.present();
+          }}
           style={{
             width: 40,
             height: 40,

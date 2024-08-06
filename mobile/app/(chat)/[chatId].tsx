@@ -13,7 +13,7 @@ import { useMeStore } from "@/src/store/meStore";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { Id } from "@/convex/_generated/dataModel";
 import { WebView } from "react-native-webview";
-import { COLORS, relativeTimeObject, WALLPAPERS } from "@/src/constants";
+import { COLORS, FONTS, relativeTimeObject, WALLPAPERS } from "@/src/constants";
 
 import { api } from "@/convex/_generated/api";
 import { useSettingsStore } from "@/src/store/settingsStore";
@@ -34,6 +34,8 @@ import { BlurView } from "expo-blur";
 import { runSendMessageWithUpload } from "@/src/utils/react-query";
 import Message from "@/src/components/Message/Message";
 import { useMediaQuery } from "@/src/hooks";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import WhatIsEnd2EndEncryptionBottomSheet from "@/src/components/BottomSheets/WhatIsEnd2EndEncryptionBottomSheet";
 dayjs.extend(relativeTime);
 dayjs.extend(updateLocal);
 dayjs.updateLocale("en", {
@@ -42,13 +44,14 @@ dayjs.updateLocale("en", {
 const PAGE_SIZE = 30;
 const Page = () => {
   const scrollViewRef = React.useRef<ScrollView>(null);
+  const end2EndEncryptionRef = React.useRef<BottomSheetModal>(null);
   const {
     dimension: { width },
   } = useMediaQuery();
   const { me } = useMeStore();
   const { chatId } = useLocalSearchParams<{ chatId: Id<"chats"> }>();
   const readMessagesMutation = useMutation(api.api.message.readMessages);
-  const { results, status, loadMore } = usePaginatedQuery(
+  const { results, status, loadMore, isLoading } = usePaginatedQuery(
     api.api.message.chatMessages,
     {
       chatId: chatId,
@@ -114,8 +117,8 @@ const Page = () => {
   };
 
   React.useLayoutEffect(() => {
-    scrollViewRef.current?.scrollToEnd({ animated: true });
-  }, []);
+    if (!isLoading) scrollViewRef.current?.scrollToEnd({ animated: true });
+  }, [isLoading]);
 
   React.useEffect(() => {
     if (!!me && !!chatId) {
@@ -129,8 +132,16 @@ const Page = () => {
           header: () => <ChatHeader chat={chat as any} />,
         }}
       />
+      <WhatIsEnd2EndEncryptionBottomSheet ref={end2EndEncryptionRef} />
 
-      <ImageBackground source={WALLPAPERS.primary} style={{ flex: 1 }}>
+      <ImageBackground
+        source={
+          settings.wallpaper
+            ? WALLPAPERS[settings.wallpaper]
+            : WALLPAPERS.primary
+        }
+        style={{ flex: 1 }}
+      >
         <ScrollView
           ref={scrollViewRef}
           style={{ flex: 1 }}
@@ -182,6 +193,34 @@ const Page = () => {
               <Ionicons name="refresh-outline" size={15} color={COLORS.gray} />
             </TouchableOpacity>
           ) : null}
+
+          <Text
+            style={{
+              fontFamily: FONTS.bold,
+              alignSelf: "center",
+              marginBottom: 10,
+              backgroundColor: COLORS.white,
+              padding: 10,
+              borderRadius: 999,
+              paddingVertical: 5,
+            }}
+          >
+            Your messages are end-to-end encrypted.{" "}
+            <Text
+              onPress={async () => {
+                if (settings.haptics) {
+                  await onImpact();
+                }
+                end2EndEncryptionRef.current?.present();
+              }}
+              style={{
+                color: COLORS.green,
+                textDecorationLine: "underline",
+              }}
+            >
+              Learn more?
+            </Text>
+          </Text>
         </ScrollView>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}

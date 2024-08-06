@@ -2,6 +2,24 @@ import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
 import { chatArguments } from "../tables/chat";
 import { paginationOptsValidator } from "convex/server";
+import { Id } from "../_generated/dataModel";
+
+const deleteMediaFromStorage = async <
+  T extends Id<"_storage">,
+  S extends {
+    delete: (_id: T) => void;
+    getUrl: (storageId: T) => Promise<string | null>;
+  },
+>(
+  _id: T,
+  storage: S
+): Promise<void> => {
+  return new Promise(async (resolve) => {
+    const url = await storage.getUrl(_id);
+    if (!!url) storage.delete(_id);
+    resolve();
+  });
+};
 
 export const createOrOpen = mutation({
   args: chatArguments,
@@ -54,17 +72,36 @@ export const get = query({
   },
 });
 
-// export const readAll = mutation({
-//   args: { _id: v.id("chats") },
-//   handler: async ({ db }, { _id }) => {
-//     try {
-//       await db.patch(_id, { se: true });
-//       return { success: true };
-//     } catch (error) {
-//       return { success: false };
-//     }
-//   },
-// });
+export const endChat = mutation({
+  args: { _id: v.id("chats") },
+  handler: async ({ db, storage }, { _id }) => {
+    try {
+      const messages = await db
+        .query("messages")
+        .filter((q) => q.eq(q.field("chatId"), _id))
+        .collect();
+      const _ids = messages
+        .map((msg) => {
+          if (msg.image) {
+            return msg.image;
+          }
+          if (msg.audio) return msg.audio;
+          if (msg.document) return msg.document;
+          return undefined;
+        })
+        .filter(Boolean) as Array<Id<"_storage">>;
+
+      const promises = _ids.map(async (_id) => {
+        return await deleteMediaFromStorage(_id, storage);
+      });
+      await Promise.all(promises);
+      await db.delete(_id);
+      return { success: true };
+    } catch (error) {
+      return { success: false };
+    }
+  },
+});
 
 export const deleteChat = mutation({
   args: { _id: v.id("chats") },

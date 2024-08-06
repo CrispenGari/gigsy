@@ -183,6 +183,22 @@ const Profile = () => {
             />
           }
         />
+        <SettingItem
+          onPress={async () => {
+            if (settings.haptics) {
+              await onImpact();
+            }
+            router.navigate("/(profile)/wallpaper");
+          }}
+          title="Chat Wallpaper"
+          Icon={
+            <Ionicons
+              name="color-filter-outline"
+              size={18}
+              color={COLORS.gray}
+            />
+          }
+        />
       </Card>
       <Text style={styles.headerText}>Support</Text>
       <Card

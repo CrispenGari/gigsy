@@ -19,7 +19,7 @@ import { onImpact } from "@/src/utils";
 import { api } from "@/convex/_generated/api";
 import * as Notifications from "expo-notifications";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
+import { MenuProvider } from "react-native-popup-menu";
 LogBox.ignoreLogs;
 LogBox.ignoreAllLogs();
 SplashScreen.preventAutoHideAsync();
@@ -51,13 +51,15 @@ const Layout = () => {
       <StatusBar barStyle={"dark-content"} />
       <GestureHandlerRootView>
         <BottomSheetModalProvider>
-          <ConvexProvider client={convex}>
-            <ClerkProvider>
-              <QueryClientProvider client={client}>
-                <RootLayout />
-              </QueryClientProvider>
-            </ClerkProvider>
-          </ConvexProvider>
+          <MenuProvider>
+            <ConvexProvider client={convex}>
+              <ClerkProvider>
+                <QueryClientProvider client={client}>
+                  <RootLayout />
+                </QueryClientProvider>
+              </ClerkProvider>
+            </ConvexProvider>
+          </MenuProvider>
         </BottomSheetModalProvider>
       </GestureHandlerRootView>
     </View>

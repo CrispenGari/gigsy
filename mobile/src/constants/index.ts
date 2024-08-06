@@ -36,6 +36,7 @@ export const IMAGES = {
 
 export const WALLPAPERS = {
   default: require("@/assets/images/wallpapers/default.png"),
+  dark: require("@/assets/images/wallpapers/dark.png"),
   primary: require("@/assets/images/wallpapers/primary.png"),
   secondary: require("@/assets/images/wallpapers/secondary.png"),
   tertiary: require("@/assets/images/wallpapers/tertiary.png"),

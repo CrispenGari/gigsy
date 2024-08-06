@@ -1,34 +1,26 @@
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import React from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { BlurView } from "expo-blur";
-import Animated from "react-native-reanimated";
-import { StyleSheet, TouchableOpacity, View, Text } from "react-native";
-import { Ionicons, MaterialIcons, Octicons } from "@expo/vector-icons";
-import { COLORS, FONTS } from "@/src/constants";
-import { RootSiblingParent } from "react-native-root-siblings";
-import { ImageZoom } from "@likashefqet/react-native-image-zoom";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import ImageInfoBottomSheet from "@/src/components/BottomSheets/ImageInfoBottomSheet";
-import { Id } from "@/convex/_generated/dataModel";
-import { usePlatform } from "@/src/hooks";
-import { onImpact, saveImageToLibrary, shareSomething } from "@/src/utils";
 import Spinner from "react-native-loading-spinner-overlay";
+import Animated from "react-native-reanimated";
+import { FONTS, COLORS } from "@/src/constants";
+import { onImpact, saveImageToLibrary, shareSomething } from "@/src/utils";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
+import { usePlatform } from "@/src/hooks";
+import { ImageZoom } from "@likashefqet/react-native-image-zoom";
+import { RootSiblingParent } from "react-native-root-siblings";
 import { useSettingsStore } from "@/src/store/settingsStore";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Page = () => {
+  const { uri } = useLocalSearchParams<{ uri: string }>();
   const { os } = usePlatform();
   const { settings } = useSettingsStore();
   const [state, setState] = React.useState({ loading: false });
-  const infoBottomSheet = React.useRef<BottomSheetModal>(null);
-  const [loaded, setLoaded] = React.useState(true);
-  const { uri, fullName, uid } = useLocalSearchParams<{
-    uri: string;
-    fullName: string;
-    uid: Id<"users">;
-  }>();
   const router = useRouter();
   const { bottom } = useSafeAreaInsets();
+  const [loaded, setLoaded] = React.useState(true);
   const share = async () => {
     if (settings.haptics) {
       await onImpact();
@@ -59,9 +51,8 @@ const Page = () => {
           headerShown: true,
           presentation: os === "ios" ? undefined : "transparentModal",
           headerShadowVisible: false,
-          headerTitle: fullName || "Profile Picture",
+          headerTitle: "Photo",
           headerTransparent: true,
-
           headerBackground: () => (
             <BlurView
               tint="dark"
@@ -96,14 +87,21 @@ const Page = () => {
       />
       <Spinner visible={state.loading || !loaded} animation="fade" />
       <RootSiblingParent>
-        {uid && <ImageInfoBottomSheet ref={infoBottomSheet} id={uid} />}
-
         <BlurView
           intensity={100}
           tint="dark"
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
           <ImageZoom
+            uri={uri}
+            minScale={0.7}
+            maxScale={5}
+            minPanPointers={1}
+            doubleTapScale={2}
+            isSingleTapEnabled
+            isDoubleTapEnabled
+            style={{ width: "100%", height: "100%" }}
+            resizeMode="cover"
             onError={(_error) => {
               setLoaded(true);
             }}
@@ -116,15 +114,6 @@ const Page = () => {
             onLoad={() => {
               setLoaded(true);
             }}
-            uri={uri}
-            minScale={0.7}
-            maxScale={5}
-            minPanPointers={1}
-            doubleTapScale={2}
-            isSingleTapEnabled
-            isDoubleTapEnabled
-            style={{ width: "100%", height: "100%" }}
-            resizeMode="cover"
           />
 
           <BlurView
@@ -170,24 +159,6 @@ const Page = () => {
                 />
                 <Text style={{ fontFamily: FONTS.bold, color: COLORS.red }}>
                   Report
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{ alignItems: "center" }}
-                onPress={async () => {
-                  if (settings.haptics) {
-                    await onImpact();
-                  }
-                  infoBottomSheet.current?.present();
-                }}
-              >
-                <MaterialIcons
-                  name="info-outline"
-                  size={24}
-                  color={COLORS.green}
-                />
-                <Text style={{ fontFamily: FONTS.bold, color: COLORS.green }}>
-                  Info
                 </Text>
               </TouchableOpacity>
             </View>

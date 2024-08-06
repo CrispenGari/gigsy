@@ -148,9 +148,9 @@ const Chat = ({ _id }: { _id: Id<"chats"> }) => {
               }}
               source={{
                 uri:
-                  me?.id === chat.user?.id
-                    ? chat.advertiser?.image
-                    : chat.user?.image,
+                  me?.id === chat?.user?.id
+                    ? chat?.advertiser?.image
+                    : chat?.user?.image,
               }}
               onError={(_error) => {
                 setLoaded(true);
@@ -174,8 +174,8 @@ const Chat = ({ _id }: { _id: Id<"chats"> }) => {
                 numberOfLines={1}
               >
                 <Text style={{ fontFamily: FONTS.bold }}>
-                  {chat.lastMessage?.senderId === user?._id
-                    ? "Your turn  ●"
+                  {chat.lastMessage?.senderId !== user?._id
+                    ? "Your turn  ● "
                     : ""}
                 </Text>
                 {dayjs(new Date(chat?.lastMessage?._creationTime!)).fromNow()}{" "}
