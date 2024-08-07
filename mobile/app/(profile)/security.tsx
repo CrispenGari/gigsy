@@ -234,8 +234,8 @@ const Security = () => {
               <Card
                 style={{
                   padding: 10,
-                  maxWidth: 400,
-                  alignSelf: "center",
+                  maxWidth: 500,
+                  alignSelf: "flex-start",
                   borderRadius: 5,
                   width: "100%",
                   paddingVertical: 15,
@@ -288,8 +288,8 @@ const Security = () => {
               <Card
                 style={{
                   padding: 10,
-                  maxWidth: 400,
-                  alignSelf: "center",
+                  maxWidth: 500,
+                  alignSelf: "flex-start",
                   borderRadius: 5,
                   width: "100%",
                   paddingVertical: 20,
@@ -467,7 +467,7 @@ const Security = () => {
             <Link
               asChild
               href={{
-                pathname: "(profile)/delete",
+                pathname: "/(profile)/delete",
               }}
             >
               <TouchableOpacity style={{ alignSelf: "center", marginTop: 100 }}>

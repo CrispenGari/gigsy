@@ -117,7 +117,6 @@ const Saved = () => {
               justifyContent: "center",
               alignItems: "center",
               height: 200,
-              maxWidth: 400,
               marginHorizontal: 10,
             }}
           >

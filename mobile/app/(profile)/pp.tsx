@@ -185,11 +185,11 @@ const styles = StyleSheet.create({
   },
   card: {
     padding: 10,
-    maxWidth: 400,
+    maxWidth: 500,
+    alignSelf: "flex-start",
     borderRadius: 5,
     width: "100%",
     paddingVertical: 20,
-    alignSelf: "center",
     marginBottom: 10,
   },
   sectionHeader: {

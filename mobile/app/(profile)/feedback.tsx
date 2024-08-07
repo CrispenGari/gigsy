@@ -137,8 +137,8 @@ const Page = () => {
             style={{
               fontFamily: FONTS.regular,
               marginBottom: 10,
-              maxWidth: 400,
-              alignSelf: "center",
+              maxWidth: 500,
+              alignSelf: "flex-start",
             }}
           >
             We value your opinion and would love to hear your thoughts about
@@ -150,11 +150,11 @@ const Page = () => {
             <Card
               style={{
                 padding: 10,
-                maxWidth: 400,
+                maxWidth: 500,
+                alignSelf: "flex-start",
                 borderRadius: 5,
                 width: "100%",
                 paddingVertical: 20,
-                alignSelf: "center",
               }}
             >
               <TextInput

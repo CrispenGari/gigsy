@@ -11,7 +11,7 @@ import { COLORS, FONTS } from "@/src/constants";
 import Chat, { SkeletonChat } from "@/src/components/Chat/Chat";
 import { Ionicons } from "@expo/vector-icons";
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 30;
 
 const Page = () => {
   const { isLoaded, isSignedIn } = useAuth();

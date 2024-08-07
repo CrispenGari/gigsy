@@ -190,11 +190,11 @@ const PersonalInformation = () => {
             <Card
               style={{
                 padding: 10,
-                maxWidth: 400,
+                maxWidth: 500,
                 borderRadius: 5,
                 width: "100%",
                 paddingVertical: 20,
-                alignSelf: "center",
+                alignSelf: "flex-start",
               }}
             >
               <AnimatedTouchableOpacity

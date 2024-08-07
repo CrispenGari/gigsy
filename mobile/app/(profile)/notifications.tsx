@@ -52,11 +52,11 @@ const Page = () => {
           <Card
             style={{
               padding: 10,
-              maxWidth: 400,
               borderRadius: 5,
               width: "100%",
               paddingVertical: 20,
-              alignSelf: "center",
+              maxWidth: 500,
+              alignSelf: "flex-start",
             }}
           >
             <TouchableOpacity
